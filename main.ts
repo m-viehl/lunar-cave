@@ -266,12 +266,13 @@ function unpause() {
 }
 
 function resized() {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
-    if (game !== undefined) {
-        game.reset();
+    if (window.innerWidth !== width || window.innerHeight < height || window.innerHeight > 1.2 * height) {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        if (game !== undefined)
+            game.reset();
     }
 }
 
