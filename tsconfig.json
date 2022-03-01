@@ -3,7 +3,7 @@
         "target": "es5",
         "sourceMap": true,
         "lib": [
-            "es5",
+            "es2016",
             "dom"
         ],
         "noUnusedLocals": true,
@@ -11,7 +11,6 @@
         "noImplicitAny": true,
         "removeComments": true,
         "strictNullChecks": true,
-        "strictPropertyInitialization": true
     },
     "files": [
         "main.ts"
