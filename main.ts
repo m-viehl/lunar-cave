@@ -21,7 +21,7 @@ class Game {
     cave: Cave;
 
     constructor() {
-        this.cave = new Cave(500 * scale, scale);
+        this.cave = new Cave(20 * scale, scale);
         this.lander = new Lander(0, 0);
         this.reset();
     }
@@ -30,15 +30,16 @@ class Game {
         this.lander.physics(dt);
         // collision
         let state = this.cave.update(this.lander);
-        console.log(state);
-
         switch (state) {
+            case "end":
+                console.log("END REACHED");
             case "wall":
                 this.reset();
         }
     }
 
     public reset() {
+        this.cave.reset();
         this.lander.x = this.cave.spawn.x;
         this.lander.y = this.cave.spawn.y;
         this.lander.vx = 0;

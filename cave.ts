@@ -1,12 +1,12 @@
 export type Point = { x: number, y: number };
 type Polar = { phi: number, r: number };
 
-type AnglePosition = "front" | "rear" | "inside" | "opposite";
-type ShipPosition = "front" | "rear" | "inside" | "wall";
+type AnglePosition = "before" | "after" | "inside" | "opposite";
+type ShipPosition = "before" | "after" | "inside" | "wall";
 export type ShipState = "alive" | "wall" | "end";
 
 function normalize(alpha: number) {
-    return (alpha + 4 * Math.PI) % (2 * Math.PI);
+    return (alpha + 8 * Math.PI) % (2 * Math.PI);
 }
 
 
@@ -82,38 +82,36 @@ class Segment {
         let B: number;
         let ccw = this.rotation_ccw;
         if (ccw) {
+            B = this.start_angle;
+            A = this.end_angle;
+        } else {
             A = this.start_angle;
             B = this.end_angle;
-        } else {
-            A = this.end_angle;
-            B = this.start_angle;
         }
-        if (in_angle_range(A, B, phi)) {
+        if (in_angle_range(B, A, phi)) {
             return "inside";
         }
         if (ccw) {
-            if (in_angle_range(B, B + Math.PI / 2, phi))
-                return "rear";
-            if (in_angle_range(A - Math.PI / 2, A, phi))
-                return "front";
+            if (in_angle_range(B - Math.PI / 2, B, phi))
+                return "before";
+            if (in_angle_range(A, A + Math.PI / 2, phi))
+                return "after";
             return "opposite"
         } else {
-            if (in_angle_range(B, B + Math.PI / 2, phi))
-                return "front";
-            if (in_angle_range(A - Math.PI / 2, A, phi))
-                return "rear";
+            if (in_angle_range(A, A + Math.PI / 2, phi))
+                return "before";
+            if (in_angle_range(B - Math.PI / 2, B, phi))
+                return "after";
             return "opposite"
         }
     }
 
     public get_point_position(p: Polar): ShipPosition {
         let pos = this.get_angle_position(p.phi)
-        console.log(pos);
         switch (pos) {
             case "inside":
                 let inner_r = this.inner_edge.r(p.phi);
                 let outer_r = this.outer_edge.r(p.phi);
-                console.log(`inner ${inner_r}, outer ${outer_r}`)
                 if (inner_r <= p.r && p.r <= outer_r)
                     return "inside";
                 else
@@ -121,7 +119,7 @@ class Segment {
             case "opposite":
                 throw new Error("oops");
             default:
-                // typescript is so cool! Only "front" and "rear" remain, which are valid ShipPositions :)
+                // typescript is so cool! Only "before" and "after" remain, which are valid ShipPositions :)
                 return pos;
         }
     }
@@ -164,7 +162,7 @@ class Edge {
             this.phi_A = segment.start_angle;
             this.phi_B = segment.end_angle;
         }
-        if (this.beta >= 2 * Math.PI)
+        if (this.beta >= Math.PI)
             throw new Error("oops");
 
         // calc length
@@ -177,7 +175,7 @@ class Edge {
             y: segment.center.y + Math.sin(segment.end_angle) * r_end
         }
         this.length = Math.hypot(this.start.x - this.end.x, this.start.y - this.end.y);
-        
+
         let A = segment.rotation_ccw ? this.end : this.start;
         let B = segment.rotation_ccw ? this.start : this.end;
 
@@ -189,7 +187,7 @@ class Edge {
             x: segment.center.x - B.x,
             y: segment.center.y - B.y
         }
-        this.gamma = Math.acos((ba.x * b0.x + ba.y * b0.y) / (Math.hypot(ba.x, ba.y) * Math.hypot(b0.x, b0.y)));
+        this.gamma = Math.acos(Math.abs(ba.x * b0.x + ba.y * b0.y) / (Math.hypot(ba.x, ba.y) * Math.hypot(b0.x, b0.y)));
     }
 
     public r(phi: number): number {
@@ -247,9 +245,32 @@ export class Cave {
             start_angle = Math.PI / 2;
         } else {
             // if prev exists, use its settings
-            start_inner_r = prev.inner_edge.r_start;
-            start_outer_r = prev.outer_edge.r_start;
-            start_angle = prev.start_angle;
+            if (prev.radius !== radius) {
+                // radius changed!
+                let delta_r_outer: number;
+                let delta_r_inner: number;
+                if (prev.rotation_ccw !== ccw) {
+                    // direction changed, flip outer and inner
+                    delta_r_outer = prev.radius - prev.inner_edge.r_end;
+                    delta_r_inner = prev.outer_edge.r_end - prev.radius;
+                } else {
+                    // direction didn't change, don't flip
+                    delta_r_outer = prev.outer_edge.r_end - prev.radius;
+                    delta_r_inner = prev.radius - prev.inner_edge.r_end;
+                }
+                start_inner_r = radius - delta_r_inner;
+                start_outer_r = radius + delta_r_outer;
+            } else {
+                // both radius and direction didn't change
+                start_inner_r = prev.inner_edge.r_end;
+                start_outer_r = prev.outer_edge.r_end;
+            }
+            if (prev.rotation_ccw !== ccw) {
+                // rotation direction changed! Flip start angle by 180°
+                start_angle = normalize(prev.end_angle + Math.PI);
+            } else {
+                start_angle = prev.end_angle;
+            }
         }
         // determine new segment's angle via arc length.
         let arc_length = random_range(this.min_segment_arc_length, this.max_segment_arc_length);
@@ -262,12 +283,6 @@ export class Cave {
     }
 
     constructor(arc_length: number, scale: number) {
-        this.segments.push(new Segment({x:100, y:100}, 50, Math.PI / 2, Math.PI/4, false, 40, 60, 30, 70));
-        this.current_segment = this.segments[0];
-        this.spawn = this.current_segment.centroid;
-    }
-
-    private constructorOLD(arc_length: number, scale: number) {
         this.min_segment_arc_length *= scale;
         this.max_segment_arc_length *= scale;
         this.min_cave_diameter *= scale;
@@ -276,9 +291,11 @@ export class Cave {
         this.max_radius *= scale;
 
         // construct segments
+        // SETTING: here are the starting segment settings
         let current_radius = random_range(this.min_radius, this.max_radius);
-        let current_center = { x: 0, y: 0 }; // SETTING: starting at 0,0
+        let current_center = { x: 0, y: 0 };
         let currently_ccw = false;
+
         let total_arc_length = 0;
         let enclosed_angle_of_current_center = 0;
         let target_enclosed_angle_of_current_center = random_range(this.min_angle_per_center, this.max_angle_per_center);
@@ -304,6 +321,9 @@ export class Cave {
                 let switch_center = enclosed_angle_of_current_center > target_enclosed_angle_of_current_center || may_go_backwards;
                 let switch_direction = may_go_backwards || Math.random() > .5; // only make it random if we don't have to.
                 if (switch_center) {
+                    console.log("switching center");
+                    if (switch_direction)
+                        console.log("    and switching direction")
                     enclosed_angle_of_current_center = 0;
                     target_enclosed_angle_of_current_center = random_range(this.min_angle_per_center, this.max_angle_per_center);
                     // move center.
@@ -332,6 +352,7 @@ export class Cave {
             this.segments.push(new_segment);
             if (last !== null) {
                 new_segment.prev = last;
+                last.next = new_segment;
             }
             enclosed_angle_of_current_center += new_segment.enclosed_angle;
             total_arc_length += new_segment.arc_length;
@@ -340,13 +361,17 @@ export class Cave {
         this.spawn = this.current_segment.centroid;
     }
 
+    public reset() {
+        this.current_segment = this.segments[0];
+    }
+
     public update(ship: Point): ShipState {
         let curr = this.current_segment;
         let pos = curr.get_point_position(curr.to_polar(ship));
         switch (pos) {
             case "wall":
                 return "wall";
-            case "front":
+            case "after":
                 if (curr.next !== null) {
                     this.current_segment = curr.next;
                     return "alive";
@@ -355,7 +380,7 @@ export class Cave {
                 }
             case "inside":
                 return "alive";
-            case "rear":
+            case "before":
                 if (curr.prev !== null) {
                     this.current_segment = curr.prev;
                     return "alive";
