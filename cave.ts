@@ -70,6 +70,7 @@ class Segment {
     }
 
     public to_polar(p: Point): Polar {
+        // returns the polar coordinates of p relative to this segment's center
         return {
             phi: Math.atan2(p.y - this.center.y, p.x - this.center.x),
             r: Math.hypot(p.x - this.center.x, p.y - this.center.y)
@@ -176,15 +177,26 @@ class Edge {
             y: segment.center.y + Math.sin(segment.end_angle) * r_end
         }
         this.length = Math.hypot(this.start.x - this.end.x, this.start.y - this.end.y);
+        
+        let A = segment.rotation_ccw ? this.end : this.start;
+        let B = segment.rotation_ccw ? this.start : this.end;
 
-        this.gamma = Math.asin(this.r_A / this.length * Math.sin(this.beta));
+        let ba = { // vector from B to A
+            x: A.x - B.x,
+            y: A.y - B.y
+        }
+        let b0 = { // vector from B to center
+            x: segment.center.x - B.x,
+            y: segment.center.y - B.y
+        }
+        this.gamma = Math.acos((ba.x * b0.x + ba.y * b0.y) / (Math.hypot(ba.x, ba.y) * Math.hypot(b0.x, b0.y)));
     }
 
     public r(phi: number): number {
         if (!in_angle_range(this.phi_B, this.phi_A, phi))
             throw new Error("phi not in segment!");
         let delta = Math.PI - this.gamma - angle_between(phi, this.phi_B);
-        return this.r_B * Math.sin(this.beta) / Math.sin(delta);
+        return this.r_B * Math.sin(this.gamma) / Math.sin(delta);
     }
 }
 
@@ -249,7 +261,7 @@ export class Cave {
             start_inner_r, start_outer_r, end_inner_r, end_outer_r);
     }
 
-    constructor (arc_length: number, scale: number) {
+    constructor(arc_length: number, scale: number) {
         this.segments.push(new Segment({x:100, y:100}, 50, Math.PI / 2, Math.PI/4, false, 40, 60, 30, 70));
         this.current_segment = this.segments[0];
         this.spawn = this.current_segment.centroid;
