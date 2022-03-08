@@ -66,7 +66,6 @@ class Segment {
             x: (this.inner_edge.start.x + this.inner_edge.end.x + this.outer_edge.start.x + this.outer_edge.end.x) / 4,
             y: (this.inner_edge.start.y + this.inner_edge.end.y + this.outer_edge.start.y + this.outer_edge.end.y) / 4,
         }
-        console.log(`creating Segment. Center: ${center.x}, ${center.y}. radius ${radius}. `)
     }
 
     public to_polar(p: Point): Polar {
@@ -218,12 +217,12 @@ export class Cave {
     min_angle_per_center = deg2rad(30);
     max_angle_per_center = deg2rad(120);
     // the following ones are multiplied by scale.
-    min_segment_arc_length = 1;
-    max_segment_arc_length = 10;
-    min_cave_diameter = 2;
-    max_cave_diameter = 8;
+    min_segment_arc_length = .5;
+    max_segment_arc_length = 5;
+    min_cave_diameter = 2.5;
+    max_cave_diameter = 20;
     min_radius = 10;
-    max_radius = 30;
+    max_radius = 40;
     // additional hardcoded settings are marked with the comment // SETTING
 
     private get_random_inner_outer_radius(current_radius: number): [number, number] {
@@ -321,10 +320,8 @@ export class Cave {
                 let switch_center = enclosed_angle_of_current_center > target_enclosed_angle_of_current_center || may_go_backwards;
                 let switch_direction = may_go_backwards || Math.random() > .5; // only make it random if we don't have to.
                 if (switch_center) {
-                    console.log("switching center");
                     if (switch_direction)
-                        console.log("    and switching direction")
-                    enclosed_angle_of_current_center = 0;
+                        enclosed_angle_of_current_center = 0;
                     target_enclosed_angle_of_current_center = random_range(this.min_angle_per_center, this.max_angle_per_center);
                     // move center.
                     let junction_point = {
@@ -359,6 +356,8 @@ export class Cave {
         }
         this.current_segment = this.segments[0];
         this.spawn = this.current_segment.centroid;
+
+        console.table(this.segments);
     }
 
     public reset() {
@@ -374,6 +373,7 @@ export class Cave {
             case "after":
                 if (curr.next !== null) {
                     this.current_segment = curr.next;
+                    console.log("entering segment of index " + this.segments.indexOf(this.current_segment));
                     return "alive";
                 } else {
                     return "end";
@@ -383,6 +383,7 @@ export class Cave {
             case "before":
                 if (curr.prev !== null) {
                     this.current_segment = curr.prev;
+                    console.log("entering segment of index " + this.segments.indexOf(this.current_segment));
                     return "alive";
                 } else {
                     return "wall"; // SETTING: start wall is currently closed.
@@ -392,7 +393,7 @@ export class Cave {
         }
     }
 
-    public draw(context: CanvasRenderingContext2D) {
+    public draw_production(context: CanvasRenderingContext2D) {
         // TODO don't draw segments out of screen!!!!
         {
             // close cave start
@@ -434,5 +435,33 @@ export class Cave {
             context.stroke();
         }
         // leave end open.
+    }
+
+    private draw_edge(context: CanvasRenderingContext2D, e: Edge, screen_a: Point, screen_b: Point) {
+        if (
+            e.start.x > screen_a.x &&
+            e.start.x < screen_b.x &&
+            e.start.y > screen_a.y &&
+            e.start.y < screen_b.y &&
+            e.end.x > screen_a.x &&
+            e.end.x < screen_b.x &&
+            e.end.y > screen_a.y &&
+            e.end.y < screen_b.y
+        ) {
+            context.beginPath();
+            context.moveTo(e.start.x, e.start.y);
+            context.lineTo(e.end.x, e.end.y);
+            context.stroke();
+        }
+    }
+
+    public draw(context: CanvasRenderingContext2D, screen_a: Point, screen_b: Point) {
+        // DEBUG VERSION
+        for (let segment of this.segments) {
+            context.lineWidth = 1.0;
+            this.draw_edge(context, segment.inner_edge, screen_a, screen_b);
+            context.lineWidth = 2.0;
+            this.draw_edge(context, segment.outer_edge, screen_a, screen_b);
+        }
     }
 }

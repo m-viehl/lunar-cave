@@ -21,8 +21,8 @@ class Game {
     cave: Cave;
 
     constructor() {
-        this.cave = new Cave(20 * scale, scale);
         this.lander = new Lander(0, 0);
+        this.new_cave();
         this.reset();
     }
 
@@ -30,12 +30,18 @@ class Game {
         this.lander.physics(dt);
         // collision
         let state = this.cave.update(this.lander);
+        if (state !== "alive")
+            console.log(state);
         switch (state) {
             case "end":
-                console.log("END REACHED");
+                this.new_cave();
             case "wall":
                 this.reset();
         }
+    }
+
+    private new_cave() {
+        this.cave = new Cave(30 * scale, scale);
     }
 
     public reset() {
@@ -77,13 +83,13 @@ class Game {
     }
 
     public draw() {
-        // context.translate(-this.lander.x + width / 2, -this.lander.y + height / 2);
-        this.cave.draw(context);
-        // context.resetTransform();
-        // context.translate(this.lander.x, this.lander.y);
-        // context.rotate(this.lander.angle);
-        context.fillRect(this.lander.x, this.lander.y, 1, 1); // TODO
-        //this.lander.draw();
+        context.translate(-this.lander.x + width / 2, -this.lander.y + height / 2);
+        this.cave.draw(context,
+            { x: this.lander.x - width / 2, y: this.lander.y - height / 2 },
+            { x: this.lander.x + width / 2, y: this.lander.y + height / 2 });
+        context.translate(this.lander.x, this.lander.y);
+        context.rotate(this.lander.angle);
+        this.lander.draw();
     }
 }
 
@@ -112,13 +118,13 @@ class Lander implements Point {
 
     public draw() {
         // draw body
-        context.strokeRect(-this.size / 2 + this.x, -this.size / 3 + this.y, this.size, this.size * 2 / 3);
+        context.strokeRect(-this.size / 2, -this.size / 3, this.size, this.size * 2 / 3);
         // draw thruster flame
         if (this.thrust > 0) {
             context.beginPath();
-            context.moveTo(-this.size / 3 + this.x, this.size / 3 + this.y);
-            context.lineTo(0 + this.x, this.size * (1 + 1 / 3) * this.thrust + this.y);
-            context.lineTo(+this.size / 3 + this.x, this.size / 3 + this.y);
+            context.moveTo(-this.size / 3, this.size / 3);
+            context.lineTo(0, this.size * (1 + 1 / 3) * this.thrust);
+            context.lineTo(+this.size / 3, this.size / 3);
             context.stroke();
         }
     }
