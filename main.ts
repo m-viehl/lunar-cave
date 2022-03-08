@@ -29,12 +29,17 @@ class Game {
     public logic(dt: number) {
         this.lander.physics(dt);
         // collision
-        let state = this.cave.update(this.lander);
-        switch (state) {
-            case "end":
-                this.new_cave();
-            case "wall":
-                this.reset();
+        for (let p of this.lander.collision_points) {
+            let state = this.cave.update(p); // TODO do update on this.lander.pos and use a specific collision_check method!
+            if (state === "alive")
+                continue;
+            switch (state) {
+                case "end":
+                    this.new_cave();
+                case "wall":
+                    this.reset();
+            }
+            break;
         }
     }
 
@@ -106,12 +111,15 @@ class Lander implements Point {
     readonly size = 1 * scale;
     readonly acc = 3 * g; // maximum thruster acceleration
     readonly rotation_speed = 180 /* degrees per second */ / 360 * 2 * Math.PI;
+    collision_points: Point[];
 
     constructor(x: number, y: number) {
         this.x = x;
         this.y = y;
         this.vx = 0;
         this.vy = 0;
+        this.collision_points = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }]
+        this.calc_collision_points();
     }
 
     public draw() {
@@ -140,6 +148,22 @@ class Lander implements Point {
         // apply velocities
         this.x += this.vx * dt;
         this.y += this.vy * dt;
+
+        this.calc_collision_points();
+    }
+
+    private calc_collision_points() {
+        this.collision_points[0].x = this.x + Math.cos(this.angle + 0.59) * this.size * 0.601;
+        this.collision_points[0].y = this.y + Math.sin(this.angle + 0.59) * this.size * 0.601;
+
+        this.collision_points[1].x = this.x + Math.cos(this.angle + 2.55) * this.size * 0.601;
+        this.collision_points[1].y = this.y + Math.sin(this.angle + 2.55) * this.size * 0.601;
+
+        this.collision_points[2].x = this.x + Math.cos(this.angle + 3.73) * this.size * 0.601;
+        this.collision_points[2].y = this.y + Math.sin(this.angle + 3.73) * this.size * 0.601;
+
+        this.collision_points[3].x = this.x + Math.cos(this.angle + 5.69) * this.size * 0.601;
+        this.collision_points[3].y = this.y + Math.sin(this.angle + 5.69) * this.size * 0.601;
     }
 }
 
