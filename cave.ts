@@ -34,6 +34,10 @@ function angle_between(phi: number, theta: number) {
     }
 }
 
+function angle_between_vectors(a: Point, b: Point) {
+    return Math.acos((a.x * b.x + a.y * b.y) / (Math.hypot(a.x, a.y) * Math.hypot(b.x, b.y)));
+}
+
 
 class Segment {
     center: Point; // center of the corresponding circle
@@ -111,10 +115,11 @@ class Segment {
             case "inside":
                 let inner_r = this.inner_edge.r(p.phi);
                 let outer_r = this.outer_edge.r(p.phi);
-                if (inner_r <= p.r && p.r <= outer_r)
+                if (inner_r <= p.r && p.r <= outer_r) {
                     return "inside";
-                else
+                } else {
                     return "wall";
+                }
             case "opposite":
                 throw new Error("oops");
             default:
@@ -139,7 +144,6 @@ class Edge {
     phi_B: number;
 
     gamma: number;
-    beta: number;
     length: number;
 
     start: Point;
@@ -149,7 +153,6 @@ class Edge {
         // give r_start and r_end without swapping for segment.rotation_ccw!
         this.r_start = r_start;
         this.r_end = r_end;
-        this.beta = segment.enclosed_angle;
         if (segment.rotation_ccw) {
             this.r_A = r_end;
             this.r_B = r_start;
@@ -161,8 +164,6 @@ class Edge {
             this.phi_A = segment.start_angle;
             this.phi_B = segment.end_angle;
         }
-        if (this.beta >= Math.PI)
-            throw new Error("oops");
 
         // calc length
         this.start = {
@@ -186,13 +187,14 @@ class Edge {
             x: segment.center.x - B.x,
             y: segment.center.y - B.y
         }
-        this.gamma = Math.acos(Math.abs(ba.x * b0.x + ba.y * b0.y) / (Math.hypot(ba.x, ba.y) * Math.hypot(b0.x, b0.y)));
+        this.gamma = angle_between_vectors(ba, b0);
     }
 
     public r(phi: number): number {
         if (!in_angle_range(this.phi_B, this.phi_A, phi))
             throw new Error("phi not in segment!");
-        let delta = Math.PI - this.gamma - angle_between(phi, this.phi_B);
+        let theta = angle_between(phi, this.phi_B);
+        let delta = Math.PI - this.gamma - theta;
         return this.r_B * Math.sin(this.gamma) / Math.sin(delta);
     }
 }
@@ -307,14 +309,17 @@ export class Cave {
             if (last !== null) {
                 // determine whether to switch the current center.
                 let may_go_backwards = false;
-                let max_segment_angle = this.max_segment_arc_length / current_radius;
-                if (last.rotation_ccw) {
-                    let direction = normalize(last.end_angle + Math.PI / 2);
-                    if (direction + max_segment_angle > Math.PI / 2)
-                        may_go_backwards = true;
-                } else {
-                    let direction = normalize(last.end_angle - Math.PI / 2);
-                    if (direction - max_segment_angle < Math.PI * 3 / 2)
+                {
+                    let max_segment_angle = this.max_segment_arc_length / current_radius;
+                    let worst: number;
+                    if (last.rotation_ccw) {
+                        let direction = normalize(last.end_angle + Math.PI / 2);
+                        worst = normalize(direction + max_segment_angle);
+                    } else { 
+                        let direction = normalize(last.end_angle - Math.PI / 2);
+                        worst = normalize(direction + max_segment_angle);
+                    }
+                    if (!in_angle_range(3 / 2 * Math.PI, Math.PI / 2, worst))
                         may_go_backwards = true;
                 }
                 let switch_center = enclosed_angle_of_current_center > target_enclosed_angle_of_current_center || may_go_backwards;
@@ -356,8 +361,6 @@ export class Cave {
         }
         this.current_segment = this.segments[0];
         this.spawn = this.current_segment.centroid;
-
-        console.table(this.segments);
     }
 
     public reset() {
@@ -373,7 +376,6 @@ export class Cave {
             case "after":
                 if (curr.next !== null) {
                     this.current_segment = curr.next;
-                    console.log("entering segment of index " + this.segments.indexOf(this.current_segment));
                     return "alive";
                 } else {
                     return "end";
@@ -383,7 +385,6 @@ export class Cave {
             case "before":
                 if (curr.prev !== null) {
                     this.current_segment = curr.prev;
-                    console.log("entering segment of index " + this.segments.indexOf(this.current_segment));
                     return "alive";
                 } else {
                     return "wall"; // SETTING: start wall is currently closed.
@@ -393,6 +394,7 @@ export class Cave {
         }
     }
 
+    // currently unused
     public draw_production(context: CanvasRenderingContext2D) {
         // TODO don't draw segments out of screen!!!!
         {
@@ -439,14 +441,17 @@ export class Cave {
 
     private draw_edge(context: CanvasRenderingContext2D, e: Edge, screen_a: Point, screen_b: Point) {
         if (
-            e.start.x > screen_a.x &&
-            e.start.x < screen_b.x &&
-            e.start.y > screen_a.y &&
-            e.start.y < screen_b.y &&
-            e.end.x > screen_a.x &&
-            e.end.x < screen_b.x &&
-            e.end.y > screen_a.y &&
-            e.end.y < screen_b.y
+            (
+                e.start.x > screen_a.x &&
+                e.start.x < screen_b.x &&
+                e.start.y > screen_a.y &&
+                e.start.y < screen_b.y
+            ) || (
+                e.end.x > screen_a.x &&
+                e.end.x < screen_b.x &&
+                e.end.y > screen_a.y &&
+                e.end.y < screen_b.y
+            )
         ) {
             context.beginPath();
             context.moveTo(e.start.x, e.start.y);
@@ -455,13 +460,28 @@ export class Cave {
         }
     }
 
-    public draw(context: CanvasRenderingContext2D, screen_a: Point, screen_b: Point) {
-        // DEBUG VERSION
+    public draw(context: CanvasRenderingContext2D, screen_a: Point, screen_b: Point, ship?: Point) {
         for (let segment of this.segments) {
-            context.lineWidth = 1.0;
             this.draw_edge(context, segment.inner_edge, screen_a, screen_b);
-            context.lineWidth = 2.0;
             this.draw_edge(context, segment.outer_edge, screen_a, screen_b);
+
+            // draw inner/outer segment radius in red (for collision detection)
+            if (ship !== undefined && segment === this.current_segment) {
+                let ship_polar = segment.to_polar(ship);
+                let inner_r = segment.inner_edge.r(ship_polar.phi);
+                let outer_r = segment.outer_edge.r(ship_polar.phi);
+                context.fillStyle = "#ff0000";
+                context.fillRect(
+                    segment.center.x + outer_r * Math.cos(ship_polar.phi) - 1,
+                    segment.center.y + outer_r * Math.sin(ship_polar.phi) - 1,
+                    3, 3
+                );
+                context.fillRect(
+                    segment.center.x + inner_r * Math.cos(ship_polar.phi) - 1,
+                    segment.center.y + inner_r * Math.sin(ship_polar.phi) - 1,
+                    3, 3
+                );
+            }
         }
     }
 }

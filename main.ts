@@ -30,8 +30,6 @@ class Game {
         this.lander.physics(dt);
         // collision
         let state = this.cave.update(this.lander);
-        if (state !== "alive")
-            console.log(state);
         switch (state) {
             case "end":
                 this.new_cave();
@@ -41,7 +39,7 @@ class Game {
     }
 
     private new_cave() {
-        this.cave = new Cave(30 * scale, scale);
+        this.cave = new Cave(2000 * scale, scale);
     }
 
     public reset() {
