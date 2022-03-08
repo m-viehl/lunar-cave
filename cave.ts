@@ -315,7 +315,7 @@ export class Cave {
                     if (last.rotation_ccw) {
                         let direction = normalize(last.end_angle + Math.PI / 2);
                         worst = normalize(direction + max_segment_angle);
-                    } else { 
+                    } else {
                         let direction = normalize(last.end_angle - Math.PI / 2);
                         worst = normalize(direction + max_segment_angle);
                     }
@@ -367,28 +367,56 @@ export class Cave {
         this.current_segment = this.segments[0];
     }
 
-    public update(ship: Point): ShipState {
+    public check_collision(p: Point, update_current_segment = false): ShipState {
+        // performs a collision check and updates current_segment
+        // call regularly with current ship position
         let curr = this.current_segment;
-        let pos = curr.get_point_position(curr.to_polar(ship));
+        let pos = curr.get_point_position(curr.to_polar(p));
         switch (pos) {
             case "wall":
                 return "wall";
             case "after":
-                if (curr.next !== null) {
-                    this.current_segment = curr.next;
-                    return "alive";
-                } else {
-                    return "end";
+                while (curr.next !== null) {
+                    if (update_current_segment) {
+                        this.current_segment = curr.next;
+                        return "alive";
+                    } else {
+                        curr = curr.next;
+                        let pos_next = curr.get_point_position(curr.to_polar(p));
+                        switch (pos_next) {
+                            case "inside":
+                                return "alive";
+                            case "wall":
+                                return "wall";
+                            case "before":
+                                throw new Error("oops");
+                        }
+                        // it's "after", so continue with next segment
+                    }
                 }
+                return "end";
             case "inside":
                 return "alive";
             case "before":
-                if (curr.prev !== null) {
-                    this.current_segment = curr.prev;
-                    return "alive";
-                } else {
-                    return "wall"; // SETTING: start wall is currently closed.
+                while (curr.prev !== null) {
+                    if (update_current_segment) {
+                        this.current_segment = curr.prev;
+                        return "alive";
+                    } else {
+                        curr = curr.prev;
+                        let pos_next = curr.get_point_position(curr.to_polar(p));
+                        switch (pos_next) {
+                            case "inside":
+                                return "alive";
+                            case "wall":
+                                return "wall";
+                            case "after":
+                                throw new Error("oops");
+                        }
+                        // it's "before", so continue with previous segment
+                    }
                 }
+                return "wall"; // start is wall.
             default:
                 throw new Error("oops");
         }
@@ -460,7 +488,7 @@ export class Cave {
         }
     }
 
-    public draw(context: CanvasRenderingContext2D, screen_a: Point, screen_b: Point, ship?: Point) {
+    public draw(context: CanvasRenderingContext2D, screen_a: Point, screen_b: Point, ship?: Point, highlight_current = false) {
         for (let segment of this.segments) {
             this.draw_edge(context, segment.inner_edge, screen_a, screen_b);
             this.draw_edge(context, segment.outer_edge, screen_a, screen_b);
@@ -481,6 +509,16 @@ export class Cave {
                     segment.center.y + inner_r * Math.sin(ship_polar.phi) - 1,
                     3, 3
                 );
+            }
+            // highlight current segment
+            if (highlight_current && segment === this.current_segment) {
+                context.fillStyle = "#EEEEEE";
+                context.beginPath();
+                context.moveTo(segment.inner_edge.start.x, segment.inner_edge.start.y);
+                context.lineTo(segment.inner_edge.end.x, segment.inner_edge.end.y);
+                context.lineTo(segment.outer_edge.end.x, segment.outer_edge.end.y);
+                context.lineTo(segment.outer_edge.start.x, segment.outer_edge.start.y);
+                context.fill();
             }
         }
     }

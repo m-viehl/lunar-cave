@@ -29,8 +29,16 @@ class Game {
     public logic(dt: number) {
         this.lander.physics(dt);
         // collision
+        let state = this.cave.check_collision(this.lander, true);
+        switch (state) {
+            case "end":
+                this.new_cave();
+            case "wall":
+                this.reset();
+                return;
+        }
         for (let p of this.lander.collision_points) {
-            let state = this.cave.update(p); // TODO do update on this.lander.pos and use a specific collision_check method!
+            let state = this.cave.check_collision(p);
             if (state === "alive")
                 continue;
             switch (state) {
@@ -39,7 +47,7 @@ class Game {
                 case "wall":
                     this.reset();
             }
-            break;
+            return;
         }
     }
 
