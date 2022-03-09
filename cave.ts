@@ -225,6 +225,7 @@ export class Cave {
     max_cave_diameter = 20;
     min_radius = 10;
     max_radius = 40;
+    min_start_arc_length = 2;
     // additional hardcoded settings are marked with the comment // SETTING
 
     private get_random_inner_outer_radius(current_radius: number): [number, number] {
@@ -243,7 +244,7 @@ export class Cave {
             [start_inner_r, start_outer_r] = this.get_random_inner_outer_radius(radius);
             // SETTING
             // start to the right
-            start_angle = Math.PI / 2;
+            start_angle = ccw ? 3 * Math.PI / 2 : Math.PI / 2;
         } else {
             // if prev exists, use its settings
             if (prev.radius !== radius) {
@@ -275,6 +276,10 @@ export class Cave {
         }
         // determine new segment's angle via arc length.
         let arc_length = random_range(this.min_segment_arc_length, this.max_segment_arc_length);
+        if (prev === null) {
+            // first segment must be thick enough to not get stuck.
+            arc_length = Math.max(arc_length, this.min_start_arc_length);
+        }
         let angle_delta = arc_length / radius * (ccw ? +1 : -1);
 
         let [end_inner_r, end_outer_r] = this.get_random_inner_outer_radius(radius);
@@ -290,12 +295,13 @@ export class Cave {
         this.max_cave_diameter *= scale;
         this.min_radius *= scale;
         this.max_radius *= scale;
+        this.min_start_arc_length *= scale;
 
         // construct segments
         // SETTING: here are the starting segment settings
         let current_radius = random_range(this.min_radius, this.max_radius);
         let current_center = { x: 0, y: 0 };
-        let currently_ccw = false;
+        let currently_ccw = Math.random() > 0.5;
 
         let total_arc_length = 0;
         let enclosed_angle_of_current_center = 0;

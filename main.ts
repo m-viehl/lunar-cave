@@ -52,7 +52,7 @@ class Game {
     }
 
     private new_cave() {
-        this.cave = new Cave(2000 * scale, scale);
+        this.cave = new Cave(100 * scale, scale);
     }
 
     public reset() {
