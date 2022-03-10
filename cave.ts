@@ -1,9 +1,25 @@
 export type Point = { x: number, y: number };
 type Polar = { phi: number, r: number };
 
-type AnglePosition = "before" | "after" | "inside" | "opposite";
-type ShipPosition = "before" | "after" | "inside" | "wall";
-export type ShipState = "alive" | "wall" | "end";
+enum AnglePosition {
+    before,
+    after,
+    inside,
+    opposite
+}
+
+enum ShipPosition {
+    before,
+    after,
+    inside,
+    wall
+}
+
+export enum ShipState {
+    alive,
+    wall,
+    end
+}
 
 function normalize(alpha: number) {
     return (alpha + 8 * Math.PI) % (2 * Math.PI);
@@ -92,39 +108,40 @@ class Segment {
             B = this.end_angle;
         }
         if (in_angle_range(B, A, phi)) {
-            return "inside";
+            return AnglePosition.inside;
         }
         if (ccw) {
             if (in_angle_range(B - Math.PI / 2, B, phi))
-                return "before";
+                return AnglePosition.before;
             if (in_angle_range(A, A + Math.PI / 2, phi))
-                return "after";
-            return "opposite"
+                return AnglePosition.after;
+            return AnglePosition.opposite
         } else {
             if (in_angle_range(A, A + Math.PI / 2, phi))
-                return "before";
+                return AnglePosition.before;
             if (in_angle_range(B - Math.PI / 2, B, phi))
-                return "after";
-            return "opposite"
+                return AnglePosition.after;
+            return AnglePosition.opposite
         }
     }
 
     public get_point_position(p: Polar): ShipPosition {
         let pos = this.get_angle_position(p.phi)
         switch (pos) {
-            case "inside":
+            case AnglePosition.inside:
                 let inner_r = this.inner_edge.r(p.phi);
                 let outer_r = this.outer_edge.r(p.phi);
                 if (inner_r <= p.r && p.r <= outer_r) {
-                    return "inside";
+                    return ShipPosition.inside;
                 } else {
-                    return "wall";
+                    return ShipPosition.wall;
                 }
-            case "opposite":
+            case AnglePosition.opposite:
                 throw new Error("oops");
-            default:
-                // typescript is so cool! Only "before" and "after" remain, which are valid ShipPositions :)
-                return pos;
+            case AnglePosition.after:
+                return ShipPosition.after;
+            case AnglePosition.before:
+                return ShipPosition.before;
         }
     }
 }
@@ -379,50 +396,50 @@ export class Cave {
         let curr = this.current_segment;
         let pos = curr.get_point_position(curr.to_polar(p));
         switch (pos) {
-            case "wall":
-                return "wall";
-            case "after":
+            case ShipPosition.wall:
+                return ShipState.wall;
+            case ShipPosition.after:
                 while (curr.next !== null) {
                     if (update_current_segment) {
                         this.current_segment = curr.next;
-                        return "alive";
+                        return ShipState.alive;
                     } else {
                         curr = curr.next;
                         let pos_next = curr.get_point_position(curr.to_polar(p));
                         switch (pos_next) {
-                            case "inside":
-                                return "alive";
-                            case "wall":
-                                return "wall";
-                            case "before":
+                            case ShipPosition.inside:
+                                return ShipState.alive;
+                            case ShipPosition.wall:
+                                return ShipState.wall;
+                            case ShipPosition.before:
                                 throw new Error("oops");
                         }
                         // it's "after", so continue with next segment
                     }
                 }
-                return "end";
-            case "inside":
-                return "alive";
-            case "before":
+                return ShipState.end;
+            case ShipPosition.inside:
+                return ShipState.alive;
+            case ShipPosition.before:
                 while (curr.prev !== null) {
                     if (update_current_segment) {
                         this.current_segment = curr.prev;
-                        return "alive";
+                        return ShipState.alive;
                     } else {
                         curr = curr.prev;
                         let pos_next = curr.get_point_position(curr.to_polar(p));
                         switch (pos_next) {
-                            case "inside":
-                                return "alive";
-                            case "wall":
-                                return "wall";
-                            case "after":
+                            case ShipPosition.inside:
+                                return ShipState.alive;
+                            case ShipPosition.wall:
+                                return ShipState.wall;
+                            case ShipPosition.after:
                                 throw new Error("oops");
                         }
                         // it's "before", so continue with previous segment
                     }
                 }
-                return "wall"; // start is wall.
+                return ShipState.wall; // start is wall.
             default:
                 throw new Error("oops");
         }

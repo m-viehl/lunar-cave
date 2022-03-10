@@ -1,4 +1,4 @@
-import { Cave, Point } from "./cave.js"
+import { Cave, Point, ShipState } from "./cave.js"
 
 // public variables
 var canvas: HTMLCanvasElement;
@@ -31,20 +31,20 @@ class Game {
         // collision
         let state = this.cave.check_collision(this.lander, true);
         switch (state) {
-            case "end":
+            case ShipState.end:
                 this.new_cave();
-            case "wall":
+            case ShipState.wall:
                 this.reset();
                 return;
         }
         for (let p of this.lander.collision_points) {
             let state = this.cave.check_collision(p);
-            if (state === "alive")
-                continue;
             switch (state) {
-                case "end":
+                case ShipState.alive:
+                    continue;
+                case ShipState.end:
                     this.new_cave();
-                case "wall":
+                case ShipState.wall:
                     this.reset();
             }
             return;
