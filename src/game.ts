@@ -52,7 +52,7 @@ class Game {
     }
 
     private new_cave() {
-        this.cave = new Cave(100 * scale, scale);
+        this.cave = new Cave(500 * scale, scale);
     }
 
     public reset() {
@@ -224,7 +224,7 @@ function resized() {
     }
 }
 
-export function main() {
+function main() {
     document.body.removeChild(document.getElementById("noscript-text")!);
     canvas = document.getElementById("canvas") as HTMLCanvasElement;
     context = canvas.getContext("2d")!
@@ -239,3 +239,5 @@ export function main() {
     window.addEventListener("keyup", (e) => game.keyup(e));
     // loop is started when a key is pressed
 }
+
+main();
