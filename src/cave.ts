@@ -25,7 +25,6 @@ function normalize(alpha: number) {
     return (alpha + 8 * Math.PI) % (2 * Math.PI);
 }
 
-
 function in_angle_range(start: number, end: number, phi: number) {
     // angle range is defined counter-clockwise from start to end (possibly going over zero).
     start = normalize(start);
@@ -54,6 +53,16 @@ function angle_between_vectors(a: Point, b: Point) {
     return Math.acos((a.x * b.x + a.y * b.y) / (Math.hypot(a.x, a.y) * Math.hypot(b.x, b.y)));
 }
 
+function deg2rad(deg: number) {
+    return deg / 360 * 2 * Math.PI;
+}
+
+function random_range(min: number, max: number, int = false) {
+    let r = min + Math.random() * (max - min);
+    if (int)
+        return Math.trunc(r)
+    return r
+}
 
 class Segment {
     center: Point; // center of the corresponding circle
@@ -216,19 +225,15 @@ class Edge {
     }
 }
 
-function deg2rad(deg: number) {
-    return deg / 360 * 2 * Math.PI;
+interface Line {
+    start: Point,
+    end: Point
 }
 
-function random_range(min: number, max: number, int = false) {
-    let r = min + Math.random() * (max - min);
-    if (int)
-        return Math.trunc(r)
-    return r
-}
 
 export class Cave {
     segments: Segment[] = [];
+    lines: Line[] = [];
     current_segment: Segment;
     spawn: Point;
 
@@ -375,6 +380,8 @@ export class Cave {
             }
             let new_segment = this.next_segment(current_radius, current_center, currently_ccw, last);
             this.segments.push(new_segment);
+            this.lines.push(new_segment.inner_edge);
+            this.lines.push(new_segment.outer_edge);
             if (last !== null) {
                 new_segment.prev = last;
                 last.next = new_segment;
@@ -382,6 +389,16 @@ export class Cave {
             enclosed_angle_of_current_center += new_segment.enclosed_angle;
             total_arc_length += new_segment.arc_length;
         }
+        // add closing and opening line
+        this.lines.push({
+            start: this.segments[0].inner_edge.start,
+            end: this.segments[0].outer_edge.start
+        });
+        this.lines.push({
+            start: this.segments[this.segments.length - 1].inner_edge.start,
+            end: this.segments[this.segments.length - 1].outer_edge.start
+        });
+
         this.current_segment = this.segments[0];
         this.spawn = this.current_segment.centroid;
     }
@@ -445,104 +462,59 @@ export class Cave {
         }
     }
 
-    // currently unused
-    public draw_production(context: CanvasRenderingContext2D) {
-        // TODO don't draw segments out of screen!!!!
-        {
-            // close cave start
-            context.beginPath();
-            let a = this.segments[0].outer_edge.start;
-            let b = this.segments[0].inner_edge.start;
-            context.moveTo(a.x, a.y);
-            context.lineTo(b.x, b.y);
-            context.stroke();
-        }
-        {
-            // draw upper side. SETTING this relies on the fact that the first segment is always clockwise!
-            context.beginPath();
-            let start = this.segments[0].outer_edge.start;
-            context.moveTo(start.x, start.y);
-            for (let segment of this.segments) {
-                let next: Point;
-                if (segment.rotation_ccw)
-                    next = segment.inner_edge.end;
-                else
-                    next = segment.outer_edge.end;
-                context.lineTo(next.x, next.y);
-            }
-            context.stroke();
-        }
-        {
-            // now draw lower side.
-            context.beginPath();
-            let start = this.segments[0].inner_edge.start;
-            context.moveTo(start.x, start.y);
-            for (let segment of this.segments) {
-                let next: Point;
-                if (segment.rotation_ccw)
-                    next = segment.outer_edge.end;
-                else
-                    next = segment.inner_edge.end;
-                context.lineTo(next.x, next.y);
-            }
-            context.stroke();
-        }
-        // leave end open.
-    }
-
-    private draw_edge(context: CanvasRenderingContext2D, e: Edge, screen_a: Point, screen_b: Point) {
+    private draw_line(context: CanvasRenderingContext2D, l: Line, screen_a: Point, screen_b: Point) {
+        // draws the line if it is on screen
         if (
             (
-                e.start.x > screen_a.x &&
-                e.start.x < screen_b.x &&
-                e.start.y > screen_a.y &&
-                e.start.y < screen_b.y
+                l.start.x > screen_a.x &&
+                l.start.x < screen_b.x &&
+                l.start.y > screen_a.y &&
+                l.start.y < screen_b.y
             ) || (
-                e.end.x > screen_a.x &&
-                e.end.x < screen_b.x &&
-                e.end.y > screen_a.y &&
-                e.end.y < screen_b.y
+                l.end.x > screen_a.x &&
+                l.end.x < screen_b.x &&
+                l.end.y > screen_a.y &&
+                l.end.y < screen_b.y
             )
         ) {
             context.beginPath();
-            context.moveTo(e.start.x, e.start.y);
-            context.lineTo(e.end.x, e.end.y);
+            context.moveTo(l.start.x, l.start.y);
+            context.lineTo(l.end.x, l.end.y);
             context.stroke();
         }
     }
 
     public draw(context: CanvasRenderingContext2D, screen_a: Point, screen_b: Point, ship?: Point, highlight_current = false) {
-        for (let segment of this.segments) {
-            this.draw_edge(context, segment.inner_edge, screen_a, screen_b);
-            this.draw_edge(context, segment.outer_edge, screen_a, screen_b);
+        for (let line of this.lines) {
+            this.draw_line(context, line, screen_a, screen_b);
+        }
 
-            // draw inner/outer segment radius in red (for collision detection)
-            if (ship !== undefined && segment === this.current_segment) {
-                let ship_polar = segment.to_polar(ship);
-                let inner_r = segment.inner_edge.r(ship_polar.phi);
-                let outer_r = segment.outer_edge.r(ship_polar.phi);
-                context.fillStyle = "#ff0000";
-                context.fillRect(
-                    segment.center.x + outer_r * Math.cos(ship_polar.phi) - 1,
-                    segment.center.y + outer_r * Math.sin(ship_polar.phi) - 1,
-                    3, 3
-                );
-                context.fillRect(
-                    segment.center.x + inner_r * Math.cos(ship_polar.phi) - 1,
-                    segment.center.y + inner_r * Math.sin(ship_polar.phi) - 1,
-                    3, 3
-                );
-            }
-            // highlight current segment
-            if (highlight_current && segment === this.current_segment) {
-                context.fillStyle = "#EEEEEE";
-                context.beginPath();
-                context.moveTo(segment.inner_edge.start.x, segment.inner_edge.start.y);
-                context.lineTo(segment.inner_edge.end.x, segment.inner_edge.end.y);
-                context.lineTo(segment.outer_edge.end.x, segment.outer_edge.end.y);
-                context.lineTo(segment.outer_edge.start.x, segment.outer_edge.start.y);
-                context.fill();
-            }
+        // draw inner/outer segment radius in red (for collision detection)
+        if (ship !== undefined) {
+            let ship_polar = this.current_segment.to_polar(ship);
+            let inner_r = this.current_segment.inner_edge.r(ship_polar.phi);
+            let outer_r = this.current_segment.outer_edge.r(ship_polar.phi);
+            context.fillStyle = "#ff0000";
+            context.fillRect(
+                this.current_segment.center.x + outer_r * Math.cos(ship_polar.phi) - 1,
+                this.current_segment.center.y + outer_r * Math.sin(ship_polar.phi) - 1,
+                3, 3
+            );
+            context.fillRect(
+                this.current_segment.center.x + inner_r * Math.cos(ship_polar.phi) - 1,
+                this.current_segment.center.y + inner_r * Math.sin(ship_polar.phi) - 1,
+                3, 3
+            );
+        }
+        // highlight current segment
+        if (highlight_current) {
+            context.fillStyle = "#EEEEEE";
+            context.beginPath();
+            context.moveTo(this.current_segment.inner_edge.start.x, this.current_segment.inner_edge.start.y);
+            context.lineTo(this.current_segment.inner_edge.end.x, this.current_segment.inner_edge.end.y);
+            context.lineTo(this.current_segment.outer_edge.end.x, this.current_segment.outer_edge.end.y);
+            context.lineTo(this.current_segment.outer_edge.start.x, this.current_segment.outer_edge.start.y);
+            context.fill();
         }
     }
 }
