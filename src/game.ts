@@ -64,20 +64,23 @@ class Game {
     }
 
     private key(e: KeyboardEvent, down: boolean) {
-        if (down) {
-            unpause();
-        }
         switch (e.code) {
             case "KeyW":
             case "ArrowUp":
+                if (down)
+                    unpause();
                 this.lander.thrust = down;
                 break;
             case "KeyA":
             case "ArrowLeft":
+                if (down)
+                    unpause();
                 this.lander.rotation_thrust = down ? -1 : 0;
                 break;
             case "KeyD":
             case "ArrowRight":
+                if (down)
+                    unpause();
                 this.lander.rotation_thrust = down ? +1 : 0;
                 break;
         }
