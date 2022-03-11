@@ -238,6 +238,7 @@ export class Cave {
     spawn: Point;
 
     // settings
+    spawn_segment_index = 5;
     min_angle_per_center = deg2rad(30);
     max_angle_per_center = deg2rad(120);
     // the following ones are multiplied by scale.
@@ -247,7 +248,6 @@ export class Cave {
     max_cave_diameter = 20;
     min_radius = 10;
     max_radius = 40;
-    min_start_arc_length = 2;
     // additional hardcoded settings are marked with the comment // SETTING
 
     private get_random_inner_outer_radius(current_radius: number): [number, number] {
@@ -298,10 +298,6 @@ export class Cave {
         }
         // determine new segment's angle via arc length.
         let arc_length = random_range(this.min_segment_arc_length, this.max_segment_arc_length);
-        if (prev === null) {
-            // first segment must be thick enough to not get stuck.
-            arc_length = Math.max(arc_length, this.min_start_arc_length);
-        }
         let angle_delta = arc_length / radius * (ccw ? +1 : -1);
 
         let [end_inner_r, end_outer_r] = this.get_random_inner_outer_radius(radius);
@@ -317,7 +313,6 @@ export class Cave {
         this.max_cave_diameter *= scale;
         this.min_radius *= scale;
         this.max_radius *= scale;
-        this.min_start_arc_length *= scale;
 
         // construct segments
         // SETTING: here are the starting segment settings
@@ -399,12 +394,13 @@ export class Cave {
             end: this.segments[this.segments.length - 1].outer_edge.start
         });
 
-        this.current_segment = this.segments[0];
+        this.spawn_segment_index = Math.min(this.spawn_segment_index, this.segments.length);
+        this.current_segment = this.segments[this.spawn_segment_index];
         this.spawn = this.current_segment.centroid;
     }
 
     public reset() {
-        this.current_segment = this.segments[0];
+        this.current_segment = this.segments[this.spawn_segment_index];
     }
 
     public check_collision(p: Point, update_current_segment = false): ShipState {
