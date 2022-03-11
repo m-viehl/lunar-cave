@@ -238,9 +238,9 @@ export interface Screen {
 
 export class Cave {
     segments: Segment[] = [];
-    lines: Line[] = [];
     current_segment: Segment;
     spawn: Point;
+    end_line: Line;
 
     // settings
     spawn_segment_index = 5;
@@ -253,6 +253,7 @@ export class Cave {
     max_cave_diameter = 20;
     min_radius = 10;
     max_radius = 40;
+    line_width = 0.3;
     // additional hardcoded settings are marked with the comment // SETTING
 
     private get_random_inner_outer_radius(current_radius: number): [number, number] {
@@ -318,6 +319,7 @@ export class Cave {
         this.max_cave_diameter *= scale;
         this.min_radius *= scale;
         this.max_radius *= scale;
+        this.line_width *= scale;
 
         // construct segments
         // SETTING: here are the starting segment settings
@@ -380,8 +382,6 @@ export class Cave {
             }
             let new_segment = this.next_segment(current_radius, current_center, currently_ccw, last);
             this.segments.push(new_segment);
-            this.lines.push(new_segment.inner_edge);
-            this.lines.push(new_segment.outer_edge);
             if (last !== null) {
                 new_segment.prev = last;
                 last.next = new_segment;
@@ -389,15 +389,10 @@ export class Cave {
             enclosed_angle_of_current_center += new_segment.enclosed_angle;
             total_arc_length += new_segment.arc_length;
         }
-        // add closing and opening line
-        this.lines.push({
-            start: this.segments[0].inner_edge.start,
-            end: this.segments[0].outer_edge.start
-        });
-        this.lines.push({
-            start: this.segments[this.segments.length - 1].inner_edge.start,
-            end: this.segments[this.segments.length - 1].outer_edge.start
-        });
+        this.end_line = {
+            start: this.segments[this.segments.length - 1].inner_edge.end,
+            end: this.segments[this.segments.length - 1].outer_edge.end
+        };
 
         this.spawn_segment_index = Math.min(this.spawn_segment_index, this.segments.length);
         this.current_segment = this.segments[this.spawn_segment_index];
@@ -533,5 +528,12 @@ export class Cave {
             context.lineTo(e.start.x, e.start.y);
         }
         context.fill();
+        // draw finish line
+        context.strokeStyle = "#009955";
+        context.lineWidth = this.line_width;
+        context.beginPath();
+        context.moveTo(this.end_line.start.x, this.end_line.start.y);
+        context.lineTo(this.end_line.end.x, this.end_line.end.y);
+        context.stroke();
     }
 }

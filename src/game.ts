@@ -52,7 +52,7 @@ class Game {
     }
 
     private new_cave() {
-        this.cave = new Cave(500 * scale, scale);
+        this.cave = new Cave(350 * scale, scale);
     }
 
     public reset() {
@@ -95,11 +95,11 @@ class Game {
 
     public draw() {
         // fill black
-        context.fillStyle = "#000000"
+        context.fillStyle = "#344745"
         context.fillRect(0, 0, width, height);
         context.translate(-this.lander.x + width / 2, -this.lander.y + height / 2);
-        // draw cave in white
-        context.fillStyle = "#FFFFFF"
+        // draw cave
+        context.fillStyle = "#d1d1d1";
         this.cave.draw(context, {
             upper_left: { x: this.lander.x - width / 2, y: this.lander.y - height / 2 },
             lower_right: { x: this.lander.x + width / 2, y: this.lander.y + height / 2 }
@@ -139,14 +139,16 @@ class Lander implements Point {
 
     public draw() {
         // draw body
-        context.strokeRect(-this.size / 2, -this.size / 3, this.size, this.size * 2 / 3);
+        context.fillStyle = "#5c5e5e"
+        context.fillRect(-this.size / 2, -this.size / 3, this.size, this.size * 2 / 3);
         // draw thruster flame
         if (this.thrust > 0) {
+            context.fillStyle = "#02e5ca"
             context.beginPath();
             context.moveTo(-this.size / 3, this.size / 3);
             context.lineTo(0, this.size * (1 + 1 / 3) * this.thrust);
             context.lineTo(+this.size / 3, this.size / 3);
-            context.stroke();
+            context.fill();
         }
     }
 
@@ -220,15 +222,15 @@ function unpause() {
 }
 
 function resized() {
-    if (window.innerWidth !== width || window.innerHeight < height || window.innerHeight > 1.2 * height) {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = width;
-        canvas.height = height;
-        if (game !== undefined) {
-            draw();
-        }
+    //if (window.innerWidth !== width || window.innerHeight < height || window.innerHeight > 1.2 * height) {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+    if (game !== undefined) {
+        draw();
     }
+    //}
 }
 
 function main() {
