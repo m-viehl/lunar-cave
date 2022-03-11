@@ -27,7 +27,7 @@ class Game {
     }
 
     public logic(dt: number) {
-        this.lander.physics(dt);
+        this.lander.tick(dt);
         // collision
         let state = this.cave.check_collision(this.lander, true);
         switch (state) {
@@ -59,9 +59,7 @@ class Game {
         this.cave.reset();
         this.lander.x = this.cave.spawn.x;
         this.lander.y = this.cave.spawn.y;
-        this.lander.vx = 0;
-        this.lander.vy = 0;
-        this.lander.angle = 0;
+        this.lander.reset();
         paused = true;
     }
 
@@ -72,7 +70,7 @@ class Game {
         switch (e.code) {
             case "KeyW":
             case "ArrowUp":
-                this.lander.thrust = down ? 1 : 0;
+                this.lander.thrust = down;
                 break;
             case "KeyA":
             case "ArrowLeft":
@@ -113,16 +111,18 @@ class Game {
 
 
 class Lander implements Point {
-    // position
+    // state
     x: number;
     y: number;
     vx: number;
     vy: number;
-    angle = 0.0;
+    angle: number;
+    thrust_factor = 0; // 1 = full thrust
     // controls: set these from outside! They are read in physics() to update position variables.
-    thrust = 0; // 1 = full thrust
     rotation_thrust = 0; // -1 = full left, +1 = full right (TODO andersrum?)
+    thrust : boolean;
     // settings
+    readonly delta_thrust_factor_per_s = 7;
     readonly size = 1 * scale;
     readonly acc = 3 * g; // maximum thruster acceleration
     readonly rotation_speed = 180 /* degrees per second */ / 360 * 2 * Math.PI;
@@ -131,34 +131,51 @@ class Lander implements Point {
     constructor(x: number, y: number) {
         this.x = x;
         this.y = y;
-        this.vx = 0;
-        this.vy = 0;
+        this.reset();
         this.collision_points = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }]
         this.calc_collision_points();
     }
 
+    public reset() {
+        this.vx = 0;
+        this.vy = 0;
+        this.angle = 0;
+        this.thrust_factor = 0;
+        this.thrust = false;
+        this.rotation_thrust = 0;
+    }
+
     public draw() {
-        // draw body
-        context.fillStyle = "#5c5e5e"
-        context.fillRect(-this.size / 2, -this.size / 3, this.size, this.size * 2 / 3);
         // draw thruster flame
-        if (this.thrust > 0) {
+        if (this.thrust_factor > 0) {
             context.fillStyle = "#02e5ca"
             context.beginPath();
             context.moveTo(-this.size / 3, this.size / 3);
-            context.lineTo(0, this.size * (1 + 1 / 3) * this.thrust);
+            context.lineTo(0, this.size * (1 + 1 / 3) * this.thrust_factor);
             context.lineTo(+this.size / 3, this.size / 3);
             context.fill();
         }
+        // draw body
+        context.fillStyle = "#5c5e5e"
+        context.fillRect(-this.size / 2, -this.size / 3, this.size, this.size * 2 / 3);
     }
 
-    public physics(dt: number) {
+    public tick(dt: number) {
+        if (this.thrust) {
+            this.thrust_factor += this.delta_thrust_factor_per_s * dt;
+            this.thrust_factor = Math.min(this.thrust_factor, 1);
+        } else {
+            this.thrust_factor -= this.delta_thrust_factor_per_s * dt;
+            this.thrust_factor = Math.max(this.thrust_factor, 0);
+        }
+        if (this.thrust_factor < 0)
+            alert("thrust factor < 0!"); // debug
         // when landed, no gravitation
         // rotation
         this.angle += this.rotation_speed * this.rotation_thrust * dt;
         // calc acceleration
-        let ax = - this.thrust * this.acc * Math.cos(this.angle + Math.PI / 2);
-        let ay = - this.thrust * this.acc * Math.sin(this.angle + Math.PI / 2) + g;
+        let ax = - this.thrust_factor * this.acc * Math.cos(this.angle + Math.PI / 2);
+        let ay = - this.thrust_factor * this.acc * Math.sin(this.angle + Math.PI / 2) + g;
         // apply acceleration
         this.vx += ax * dt;
         this.vy += ay * dt;
