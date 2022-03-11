@@ -94,10 +94,17 @@ class Game {
     }
 
     public draw() {
+        // fill black
+        context.fillStyle = "#000000"
+        context.fillRect(0, 0, width, height);
         context.translate(-this.lander.x + width / 2, -this.lander.y + height / 2);
-        this.cave.draw(context,
-            { x: this.lander.x - width / 2, y: this.lander.y - height / 2 },
-            { x: this.lander.x + width / 2, y: this.lander.y + height / 2 });
+        // draw cave in white
+        context.fillStyle = "#FFFFFF"
+        this.cave.draw(context, {
+            upper_left: { x: this.lander.x - width / 2, y: this.lander.y - height / 2 },
+            lower_right: { x: this.lander.x + width / 2, y: this.lander.y + height / 2 }
+        });
+        // lander
         context.translate(this.lander.x, this.lander.y);
         context.rotate(this.lander.angle);
         this.lander.draw();

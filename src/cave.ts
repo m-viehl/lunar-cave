@@ -230,6 +230,11 @@ interface Line {
     end: Point
 }
 
+export interface Screen {
+    upper_left: Point,
+    lower_right: Point
+}
+
 
 export class Cave {
     segments: Segment[] = [];
@@ -458,59 +463,75 @@ export class Cave {
         }
     }
 
-    private draw_line(context: CanvasRenderingContext2D, l: Line, screen_a: Point, screen_b: Point) {
-        // draws the line if it is on screen
-        if (
-            (
-                l.start.x > screen_a.x &&
-                l.start.x < screen_b.x &&
-                l.start.y > screen_a.y &&
-                l.start.y < screen_b.y
-            ) || (
-                l.end.x > screen_a.x &&
-                l.end.x < screen_b.x &&
-                l.end.y > screen_a.y &&
-                l.end.y < screen_b.y
-            )
-        ) {
-            context.beginPath();
-            context.moveTo(l.start.x, l.start.y);
-            context.lineTo(l.end.x, l.end.y);
-            context.stroke();
-        }
+    private line_on_screen(l: Line, s: Screen) {
+        return (
+            l.start.x > s.upper_left.x &&
+            l.start.x < s.lower_right.x &&
+            l.start.y > s.upper_left.y &&
+            l.start.y < s.lower_right.y
+        ) || (
+                l.end.x > s.upper_left.x && // auto-format is ugly here
+                l.end.x < s.lower_right.x &&
+                l.end.y > s.upper_left.y &&
+                l.end.y < s.lower_right.y
+            );
     }
 
-    public draw(context: CanvasRenderingContext2D, screen_a: Point, screen_b: Point, ship?: Point, highlight_current = false) {
-        for (let line of this.lines) {
-            this.draw_line(context, line, screen_a, screen_b);
-        }
+    private segment_on_screen(seg: Segment, scr: Screen) {
+        return this.line_on_screen(seg.outer_edge, scr) ||
+            this.line_on_screen(seg.inner_edge, scr);
+    }
 
-        // draw inner/outer segment radius in red (for collision detection)
-        if (ship !== undefined) {
-            let ship_polar = this.current_segment.to_polar(ship);
-            let inner_r = this.current_segment.inner_edge.r(ship_polar.phi);
-            let outer_r = this.current_segment.outer_edge.r(ship_polar.phi);
-            context.fillStyle = "#ff0000";
-            context.fillRect(
-                this.current_segment.center.x + outer_r * Math.cos(ship_polar.phi) - 1,
-                this.current_segment.center.y + outer_r * Math.sin(ship_polar.phi) - 1,
-                3, 3
-            );
-            context.fillRect(
-                this.current_segment.center.x + inner_r * Math.cos(ship_polar.phi) - 1,
-                this.current_segment.center.y + inner_r * Math.sin(ship_polar.phi) - 1,
-                3, 3
-            );
+    public draw(context: CanvasRenderingContext2D, scr: Screen) {
+        // get segments on screen
+        let segments: Segment[] = [this.current_segment];
+        {
+            let current: Segment;
+            let off_screen_count = 0;
+            // traverse forwards
+            current = this.current_segment;
+            while (current.next !== null) {
+                current = current.next;
+                segments.push(current);
+                if (!this.segment_on_screen(current, scr)) {
+                    // we go up to n segments off-screen to avoid weird artifacts
+                    if (++off_screen_count > 4)
+                        break;
+                }
+            }
+            // traverse backwards
+            current = this.current_segment;
+            off_screen_count = 0;
+            while (current.prev !== null) {
+                current = current.prev;
+                segments.unshift(current); // add at beginning
+                if (!this.segment_on_screen(current, scr)) {
+                    // we go up to n segments off-screen to avoid weird artifacts
+                    if (++off_screen_count > 4)
+                        break;
+                }
+            }
         }
-        // highlight current segment
-        if (highlight_current) {
-            context.fillStyle = "#EEEEEE";
-            context.beginPath();
-            context.moveTo(this.current_segment.inner_edge.start.x, this.current_segment.inner_edge.start.y);
-            context.lineTo(this.current_segment.inner_edge.end.x, this.current_segment.inner_edge.end.y);
-            context.lineTo(this.current_segment.outer_edge.end.x, this.current_segment.outer_edge.end.y);
-            context.lineTo(this.current_segment.outer_edge.start.x, this.current_segment.outer_edge.start.y);
-            context.fill();
+        // draw a polygon from segments.
+        context.beginPath();
+        let curr = segments[0];
+        let e = curr.rotation_ccw ? curr.inner_edge : curr.outer_edge;
+        context.moveTo(curr.inner_edge.start.x, curr.outer_edge.start.y);
+        // forwards
+        for (let i = 0; i < segments.length; i++) {
+            curr = segments[i];
+            e = curr.rotation_ccw ? curr.inner_edge : curr.outer_edge;
+            context.lineTo(e.end.x, e.end.y);
         }
+        // now backwards
+        curr = segments[segments.length - 1];
+        e = curr.rotation_ccw ? curr.outer_edge : curr.inner_edge;
+        context.lineTo(e.end.x, e.end.y);
+        for (let i = segments.length - 1; i >= 0; i--) {
+            curr = segments[i];
+            e = curr.rotation_ccw ? curr.outer_edge : curr.inner_edge;
+            context.lineTo(e.start.x, e.start.y);
+        }
+        context.fill();
     }
 }
