@@ -1,4 +1,5 @@
-export type Point = { x: number, y: number };
+import { Point, Screen, ShipState } from "./misc";
+
 type Polar = { phi: number, r: number };
 
 enum AnglePosition {
@@ -13,12 +14,6 @@ enum ShipPosition {
     after,
     inside,
     wall
-}
-
-export enum ShipState {
-    alive,
-    wall,
-    end
 }
 
 function normalize(alpha: number) {
@@ -229,12 +224,6 @@ interface Line {
     start: Point,
     end: Point
 }
-
-export interface Screen {
-    upper_left: Point,
-    lower_right: Point
-}
-
 
 export class Cave {
     segments: Segment[] = [];
