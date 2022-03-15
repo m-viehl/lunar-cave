@@ -1,18 +1,27 @@
-# Typescript HTML Canvas Game Sample
-- Creates a full-screen canvas, no scroll bars
-- Browser zoom should be at 100% for 1:1 pixel ratio (Canvas can't do anything if browser zoom is not 100%)
-- Canvas is automatically resized on window resizes
+# Lunar lander like game
+Cool auto-generated caves!
 
 # Build
-Just run `tsc` and serve `main.html`.
+- Clone this repo and run `npm install` and install the typescript compiler (e.g. `sudo apt install typescript`).
+- Run `npm run build` or `npm run production`. To serve locally without building, run `python3 -m http.server -d build`.
+- Visit the displayed URL.
 
-# Lander TODO
-- better collision checks
-- mark landing sites
-- explosion
-- points/fuel?
-- side-scrolling
-    - one landing spot every x meters
-    - refuel at landing spot
-    - scroll when going to the right
-- add ceiling
+# TODO
+- Progress bar
+- some info
+- use Pixi
+- remove direction constraints
+- switch back to line drawing? (but don't draw everything to allow caves to go anywhere)
+- "debug mode" which draws some help lines
+- easy mode with slower time
+- implement cave zones with different creation parameters for more variability
+- control zoom depending on speed
+- don't have the ship always centered (this one is probably difficult, maybe don't do it)
+- implement 2nd ship
+- Controller support
+- mobile controls
+- cave of the day
+- leaderboard
+- first segment with low `start_inner_r` and `start_outer_r` for nicer cave end
+- landing spots & fuel?
+- short "overview" showing the whole cave and then zooming to the ship
