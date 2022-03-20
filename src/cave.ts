@@ -500,7 +500,7 @@ export class Cave {
         context.beginPath();
         let curr = segments[0];
         let e = curr.rotation_ccw ? curr.inner_edge : curr.outer_edge;
-        context.moveTo(curr.inner_edge.start.x, curr.outer_edge.start.y);
+        context.moveTo(e.start.x, e.start.y);
         // forwards
         for (let i = 0; i < segments.length; i++) {
             curr = segments[i];
