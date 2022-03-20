@@ -8,16 +8,12 @@ Cool auto-generated caves!
 
 # TODO
 - Progress bar
-- some info
+- some info/help text
 - use Pixi
-- remove direction constraints
-- switch back to line drawing? (but don't draw everything to allow caves to go anywhere)
 - "debug mode" which draws some help lines
-- easy mode with slower time
 - implement cave zones with different creation parameters for more variability
 - control zoom depending on speed
 - don't have the ship always centered (this one is probably difficult, maybe don't do it)
-- implement 2nd ship
 - Controller support
 - mobile controls
 - cave of the day
@@ -25,3 +21,10 @@ Cool auto-generated caves!
 - first segment with low `start_inner_r` and `start_outer_r` for nicer cave end
 - landing spots & fuel?
 - short "overview" showing the whole cave and then zooming to the ship
+- crash explosion
+- handle overlapping caves correctly and remove direction constraints
+- drawing style: polygon or strokes?
+- make difficulty configurable -> different profiles/levels, easy mode
+
+**done**
+- ✓ implement 2nd ship

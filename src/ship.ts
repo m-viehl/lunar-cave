@@ -16,8 +16,8 @@ export class Ship1 implements Ship {
     vy: number;
     angle: number;
     thrust_factor = 0; // 1 = full thrust
-    // controls: set these from outside! They are read in physics() to update position variables.
-    rotation_thrust = 0; // -1 = full left, +1 = full right (TODO andersrum?)
+    // controls
+    rotation_thrust = 0; // -1 = full left, +1 = full right
     thrust: boolean;
     // settings
     g: number;
@@ -82,6 +82,7 @@ export class Ship1 implements Ship {
     }
 
     public tick(dt: number) {
+        // variable thrust
         if (this.thrust) {
             this.thrust_factor += this.delta_thrust_factor_per_s * dt;
             this.thrust_factor = Math.min(this.thrust_factor, 1);
@@ -89,9 +90,6 @@ export class Ship1 implements Ship {
             this.thrust_factor -= this.delta_thrust_factor_per_s * dt;
             this.thrust_factor = Math.max(this.thrust_factor, 0);
         }
-        if (this.thrust_factor < 0)
-            alert("thrust factor < 0!"); // debug
-        // when landed, no gravitation
         // rotation
         this.angle += this.rotation_speed * this.rotation_thrust * dt;
         // calc acceleration
