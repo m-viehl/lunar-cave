@@ -230,6 +230,7 @@ export class Cave {
     current_segment: Segment;
     spawn: Point;
     end_line: Line;
+    help_lines = false;
 
     // settings
     spawn_segment_index = 5;
@@ -517,6 +518,29 @@ export class Cave {
             context.lineTo(e.start.x, e.start.y);
         }
         context.fill();
+        // draw help lines
+        if (this.help_lines) {
+            for (let s of segments) {
+                context.strokeStyle = "#888888";
+                context.lineWidth = 1;
+                context.beginPath();
+                context.moveTo(s.center.x, s.center.y);
+                context.arc(s.center.x, s.center.y, s.radius, s.start_angle, s.end_angle, !s.rotation_ccw);
+                context.stroke();
+                context.beginPath();
+                context.moveTo(s.inner_edge.start.x, s.inner_edge.start.y);
+                context.lineTo(s.inner_edge.end.x, s.inner_edge.end.y);
+                context.stroke();
+                context.beginPath();
+                context.moveTo(s.outer_edge.start.x, s.outer_edge.start.y);
+                context.lineTo(s.outer_edge.end.x, s.outer_edge.end.y);
+                context.stroke();
+                context.beginPath();
+                context.moveTo(s.inner_edge.start.x, s.inner_edge.start.y);
+                context.lineTo(s.outer_edge.start.x, s.outer_edge.start.y);
+                context.stroke();
+            }
+        }
         // draw finish line
         context.strokeStyle = "#009955";
         context.lineWidth = this.line_width;

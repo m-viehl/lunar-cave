@@ -67,6 +67,12 @@ class Game {
 
     private key(e: KeyboardEvent, down: boolean) {
         switch (e.code) {
+            case "KeyH":
+                if (e.shiftKey && !down) {
+                    this.cave.help_lines = !this.cave.help_lines;
+                    draw();
+                }
+                break;
             case "KeyW":
             case "ArrowUp":
                 if (down)

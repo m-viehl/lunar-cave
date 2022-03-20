@@ -6,17 +6,21 @@ Cool auto-generated caves!
 - Run `npm run build` or `npm run production`. To serve locally without building, run `python3 -m http.server -d build`.
 - Visit the displayed URL.
 
+# Game
+- WSD or arrow keys to fly
+- f5 or reaching the end creates new cave
+- Shift+H toggles cave construction lines
+
 # TODO
 - Progress bar
 - some info/help text
 - use Pixi
-- "debug mode" which draws some help lines
 - implement cave zones with different creation parameters for more variability
 - control zoom depending on speed
 - don't have the ship always centered (this one is probably difficult, maybe don't do it)
 - Controller support
 - mobile controls
-- cave of the day
+- cave of the day; at least print seed (and version?) to console
 - leaderboard
 - first segment with low `start_inner_r` and `start_outer_r` for nicer cave end
 - landing spots & fuel?
@@ -26,5 +30,6 @@ Cool auto-generated caves!
 - drawing style: polygon or strokes?
 - make difficulty configurable -> different profiles/levels, easy mode
 
-**done**
-- ✓ implement 2nd ship
+**✓ done**
+- implement 2nd ship
+- "debug mode" which draws some help lines
