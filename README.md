@@ -13,10 +13,11 @@ Cool auto-generated caves!
 
 # TODO
 - Progress bar
+- control zoom depending on speed
+
 - some info/help text
 - use Pixi
 - implement cave zones with different creation parameters for more variability
-- control zoom depending on speed
 - don't have the ship always centered (this one is probably difficult, maybe don't do it)
 - Controller support
 - mobile controls

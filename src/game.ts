@@ -22,6 +22,9 @@ class Game {
     lander: Ship;
     cave: Cave;
 
+    // settings
+    speed_for_scale_1 = scale * 5;
+
     constructor() {
         this.lander = new Ship1(0, 0, scale, g);
         this.new_cave();
@@ -106,13 +109,24 @@ class Game {
         // fill black
         context.fillStyle = "#344745"
         context.fillRect(0, 0, width, height);
-        context.translate(-this.lander.x + width / 2, -this.lander.y + height / 2);
+
+        let scale_factor = Math.max(0.5, Math.min(1.5, this.lander.speed / this.speed_for_scale_1));
+        context.resetTransform();
+        context.translate(
+            (-this.lander.x + width / 2) / scale_factor,
+            (-this.lander.y + height / 2) / scale_factor);
+        context.scale(1 / scale_factor, 1 / scale_factor);
+
         // draw cave
         context.fillStyle = "#d1d1d1";
         this.cave.draw(context, {
-            upper_left: { x: this.lander.x - width / 2, y: this.lander.y - height / 2 },
-            lower_right: { x: this.lander.x + width / 2, y: this.lander.y + height / 2 }
+            upper_left: { x: this.lander.x - width / 2 * scale_factor, y: this.lander.y - height / 2 * scale_factor },
+            lower_right: { x: this.lander.x + width / 2 * scale_factor, y: this.lander.y + height / 2 * scale_factor }
         });
+        context.resetTransform();
+        context.translate(width / 2, height / 2);
+        context.rotate(this.lander.angle);
+        context.scale(1 / scale_factor, 1 / scale_factor);
         // lander
         this.lander.draw(context);
     }
