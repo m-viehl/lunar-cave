@@ -7,8 +7,6 @@ export interface Ship extends Point {
     draw: (context: CanvasRenderingContext2D) => void;
     key: (k: Key, down: boolean) => void;
     speed: number;
-    x: number;
-    y: number;
     angle: number;
 }
 

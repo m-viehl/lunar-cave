@@ -116,13 +116,18 @@ class Game {
             (-this.lander.x + width / 2) / scale_factor,
             (-this.lander.y + height / 2) / scale_factor);
         context.scale(1 / scale_factor, 1 / scale_factor);
-
+        // zero position
+        context.fillStyle = "#ff0000";
+        context.fillRect(-10, -10, 20, 20);
         // draw cave
         context.fillStyle = "#d1d1d1";
         this.cave.draw(context, {
             upper_left: { x: this.lander.x - width / 2 * scale_factor, y: this.lander.y - height / 2 * scale_factor },
             lower_right: { x: this.lander.x + width / 2 * scale_factor, y: this.lander.y + height / 2 * scale_factor }
         });
+        // real ship position
+        context.fillStyle = "#ff0000";
+        context.fillRect(this.lander.x-10, this.lander.y-10, 20, 20);
         context.resetTransform();
         context.translate(width / 2, height / 2);
         context.rotate(this.lander.angle);
