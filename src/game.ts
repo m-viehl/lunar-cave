@@ -22,10 +22,21 @@ class Game {
     lander: Ship;
     cave: Cave;
 
+    pbar_x0: number;
+    pbar_width: number;
+    pbar_height: number;
+
     constructor() {
         this.lander = new Ship1(0, 0, scale, g);
         this.new_cave();
+        this.resized();
         this.reset();
+    }
+
+    public resized() {
+        this.pbar_x0 = width / 20;
+        this.pbar_width = width / 9;
+        this.pbar_height = this.pbar_width / 5;
     }
 
     public logic(dt: number) {
@@ -115,6 +126,15 @@ class Game {
         });
         // lander
         this.lander.draw(context);
+        // draw progress bar
+        context.resetTransform();
+        context.fillStyle = "#344745";
+        context.fillRect(this.pbar_x0, this.pbar_x0, this.pbar_width, this.pbar_height);
+        context.fillStyle = "#d1d1d1";
+        context.fillRect(this.pbar_x0, this.pbar_x0, this.pbar_width * Math.max(0, this.cave.progress), this.pbar_height);
+        context.strokeStyle = "black";
+        context.lineWidth = this.pbar_height / 10;
+        context.strokeRect(this.pbar_x0, this.pbar_x0, this.pbar_width, this.pbar_height);
     }
 }
 
@@ -162,6 +182,7 @@ function resized() {
     canvas.width = width;
     canvas.height = height;
     if (game !== undefined) {
+        game.resized();
         draw();
     }
     //}

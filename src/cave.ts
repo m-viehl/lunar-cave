@@ -68,6 +68,7 @@ class Segment {
     rotation_ccw: boolean;
     arc_length: number;
     enclosed_angle: number;
+    previous_arc_length: number; // sum of arc length of all previous segments
 
     inner_edge: Edge;
     outer_edge: Edge;
@@ -76,7 +77,7 @@ class Segment {
     prev: Segment | null = null;
 
     constructor(center: Point, radius: number, start_angle: number, end_angle: number, ccw: boolean,
-        start_inner_r: number, start_outer_r: number, end_inner_r: number, end_outer_r: number) {
+        start_inner_r: number, start_outer_r: number, end_inner_r: number, end_outer_r: number, previous?: Segment) {
         this.start_angle = normalize(start_angle);
         this.end_angle = normalize(end_angle);
         this.center = center;
@@ -89,6 +90,13 @@ class Segment {
         this.centroid = {
             x: (this.inner_edge.start.x + this.inner_edge.end.x + this.outer_edge.start.x + this.outer_edge.end.x) / 4,
             y: (this.inner_edge.start.y + this.inner_edge.end.y + this.outer_edge.start.y + this.outer_edge.end.y) / 4,
+        }
+        if (previous !== undefined) {
+            previous.next = this;
+            this.prev = previous;
+            this.previous_arc_length = previous.previous_arc_length + previous.arc_length;
+        } else {
+            this.previous_arc_length = 0;
         }
     }
 
@@ -232,6 +240,12 @@ export class Cave {
     end_line: Line;
     help_lines = false;
 
+    // progress calculation
+    progress = 0;
+    total_arc_length: number;
+    spawn_arc_length: number;
+    current_arc_length: number;
+
     // settings
     spawn_segment_index = 5;
     min_angle_per_center = deg2rad(30);
@@ -299,7 +313,7 @@ export class Cave {
         let [end_inner_r, end_outer_r] = this.get_random_inner_outer_radius(radius);
 
         return new Segment(center, radius, start_angle, start_angle + angle_delta, ccw,
-            start_inner_r, start_outer_r, end_inner_r, end_outer_r);
+            start_inner_r, start_outer_r, end_inner_r, end_outer_r, prev === null ? undefined : prev);
     }
 
     constructor(arc_length: number, scale: number) {
@@ -372,10 +386,6 @@ export class Cave {
             }
             let new_segment = this.next_segment(current_radius, current_center, currently_ccw, last);
             this.segments.push(new_segment);
-            if (last !== null) {
-                new_segment.prev = last;
-                last.next = new_segment;
-            }
             enclosed_angle_of_current_center += new_segment.enclosed_angle;
             total_arc_length += new_segment.arc_length;
         }
@@ -384,21 +394,35 @@ export class Cave {
             end: this.segments[this.segments.length - 1].outer_edge.end
         };
 
+        {
+            let last = this.segments[this.segments.length - 1]
+            this.total_arc_length = last.previous_arc_length + last.arc_length;
+        }
         this.spawn_segment_index = Math.min(this.spawn_segment_index, this.segments.length);
-        this.current_segment = this.segments[this.spawn_segment_index];
-        this.spawn = this.current_segment.centroid;
+        this.spawn = this.segments[this.spawn_segment_index].centroid;
+        this.reset();
     }
 
     public reset() {
         this.current_segment = this.segments[this.spawn_segment_index];
+        this.check_collision(this.spawn);
     }
 
     public check_collision(p: Point, update_current_segment = false): ShipState {
         // performs a collision check and updates current_segment
         // call regularly with current ship position
         let curr = this.current_segment;
-        let pos = curr.get_point_position(curr.to_polar(p));
-        switch (pos) {
+        let polar = curr.to_polar(p);
+        // progress calculation
+        this.current_arc_length = curr.previous_arc_length
+            + curr.arc_length * angle_between(polar.phi, curr.start_angle) / curr.enclosed_angle;
+        if (p === this.spawn) {
+            // set spawn arc length
+            this.spawn_arc_length = this.current_arc_length;
+        }
+        this.progress = (this.current_arc_length - this.spawn_arc_length) / (this.total_arc_length - this.spawn_arc_length);
+
+        switch (curr.get_point_position(polar)) {
             case ShipPosition.wall:
                 return ShipState.wall;
             case ShipPosition.after:

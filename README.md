@@ -12,7 +12,6 @@ Cool auto-generated caves!
 - Shift+H toggles cave construction lines
 
 # TODO
-- Progress bar
 - some info/help text
 - use Pixi
 - implement cave zones with different creation parameters for more variability
@@ -31,5 +30,6 @@ Cool auto-generated caves!
 - make difficulty configurable -> different profiles/levels, easy mode
 
 **✓ done**
+- Progress bar
 - implement 2nd ship
 - "debug mode" which draws some help lines
