@@ -6,6 +6,8 @@ export interface Ship extends Point {
     tick: (dt: number) => void;
     draw: (context: CanvasRenderingContext2D) => void;
     key: (k: Key, down: boolean) => void;
+    speed: number;
+    angle: number;
 }
 
 export class Ship1 implements Ship {
@@ -16,6 +18,7 @@ export class Ship1 implements Ship {
     vy: number;
     angle: number;
     thrust_factor = 0; // 1 = full thrust
+    speed: number;
     // controls
     rotation_thrust = 0; // -1 = full left, +1 = full right
     thrust: boolean;
@@ -60,13 +63,12 @@ export class Ship1 implements Ship {
         this.thrust_factor = 0;
         this.thrust = false;
         this.rotation_thrust = 0;
+        this.speed = 0;
     }
 
     public draw(context: CanvasRenderingContext2D) {
         // TODO WARNING: this depends on the translation done before in game.ts!
         // unify the context translations, zoom etc.!
-        context.translate(this.x, this.y);
-        context.rotate(this.angle);
         // draw thruster flame
         if (this.thrust_factor > 0) {
             context.fillStyle = "#02e5ca"
@@ -77,7 +79,7 @@ export class Ship1 implements Ship {
             context.fill();
         }
         // draw body
-        context.fillStyle = "#5c5e5e"
+        context.fillStyle = "#5c5e5e";
         context.fillRect(-this.size / 2, -this.size / 3, this.size, this.size * 2 / 3);
     }
 
@@ -101,6 +103,7 @@ export class Ship1 implements Ship {
         // apply velocities
         this.x += this.vx * dt;
         this.y += this.vy * dt;
+        this.speed = Math.hypot(this.vx, this.vy);
 
         this.calc_collision_points();
     }
@@ -127,6 +130,7 @@ export class Ship2 implements Ship {
     y: number;
     vx: number;
     vy: number;
+    speed: number;
     angle: number;
     v_angle: number;
     thrust_factor_left = 0; // 1 = full thrust
@@ -183,6 +187,7 @@ export class Ship2 implements Ship {
     public reset() {
         this.vx = 0;
         this.vy = 0;
+        this.speed = 0;
         this.angle = 0;
         this.v_angle = 0;
         this.thrust_factor_left = 0;
@@ -194,8 +199,6 @@ export class Ship2 implements Ship {
     public draw(context: CanvasRenderingContext2D) {
         // TODO WARNING: this depends on the translation done before in game.ts!
         // unify the context translations, zoom etc.!
-        context.translate(this.x, this.y);
-        context.rotate(this.angle);
         context.fillStyle = "#5c5e5e"
         context.fillRect(-this.r_x, -this.r_y, 2 * this.r_x, 2 * this.r_y);
         // thruster
@@ -224,6 +227,7 @@ export class Ship2 implements Ship {
         // apply accelerations
         this.vx += ax * dt;
         this.vy += ay * dt;
+        this.speed = Math.hypot(this.vx, this.vy);
         this.v_angle += a_angle * dt;
         // dampening
         this.v_angle *= this.rotation_dampening_factor;

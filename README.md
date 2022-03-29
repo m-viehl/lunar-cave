@@ -15,7 +15,6 @@ Cool auto-generated caves!
 - some info/help text
 - use Pixi
 - implement cave zones with different creation parameters for more variability
-- control zoom depending on speed
 - don't have the ship always centered (this one is probably difficult, maybe don't do it)
 - Controller support
 - mobile controls
@@ -30,6 +29,7 @@ Cool auto-generated caves!
 - make difficulty configurable -> different profiles/levels, easy mode
 
 **✓ done**
+- control zoom depending on speed
 - Progress bar
 - implement 2nd ship
 - "debug mode" which draws some help lines
