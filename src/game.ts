@@ -22,8 +22,10 @@ class Game {
     lander: Ship;
     cave: Cave;
 
-    // settings
-    speed_for_scale_1 = scale * 5;
+    // required for running average for scale calculation
+    speed_sum: number;
+    last_speeds: number[];
+    speed_avg_window_size = 1.5 / 0.01667; // X / __ : X seconds at 60fps... this is ugly. Count fps!
 
     constructor() {
         this.lander = new Ship1(0, 0, scale, g);
@@ -61,6 +63,8 @@ class Game {
     }
 
     public reset() {
+        this.speed_sum = 0;
+        this.last_speeds = [];
         this.cave.reset();
         this.lander.x = this.cave.spawn.x;
         this.lander.y = this.cave.spawn.y;
@@ -105,34 +109,43 @@ class Game {
         this.key(e, true);
     }
 
+    private scale_from_speed(v: number) {
+        // running avg
+        this.last_speeds.push(v);
+        this.speed_sum += v;
+        if (this.last_speeds.length > this.speed_avg_window_size)
+            this.speed_sum -= this.last_speeds.shift()!;
+        v = this.speed_sum / this.last_speeds.length;
+
+        const vmax = 30 * scale; // TODO hardcoded!
+        if (v < vmax) {
+            return - Math.cos(Math.PI * v / vmax) * 0.5 + 1;
+        }
+        return 1.5;
+    }
+
     public draw() {
         // fill black
         context.fillStyle = "#344745"
         context.fillRect(0, 0, width, height);
 
-        let scale_factor = Math.max(0.5, Math.min(1.5, this.lander.speed / this.speed_for_scale_1));
+        let scale_factor = this.scale_from_speed(this.lander.speed);
         context.resetTransform();
         context.translate(
-            (-this.lander.x + width / 2) / scale_factor,
-            (-this.lander.y + height / 2) / scale_factor);
+            (-this.lander.x) / scale_factor + width / 2,
+            (-this.lander.y) / scale_factor + height / 2);
         context.scale(1 / scale_factor, 1 / scale_factor);
-        // zero position
-        context.fillStyle = "#ff0000";
-        context.fillRect(-10, -10, 20, 20);
         // draw cave
         context.fillStyle = "#d1d1d1";
         this.cave.draw(context, {
             upper_left: { x: this.lander.x - width / 2 * scale_factor, y: this.lander.y - height / 2 * scale_factor },
             lower_right: { x: this.lander.x + width / 2 * scale_factor, y: this.lander.y + height / 2 * scale_factor }
         });
-        // real ship position
-        context.fillStyle = "#ff0000";
-        context.fillRect(this.lander.x-10, this.lander.y-10, 20, 20);
+        // lander
         context.resetTransform();
         context.translate(width / 2, height / 2);
         context.rotate(this.lander.angle);
         context.scale(1 / scale_factor, 1 / scale_factor);
-        // lander
         this.lander.draw(context);
     }
 }
