@@ -27,6 +27,7 @@ Cool auto-generated caves!
 - handle overlapping caves correctly and remove direction constraints
 - drawing style: polygon or strokes?
 - make difficulty configurable -> different profiles/levels, easy mode
+- improve colors
 
 **✓ done**
 - control zoom depending on speed

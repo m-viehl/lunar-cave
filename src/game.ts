@@ -25,7 +25,7 @@ class Game {
     pbar_x0: number;
     pbar_width: number;
     pbar_height: number;
-    
+
     // required for running average for scale calculation
     speed_sum: number;
     last_speeds: number[];
@@ -126,7 +126,7 @@ class Game {
         this.speed_sum += v;
         if (this.last_speeds.length > this.speed_avg_window_size)
             this.speed_sum -= this.last_speeds.shift()!;
-        v = this.speed_sum / this.last_speeds.length;
+        v = this.speed_sum / this.speed_avg_window_size;
 
         const vmax = 30 * scale; // TODO hardcoded!
         if (v < vmax) {
@@ -160,11 +160,11 @@ class Game {
         this.lander.draw(context);
         // draw progress bar
         context.resetTransform();
-        context.fillStyle = "#344745";
+        context.fillStyle = "#d1d1d1"; // background 
         context.fillRect(this.pbar_x0, this.pbar_x0, this.pbar_width, this.pbar_height);
-        context.fillStyle = "#d1d1d1";
+        context.fillStyle = "#344745"; // progress
         context.fillRect(this.pbar_x0, this.pbar_x0, this.pbar_width * Math.max(0, this.cave.progress), this.pbar_height);
-        context.strokeStyle = "black";
+        context.strokeStyle = "black"; // border
         context.lineWidth = this.pbar_height / 10;
         context.strokeRect(this.pbar_x0, this.pbar_x0, this.pbar_width, this.pbar_height);
     }
