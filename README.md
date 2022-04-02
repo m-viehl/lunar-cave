@@ -28,6 +28,7 @@ Cool auto-generated caves!
 - drawing style: polygon or strokes?
 - make difficulty configurable -> different profiles/levels, easy mode
 - improve colors
+- ensure we don't spawn inside the wall (maybe possible for very narrow spawn segments?)
 
 **✓ done**
 - control zoom depending on speed

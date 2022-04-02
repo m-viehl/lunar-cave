@@ -136,7 +136,7 @@ class Game {
     }
 
     public draw() {
-        // fill black
+        // fill background
         context.fillStyle = "#344745"
         context.fillRect(0, 0, width, height);
 
