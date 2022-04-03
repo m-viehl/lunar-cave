@@ -9,12 +9,25 @@
             margin: 0px;
             overflow: hidden;
         }
+        #canvas {
+            z-index: 1;
+        }
+        #difficulty_selector {
+            z-index: 9;
+            position: absolute;
+            right: 5px;
+            top: 5px;
+        }
     </style>
 </head>
 
 <body>
     <div id="noscript-text">Enable Javascript to play this game.</div>
-    <canvas id="canvas" width="100px" height="100px" style="cursor:none">Your browser does not support canvas.</canvas>
+    <canvas id="canvas" width="100px" height="100px">Your browser does not support canvas.</canvas>
+    <select id="difficulty_selector">
+        <option value="easy" selected>Easy</option>
+        <option value="hard">Hard</option>
+    </select>
     <script src="main.js"></script>
 </body>
 

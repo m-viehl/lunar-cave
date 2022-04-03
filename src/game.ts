@@ -12,9 +12,6 @@ var width: number;
 var height: number;
 var paused = true;
 
-var scale = 20; // pixels, unit for game scaling
-var g = 9.81 * scale;
-
 var game: Game;
 
 // classes
@@ -31,10 +28,14 @@ class Game {
     last_speeds: number[];
     speed_avg_window_size = 1.5 / 0.01667; // X / __ : X seconds at 60fps... this is ugly. Count fps!
 
+    time_factor: number;
+    scale = 20; // pixels, unit for game scaling
+    g = 9.81 * this.scale;
+
     constructor() {
-        this.lander = new Ship1(0, 0, scale, g);
-        this.new_cave();
         this.resized();
+        this.lander = new Ship1(0, 0, this.scale, this.g);
+        this.new_cave();
         this.reset();
     }
 
@@ -45,6 +46,8 @@ class Game {
     }
 
     public logic(dt: number) {
+        dt *= this.time_factor;
+
         this.lander.tick(dt);
         // collision
         let state = this.cave.check_collision(this.lander, true);
@@ -70,16 +73,27 @@ class Game {
     }
 
     private new_cave() {
-        this.cave = new Cave(350 * scale, scale);
+        this.cave = new Cave(350 * this.scale, this.scale);
     }
 
     public reset() {
-        this.speed_sum = 0;
-        this.last_speeds = [];
-        this.cave.reset();
+        switch ((document.getElementById("difficulty_selector") as HTMLSelectElement).value) {
+            case "easy":
+                this.time_factor = 0.5;
+                break;
+            case "hard":
+                this.time_factor = 1;
+                break;
+        }
         this.lander.x = this.cave.spawn.x;
         this.lander.y = this.cave.spawn.y;
         this.lander.reset();
+
+        this.speed_sum = 0;
+        this.last_speeds = [];
+        this.cave.reset();
+        
+        document.getElementById("difficulty_selector")!.style.visibility = "visible";
         paused = true;
     }
 
@@ -128,7 +142,7 @@ class Game {
             this.speed_sum -= this.last_speeds.shift()!;
         v = this.speed_sum / this.speed_avg_window_size;
 
-        const vmax = 30 * scale; // TODO hardcoded!
+        const vmax = 30 * this.scale; // TODO hardcoded!
         if (v < vmax) {
             return - Math.cos(Math.PI * v / vmax) * 0.5 + 1;
         }
@@ -202,6 +216,7 @@ function loop(now: number = 0) {
 function unpause() {
     if (!paused)
         return;
+    document.getElementById("difficulty_selector")!.style.visibility = "hidden";
     paused = false;
     start_time = undefined;
     window.requestAnimationFrame(loop);
@@ -225,6 +240,10 @@ function main() {
     canvas = document.getElementById("canvas") as HTMLCanvasElement;
     context = canvas.getContext("2d")!
     resized();
+
+    document.getElementById("difficulty_selector")!.addEventListener("change", difficulty_changed);
+    difficulty_changed();
+
     // global variables are set
 
     game = new Game();
@@ -234,6 +253,13 @@ function main() {
     window.addEventListener("keydown", (e) => game.keydown(e));
     window.addEventListener("keyup", (e) => game.keyup(e));
     // loop is started when a key is pressed
+}
+
+// triggered from html
+function difficulty_changed() {
+    if (game !== undefined) {
+        game.reset();
+    }
 }
 
 main();
