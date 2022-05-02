@@ -11,8 +11,18 @@ Cool auto-generated caves!
 - f5 or reaching the end creates new cave
 - Shift+H toggles cave construction lines
 
+# TOFIX
+- remove focus from difficulty selector after selection (otherwise the arrow keys control it instead of the ship)
+
 # TODO
+- make difficulty configurable -> different profiles/levels, easy mode
+    - using the settings object as prototype may solve the issue that inheriting from a base configuration is annoying
+- implement cache busting
 - some info/help text
+    - keymap info
+    - if implemented: leaderboard
+    - nicer difficulty switch?
+    - title etc?
 - use Pixi
 - implement cave zones with different creation parameters for more variability
 - don't have the ship always centered (this one is probably difficult, maybe don't do it)
@@ -20,17 +30,20 @@ Cool auto-generated caves!
 - mobile controls
 - cave of the day; at least print seed (and version?) to console
 - leaderboard
+    - see ipad notes
+    - send only key timestamps
+    - also calculate a tick when a key is pressed: This makes the game deterministic without having to use a separate ticking "thread"
+    - create server-side simulation program which reuses the game's classes
 - first segment with low `start_inner_r` and `start_outer_r` for nicer cave end
 - landing spots & fuel?
 - short "overview" showing the whole cave and then zooming to the ship
 - crash explosion
 - handle overlapping caves correctly and remove direction constraints
 - drawing style: polygon or strokes?
-- make difficulty configurable -> different profiles/levels, easy mode
 - improve colors
 - ensure we don't spawn inside the wall (maybe possible for very narrow spawn segments?)
 
-**✓ done**
+# ✓ done
 - control zoom depending on speed
 - Progress bar
 - implement 2nd ship
