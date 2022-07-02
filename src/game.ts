@@ -21,7 +21,8 @@ var game: Game;
 enum GameState {
     gameover,
     won,
-    ingame
+    ingame,
+    init
 }
 
 class Game {
@@ -29,6 +30,8 @@ class Game {
     cave: Cave;
 
     style: "stroke" | "fill";
+    dead = false;
+    is_current_cave_new = false;
 
     // required for running average for scale calculation
     speed_sum: number;
@@ -42,46 +45,50 @@ class Game {
     constructor() {
         this.lander = new Ship1(0, 0, this.scale, this.g);
         this.new_cave();
-        this.reset();
     }
 
     public logic(dt: number) {
         dt *= this.time_factor;
 
         this.lander.tick(dt);
-        // collision
-        let state = this.cave.check_collision(this.lander, true);
-        switch (state) {
-            case ShipState.end:
-                this.new_cave();
-            case ShipState.wall:
-                this.reset();
-                return;
-        }
+        // collision checks
+        // This call with true is very important: it updates the current cave segment!
+        this.cave.check_collision(this.lander, true);
+        // we ignore the outcome (irrelevant) and perform extra collision checks for the ship edges instead.
         for (let p of this.lander.collision_points) {
             let state = this.cave.check_collision(p);
             switch (state) {
-                case ShipState.alive:
-                    continue;
                 case ShipState.end:
-                    this.new_cave();
                     switch_layout(GameState.won);
-                    this.reset();
-                    break;
+                    this.freeze();
+                    return;
                 case ShipState.wall:
                     switch_layout(GameState.gameover);
-                    this.reset();
-                    break;
+                    this.freeze();
+                    return;
             }
-            return;
         }
     }
 
     private new_cave() {
+        if (this.is_current_cave_new) // stop key event spam
+            return;
+        this.freeze();
         this.cave = new Cave(350 * this.scale, this.scale);
+        this.is_current_cave_new = true;
+        switch_layout(GameState.init);
+        this.reset_ship();
+        draw();
     }
 
-    public reset() {
+    private freeze() {
+        paused = true;
+        this.dead = true;
+    }
+
+    public reset_ship() {
+        this.dead = false;
+
         this.lander.x = this.cave.spawn.x;
         this.lander.y = this.cave.spawn.y;
         this.lander.reset();
@@ -89,12 +96,18 @@ class Game {
         this.speed_sum = 0;
         this.last_speeds = [];
         this.cave.reset();
-
-        paused = true;
+        draw();
     }
 
     private key(e: KeyboardEvent, down: boolean) {
+        if (this.dead && down && e.code != "KeyN") {
+            this.reset_ship();
+            return;
+        }
         switch (e.code) {
+            case "KeyN":
+                this.new_cave();
+                break;
             case "KeyH":
                 if (e.shiftKey && !down) {
                     this.cave.help_lines = !this.cave.help_lines;
@@ -232,6 +245,7 @@ function unpause() {
     if (!paused)
         return;
 
+    game.is_current_cave_new = false;
     game.read_settings();
 
     switch_layout(GameState.ingame);
@@ -260,6 +274,9 @@ function switch_layout(gs: GameState) {
             case GameState.won:
                 game_mesg.innerText = "You won!";
                 break;
+            case GameState.init:
+                // re-hide the message
+                document.getElementById("game_info")!.style.visibility = "hidden";
         }
     }
 }

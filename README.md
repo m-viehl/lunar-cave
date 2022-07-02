@@ -36,16 +36,20 @@ Cool auto-generated caves!
 - handle overlapping caves correctly and remove direction constraints
 - improve colors or re-enable line-only style (make a switch in the menu for this?)
 - ensure we don't spawn inside the wall (maybe possible for very narrow spawn segments?)
-- freeze the game after a crash and display the menu with a "press any key to reset" message
 - Switch to a cooler font
     - like the one from moonlander.seb.ly?
     - <https://github.com/coolbutuseless/arcadefont> looks so cool
 - draw ship "wrecks" at crash sites like in RETRY
 - use jQuery?
-- fade menu/progressbar in/out
+- fade menu/progress in/out
 - change where draw colors/line widths are set in the code. This got ugly when implementing the 2 styles and is full of magic numbers
+- add a key to switch to a new cave
+- only draw a background for the menu div and not the whole page
+- in game.ts: check which public functions can be put in the Game class (e.g. draw(), unpause(), ...?)
+- implement dark mode, of course. I use Arch btw.
 
 # ✓ done
+- freeze the game after a crash and display the menu with a "press any key to reset" message
 - drawing style: polygon or strokes?
 - On full hd with 100% scale, the progress bar is right behind the game title, ugly!
 - hide mouse pointer when starting game
