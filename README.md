@@ -13,6 +13,7 @@ Cool auto-generated caves!
 
 # TOFIX
 - remove focus from difficulty selector after selection (otherwise the arrow keys control it instead of the ship)
+- avoid creation of long backwards-going straight segments (triggered when an invalid cave angle is reached; use seeds for debugging)
 
 # TODO
 - make difficulty configurable -> different profiles/levels, easy mode
@@ -29,6 +30,7 @@ Cool auto-generated caves!
 - Controller support
 - mobile controls
 - cave of the day; at least print seed (and version?) to console
+    - implement an own RNG (only for cave generation!)
 - leaderboard
     - see ipad notes
     - send only key timestamps
@@ -40,8 +42,10 @@ Cool auto-generated caves!
 - crash explosion
 - handle overlapping caves correctly and remove direction constraints
 - drawing style: polygon or strokes?
-- improve colors
+- improve colors or re-enable line-only style (make a switch in the menu for this?)
 - ensure we don't spawn inside the wall (maybe possible for very narrow spawn segments?)
+- freeze the game after a crash and display the menu with a "press any key to reset" message
+- implement a fullscreen button
 
 # ✓ done
 - control zoom depending on speed
