@@ -80,14 +80,6 @@ class Game {
     }
 
     public reset() {
-        switch ((document.getElementById("difficulty_selector") as HTMLSelectElement).value) {
-            case "easy":
-                this.time_factor = 0.5;
-                break;
-            case "hard":
-                this.time_factor = 1;
-                break;
-        }
         this.lander.x = this.cave.spawn.x;
         this.lander.y = this.cave.spawn.y;
         this.lander.reset();
@@ -219,6 +211,17 @@ function loop(now: number = 0) {
 function unpause() {
     if (!paused)
         return;
+
+    // apply settings from HTML elements
+    switch ((document.getElementById("difficulty_selector") as HTMLSelectElement).value) {
+        case "easy":
+            game.time_factor = 0.5;
+            break;
+        case "hard":
+            game.time_factor = 1;
+            break;
+    }
+
     document.getElementById("menu")!.style.visibility = "hidden";
     paused = false;
     start_time = undefined;
@@ -244,9 +247,6 @@ function main() {
     context = canvas.getContext("2d")!
     resized();
 
-    document.getElementById("difficulty_selector")!.addEventListener("change", difficulty_changed);
-    difficulty_changed();
-
     // global variables are set
 
     game = new Game();
@@ -261,13 +261,6 @@ function main() {
     // otherwise, the arrow keys will interfer with them when trying to play after changing
     for (let select of Array.from(document.getElementsByTagName("select"))) {
         select.addEventListener("change", () => select.blur());
-    }
-}
-
-// triggered from html
-function difficulty_changed() {
-    if (game !== undefined) {
-        game.reset();
     }
 }
 
