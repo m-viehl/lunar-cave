@@ -13,14 +13,14 @@ Cool auto-generated caves!
 
 # TOFIX
 - avoid creation of long backwards-going straight segments (triggered when an invalid cave angle is reached; use seeds for debugging)
+- implement cache busting
+- do not show "game over" when winning ^^
 
 # TODO
 - make difficulty configurable -> different profiles/levels, easy mode
     - using the settings object as prototype may solve the issue that inheriting from a base configuration is annoying
-- implement cache busting
 - use Pixi
 - implement cave zones with different creation parameters for more variability
-- don't have the ship always centered (this one is probably difficult, maybe don't do it)
 - Controller support
 - mobile controls
 - cave of the day; at least print seed (and version?) to console
@@ -40,6 +40,9 @@ Cool auto-generated caves!
 - ensure we don't spawn inside the wall (maybe possible for very narrow spawn segments?)
 - freeze the game after a crash and display the menu with a "press any key to reset" message
 - hide mouse pointer when starting game and after inactivity while the game is running
+- On full hd with 100% scale, the progress bar is right behind the game title, ugly!
+- Switch to a cooler font, e.g. like the one from moonlander.seb.ly?
+- draw ship "wrecks" at crash sites like in RETRY
 
 # ✓ done
 - remove focus from difficulty selector after selection (otherwise the arrow keys control it instead of the ship)
