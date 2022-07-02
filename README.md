@@ -12,18 +12,12 @@ Cool auto-generated caves!
 - Shift+H toggles cave construction lines
 
 # TOFIX
-- remove focus from difficulty selector after selection (otherwise the arrow keys control it instead of the ship)
 - avoid creation of long backwards-going straight segments (triggered when an invalid cave angle is reached; use seeds for debugging)
 
 # TODO
 - make difficulty configurable -> different profiles/levels, easy mode
     - using the settings object as prototype may solve the issue that inheriting from a base configuration is annoying
 - implement cache busting
-- some info/help text
-    - keymap info
-    - if implemented: leaderboard
-    - nicer difficulty switch?
-    - title etc?
 - use Pixi
 - implement cave zones with different creation parameters for more variability
 - don't have the ship always centered (this one is probably difficult, maybe don't do it)
@@ -45,10 +39,16 @@ Cool auto-generated caves!
 - improve colors or re-enable line-only style (make a switch in the menu for this?)
 - ensure we don't spawn inside the wall (maybe possible for very narrow spawn segments?)
 - freeze the game after a crash and display the menu with a "press any key to reset" message
-- implement a fullscreen button
 - hide mouse pointer when starting game and after inactivity while the game is running
 
 # ✓ done
+- remove focus from difficulty selector after selection (otherwise the arrow keys control it instead of the ship)
+- some info/help text
+    - keymap info
+    - if implemented: leaderboard
+    - nicer difficulty switch?
+    - title etc?
+- implement a fullscreen button
 - control zoom depending on speed
 - Progress bar
 - implement 2nd ship
