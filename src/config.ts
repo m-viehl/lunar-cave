@@ -96,7 +96,7 @@ let standard_config: Config = {
             background: "#d1d1d1",
             foreground: "#344745",
             border: "black",
-            border_thickness: this.height / 10,
+            border_thickness: scaled(.5),
         },
         ship_model: "1",
     },
@@ -135,3 +135,6 @@ easy_config.cave.generator.min_cave_diameter *= 2;
 easy_config.cave.generator.max_cave_diameter *= 2;
 easy_config.cave.generator.min_radius *= 2;
 easy_config.cave.generator.max_radius *= 2;
+
+export type { Config };
+export { standard_config, easy_config };
