@@ -2,9 +2,12 @@ import { Cave } from "./cave";
 import { ShipState, Key, Point, Screen } from "./misc";
 import { Ship, Ship1 } from "./ship";
 
+document.body.removeChild(document.getElementById("noscript-text")!);
 // public variables
-var canvas: HTMLCanvasElement;
-var context: CanvasRenderingContext2D;
+var canvas = document.getElementById("canvas") as HTMLCanvasElement;
+var context: CanvasRenderingContext2D = canvas.getContext("2d")!;
+var progresstext = document.getElementById("progress")!;
+
 var start_time: number | undefined = undefined;
 var t: number = 0; // seconds since start
 var last_tick: number = 0;
@@ -25,10 +28,6 @@ class Game {
     lander: Ship;
     cave: Cave;
 
-    pbar_x0: number;
-    pbar_width: number;
-    pbar_height: number;
-
     // required for running average for scale calculation
     speed_sum: number;
     last_speeds: number[];
@@ -39,16 +38,9 @@ class Game {
     g = 9.81 * this.scale;
 
     constructor() {
-        this.resized();
         this.lander = new Ship1(0, 0, this.scale, this.g);
         this.new_cave();
         this.reset();
-    }
-
-    public resized() {
-        this.pbar_x0 = width / 20;
-        this.pbar_width = width / 9;
-        this.pbar_height = this.pbar_width / 5;
     }
 
     public logic(dt: number) {
@@ -174,15 +166,8 @@ class Game {
         context.rotate(this.lander.angle);
         context.scale(1 / scale_factor, 1 / scale_factor);
         this.lander.draw(context);
-        // draw progress bar
-        context.resetTransform();
-        context.fillStyle = "#d1d1d1"; // background 
-        context.fillRect(this.pbar_x0, this.pbar_x0, this.pbar_width, this.pbar_height);
-        context.fillStyle = "#344745"; // progress
-        context.fillRect(this.pbar_x0, this.pbar_x0, this.pbar_width * Math.max(0, this.cave.progress), this.pbar_height);
-        context.strokeStyle = "black"; // border
-        context.lineWidth = this.pbar_height / 10;
-        context.strokeRect(this.pbar_x0, this.pbar_x0, this.pbar_width, this.pbar_height);
+        // set progress text
+        progresstext.innerText = `${Math.round(Math.max(0, this.cave.progress * 100))}%`
     }
 }
 
@@ -241,11 +226,13 @@ function switch_layout(gs: GameState) {
     if (gs == GameState.ingame) {
         menu.style.visibility = "hidden";
         document.body.style.cursor = "none";
+        progresstext.style.visibility = "visible";
         // show game info div, which is hidden before the first game
         document.getElementById("game_info")!.style.visibility = "inherit";
     } else {
         menu.style.visibility = "visible";
         document.body.style.cursor = "default";
+        progresstext.style.visibility = "hidden";
         let game_mesg = document.getElementById("game_mesg")!;
         switch (gs) {
             case GameState.gameover:
@@ -265,16 +252,12 @@ function resized() {
     canvas.width = width;
     canvas.height = height;
     if (game !== undefined) {
-        game.resized();
         draw();
     }
     //}
 }
 
 function main() {
-    document.body.removeChild(document.getElementById("noscript-text")!);
-    canvas = document.getElementById("canvas") as HTMLCanvasElement;
-    context = canvas.getContext("2d")!
     resized();
 
     // global variables are set
