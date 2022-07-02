@@ -34,16 +34,19 @@ Cool auto-generated caves!
 - short "overview" showing the whole cave and then zooming to the ship
 - crash explosion
 - handle overlapping caves correctly and remove direction constraints
-- drawing style: polygon or strokes?
 - improve colors or re-enable line-only style (make a switch in the menu for this?)
 - ensure we don't spawn inside the wall (maybe possible for very narrow spawn segments?)
 - freeze the game after a crash and display the menu with a "press any key to reset" message
-- Switch to a cooler font, e.g. like the one from moonlander.seb.ly?
+- Switch to a cooler font
+    - like the one from moonlander.seb.ly?
+    - <https://github.com/coolbutuseless/arcadefont> looks so cool
 - draw ship "wrecks" at crash sites like in RETRY
 - use jQuery?
 - fade menu/progressbar in/out
+- change where draw colors/line widths are set in the code. This got ugly when implementing the 2 styles and is full of magic numbers
 
 # ✓ done
+- drawing style: polygon or strokes?
 - On full hd with 100% scale, the progress bar is right behind the game title, ugly!
 - hide mouse pointer when starting game
 - do not show "game over" when winning ^^

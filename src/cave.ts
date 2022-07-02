@@ -257,7 +257,7 @@ export class Cave {
     max_cave_diameter = 20;
     min_radius = 10;
     max_radius = 40;
-    line_width = 0.3;
+    end_line_width = 0.3;
     // additional hardcoded settings are marked with the comment // SETTING
 
     private get_random_inner_outer_radius(current_radius: number): [number, number] {
@@ -323,7 +323,7 @@ export class Cave {
         this.max_cave_diameter *= scale;
         this.min_radius *= scale;
         this.max_radius *= scale;
-        this.line_width *= scale;
+        this.end_line_width *= scale;
 
         // construct segments
         // SETTING: here are the starting segment settings
@@ -491,7 +491,7 @@ export class Cave {
             this.line_on_screen(seg.inner_edge, scr);
     }
 
-    public draw(context: CanvasRenderingContext2D, scr: Screen) {
+    public draw(context: CanvasRenderingContext2D, scr: Screen, style: "fill" | "stroke") {
         // get segments on screen
         let segments: Segment[] = [this.current_segment];
         {
@@ -541,7 +541,11 @@ export class Cave {
             e = curr.rotation_ccw ? curr.outer_edge : curr.inner_edge;
             context.lineTo(e.start.x, e.start.y);
         }
-        context.fill();
+        context.closePath();
+        if (style == "fill")
+            context.fill();
+        else
+            context.stroke();
         // draw help lines
         if (this.help_lines) {
             for (let s of segments) {
@@ -567,7 +571,7 @@ export class Cave {
         }
         // draw finish line
         context.strokeStyle = "#009955";
-        context.lineWidth = this.line_width;
+        context.lineWidth = this.end_line_width;
         context.beginPath();
         context.moveTo(this.end_line.start.x, this.end_line.start.y);
         context.lineTo(this.end_line.end.x, this.end_line.end.y);

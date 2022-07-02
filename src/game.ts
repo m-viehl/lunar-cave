@@ -28,6 +28,8 @@ class Game {
     lander: Ship;
     cave: Cave;
 
+    style: "stroke" | "fill";
+
     // required for running average for scale calculation
     speed_sum: number;
     last_speeds: number[];
@@ -87,7 +89,7 @@ class Game {
         this.speed_sum = 0;
         this.last_speeds = [];
         this.cave.reset();
-        
+
         paused = true;
     }
 
@@ -145,29 +147,55 @@ class Game {
 
     public draw() {
         // fill background
-        context.fillStyle = "#344745"
+        if (this.style == "fill")
+            context.fillStyle = "#344745";
+        else
+            context.fillStyle = "white";
         context.fillRect(0, 0, width, height);
 
         let scale_factor = this.scale_from_speed(this.lander.speed);
+        let base_line_width = 1.1 * scale_factor; // constant line width, independent from scale!
         context.resetTransform();
         context.translate(
             (-this.lander.x) / scale_factor + width / 2,
             (-this.lander.y) / scale_factor + height / 2);
         context.scale(1 / scale_factor, 1 / scale_factor);
         // draw cave
-        context.fillStyle = "#d1d1d1";
+        if (this.style == "fill") {
+            context.fillStyle = "#d1d1d1";
+        } else {
+            context.strokeStyle = "black";
+            context.lineWidth = base_line_width;
+        }
         this.cave.draw(context, {
             upper_left: { x: this.lander.x - width / 2 * scale_factor, y: this.lander.y - height / 2 * scale_factor },
             lower_right: { x: this.lander.x + width / 2 * scale_factor, y: this.lander.y + height / 2 * scale_factor }
-        });
+        }, this.style);
         // lander
         context.resetTransform();
         context.translate(width / 2, height / 2);
         context.rotate(this.lander.angle);
         context.scale(1 / scale_factor, 1 / scale_factor);
-        this.lander.draw(context);
+
+        // reset line style: changed by cave.draw for end line
+        context.strokeStyle = "black";
+        context.lineWidth = base_line_width;
+
+        this.lander.draw(context, this.style);
         // set progress text
         progresstext.innerText = `${Math.round(Math.max(0, this.cave.progress * 100))}%`
+    }
+
+    public read_settings() {
+        switch ((document.getElementById("difficulty_selector") as HTMLSelectElement).value) {
+            case "easy":
+                this.time_factor = 0.5;
+                break;
+            case "hard":
+                this.time_factor = 1;
+                break;
+        }
+        this.style = (document.getElementById("style_selector") as HTMLSelectElement).value as "fill" | "stroke";
     }
 }
 
@@ -204,16 +232,7 @@ function unpause() {
     if (!paused)
         return;
 
-    // apply settings from HTML elements
-    // TODO do this from inside the Game class?
-    switch ((document.getElementById("difficulty_selector") as HTMLSelectElement).value) {
-        case "easy":
-            game.time_factor = 0.5;
-            break;
-        case "hard":
-            game.time_factor = 1;
-            break;
-    }
+    game.read_settings();
 
     switch_layout(GameState.ingame);
     paused = false;
@@ -263,6 +282,7 @@ function main() {
     // global variables are set
 
     game = new Game();
+    game.read_settings();
     draw();
 
     window.addEventListener("resize", resized);
@@ -275,6 +295,13 @@ function main() {
     for (let select of Array.from(document.getElementsByTagName("select"))) {
         select.addEventListener("change", () => select.blur());
     }
+    // instantly apply style change
+    document.getElementById("style_selector")!.addEventListener("change", () => {
+        if (game !== undefined) {
+            game.read_settings();
+            draw();
+        }
+    });
 }
 
 main();

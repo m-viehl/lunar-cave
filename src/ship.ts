@@ -4,7 +4,7 @@ export interface Ship extends Point {
     collision_points: Point[];
     reset: () => void;
     tick: (dt: number) => void;
-    draw: (context: CanvasRenderingContext2D) => void;
+    draw: (context: CanvasRenderingContext2D, style: "fill" | "stroke") => void;
     key: (k: Key, down: boolean) => void;
     speed: number;
     angle: number;
@@ -66,21 +66,31 @@ export class Ship1 implements Ship {
         this.speed = 0;
     }
 
-    public draw(context: CanvasRenderingContext2D) {
+    public draw(context: CanvasRenderingContext2D, style: "fill" | "stroke") {
         // TODO WARNING: this depends on the translation done before in game.ts!
         // unify the context translations, zoom etc.!
         // draw thruster flame
         if (this.thrust_factor > 0) {
-            context.fillStyle = "#02e5ca"
             context.beginPath();
             context.moveTo(-this.size / 3, this.size / 3);
             context.lineTo(0, this.size * (1 + 1 / 3) * this.thrust_factor);
             context.lineTo(+this.size / 3, this.size / 3);
-            context.fill();
+            if (style == "fill") {
+                context.fillStyle = "#02e5ca"
+                context.fill();
+            } else {
+                context.stroke();
+            }
         }
         // draw body
-        context.fillStyle = "#5c5e5e";
-        context.fillRect(-this.size / 2, -this.size / 3, this.size, this.size * 2 / 3);
+        if (style == "fill") {
+            context.fillStyle = "#5c5e5e";
+            context.fillRect(-this.size / 2, -this.size / 3, this.size, this.size * 2 / 3);
+        } else {
+            context.fillStyle = "white";
+            context.fillRect(-this.size / 2, -this.size / 3, this.size, this.size * 2 / 3);
+            context.strokeRect(-this.size / 2, -this.size / 3, this.size, this.size * 2 / 3);
+        }
     }
 
     public tick(dt: number) {
@@ -158,7 +168,7 @@ export class Ship2 implements Ship {
 
         this.r_x *= scale;
         this.r_y *= scale;
-        
+
         this.alpha = Math.atan(this.r_y / this.r_x);
         this.r_edge = Math.hypot(this.r_x, this.r_y);
         this.rotation_acc_factor = 6 * this.acc * this.r_x / (this.r_x ** 2 + this.r_y ** 2) * 2 * Math.PI;
