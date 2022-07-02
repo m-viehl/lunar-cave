@@ -46,6 +46,7 @@ Cool auto-generated caves!
 - ensure we don't spawn inside the wall (maybe possible for very narrow spawn segments?)
 - freeze the game after a crash and display the menu with a "press any key to reset" message
 - implement a fullscreen button
+- hide mouse pointer when starting game and after inactivity while the game is running
 
 # ✓ done
 - control zoom depending on speed

@@ -4,31 +4,99 @@
 <head>
     <meta charset="utf-8">
     <title>Lander 1.0</title>
-    <style type="text/css">
+    <style>
         body {
             margin: 0px;
             overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
         }
+
         #canvas {
-            z-index: 1;
-        }
-        #difficulty_selector {
-            z-index: 9;
             position: absolute;
-            right: 5px;
-            top: 5px;
+            top: 0px;
+            left: 0px;
+            z-index: -1;
         }
+        
+        #menu {
+            padding: 5em;
+            background-color: rgba(255, 255, 255, 0.25);
+            height: 100vh;
+        }
+
+        .key {
+            border: 1pt solid black;
+            padding-left: 3pt;
+            padding-right: 3pt;
+            border-radius: 3pt;
+        }
+
+        .keygrid {
+            display: inline-grid;
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        #gameover {
+            margin-top: 5em;
+            margin-bottom: 5em;
+            visibility: hidden;
+        }
+
+        h2 {
+            margin-top: 2em;
+        }
+
     </style>
+
+    <script src="main.js" defer></script>
 </head>
 
 <body>
-    <div id="noscript-text">Enable Javascript to play this game.</div>
+    <h1 id="noscript-text">Enable Javascript to play this game.</h1>
+    <div id="menu">
+        <h1>Lunar Cave</h1>
+        <div id="gameover">
+            <h2>Game over!</h2>
+            <!--Press any key to reset or <span class="key">N</span> for a new cave.-->
+        </div>
+        <div>
+            <h2>Controls</h2>
+            Use <div class="keygrid">
+                <span></span>
+                <span class="key">W</span>
+                <span></span>
+                <span class="key">A</span>
+                <span></span>
+                <span class="key">D</span>
+            </div> or <div class="keygrid">
+                <span></span>
+                <span class="key">↑</span>
+                <span></span>
+                <span class="key">←</span>
+                <span></span>
+                <span class="key">→</span>
+            </div> to control the ship.
+        </div>
+        <div>
+            <h2>Settings</h2>
+            <p>Select difficulty:
+                <select id="difficulty_selector">
+                    <option value="easy" selected>Easy</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </p>
+            <!--
+            <p>Select draw style:
+                <select id="style_selector">
+                    <option value="fill" selected>Filled</option>
+                    <option value="stroke">Lines only</option>
+                </select>
+            </p>
+            -->
+            <p>Click <button onclick="document.body.requestFullscreen()">here</button> to go to fullscreen mode.</p>
+        </div>
+    </div>
     <canvas id="canvas" width="100px" height="100px">Your browser does not support canvas.</canvas>
-    <select id="difficulty_selector">
-        <option value="easy" selected>Easy</option>
-        <option value="hard">Hard</option>
-    </select>
-    <script src="main.js"></script>
 </body>
 
 </html>

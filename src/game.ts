@@ -66,6 +66,9 @@ class Game {
                 case ShipState.end:
                     this.new_cave();
                 case ShipState.wall:
+                    // enable the "game over" screen oh the first crash
+                    document.getElementById("gameover")!.style.visibility = "inherit";
+
                     this.reset();
             }
             return;
@@ -93,7 +96,7 @@ class Game {
         this.last_speeds = [];
         this.cave.reset();
         
-        document.getElementById("difficulty_selector")!.style.visibility = "visible";
+        document.getElementById("menu")!.style.visibility = "visible";
         paused = true;
     }
 
@@ -216,7 +219,7 @@ function loop(now: number = 0) {
 function unpause() {
     if (!paused)
         return;
-    document.getElementById("difficulty_selector")!.style.visibility = "hidden";
+    document.getElementById("menu")!.style.visibility = "hidden";
     paused = false;
     start_time = undefined;
     window.requestAnimationFrame(loop);
