@@ -15,6 +15,12 @@ var paused = true;
 var game: Game;
 
 // classes
+enum GameState {
+    gameover,
+    won,
+    ingame
+}
+
 class Game {
     lander: Ship;
     cave: Cave;
@@ -65,11 +71,13 @@ class Game {
                     continue;
                 case ShipState.end:
                     this.new_cave();
-                case ShipState.wall:
-                    // enable the "game over" screen oh the first crash
-                    document.getElementById("gameover")!.style.visibility = "inherit";
-
+                    switch_layout(GameState.won);
                     this.reset();
+                    break;
+                case ShipState.wall:
+                    switch_layout(GameState.gameover);
+                    this.reset();
+                    break;
             }
             return;
         }
@@ -88,7 +96,6 @@ class Game {
         this.last_speeds = [];
         this.cave.reset();
         
-        document.getElementById("menu")!.style.visibility = "visible";
         paused = true;
     }
 
@@ -213,6 +220,7 @@ function unpause() {
         return;
 
     // apply settings from HTML elements
+    // TODO do this from inside the Game class?
     switch ((document.getElementById("difficulty_selector") as HTMLSelectElement).value) {
         case "easy":
             game.time_factor = 0.5;
@@ -222,10 +230,30 @@ function unpause() {
             break;
     }
 
-    document.getElementById("menu")!.style.visibility = "hidden";
+    switch_layout(GameState.ingame);
     paused = false;
     start_time = undefined;
     window.requestAnimationFrame(loop);
+}
+
+function switch_layout(gs: GameState) {
+    let menu = document.getElementById("menu")!;
+    if (gs == GameState.ingame) {
+        menu.style.visibility = "hidden";
+        // show game info div, which is hidden before the first game
+        document.getElementById("game_info")!.style.visibility = "inherit";
+    } else {
+        menu.style.visibility = "visible";
+        let game_mesg = document.getElementById("game_mesg")!;
+        switch (gs) {
+            case GameState.gameover:
+                game_mesg.innerText = "Game over!";
+                break;
+            case GameState.won:
+                game_mesg.innerText = "You won!";
+                break;
+        }
+    }
 }
 
 function resized() {

@@ -14,7 +14,6 @@ Cool auto-generated caves!
 # TOFIX
 - avoid creation of long backwards-going straight segments (triggered when an invalid cave angle is reached; use seeds for debugging)
 - implement cache busting
-- do not show "game over" when winning ^^
 
 # TODO
 - make difficulty configurable -> different profiles/levels, easy mode
@@ -45,6 +44,7 @@ Cool auto-generated caves!
 - draw ship "wrecks" at crash sites like in RETRY
 
 # ✓ done
+- do not show "game over" when winning ^^
 - remove focus from difficulty selector after selection (otherwise the arrow keys control it instead of the ship)
 - some info/help text
     - keymap info
