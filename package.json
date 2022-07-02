@@ -4,8 +4,8 @@
   "description": "lunar-lander-like game",
   "main": "main.js",
   "scripts": {
-    "build": "tsc --noEmit && esbuild src/game.ts --bundle --sourcemap --minify --outfile=build/main.js && cp src/main.html build && python3 -m http.server -d build",
-    "production": "tsc --noEmit && esbuild src/game.ts --bundle --minify --outfile=build/main.js && cp src/main.html build"
+    "build": "tsc --noEmit && esbuild src/game.ts --bundle --sourcemap --minify --outfile=build/main.js && cp src/main.html build/index.html && python3 -m http.server -d build",
+    "production": "tsc --noEmit && esbuild src/game.ts --bundle --minify --outfile=build/main.js && cp src/main.html build/index.html"
   },
   "author": "Max Viehl",
   "license": "UNLICENSED",
