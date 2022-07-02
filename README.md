@@ -44,7 +44,6 @@ Cool auto-generated caves!
 - fade menu/progress in/out
 - change where draw colors/line widths are set in the code. This got ugly when implementing the 2 styles and is full of magic numbers
 - add a key to switch to a new cave
-- only draw a background for the menu div and not the whole page
 - in game.ts: check which public functions can be put in the Game class (e.g. draw(), unpause(), ...?)
 - implement dark mode, of course. I use Arch btw.
 
@@ -65,3 +64,4 @@ Cool auto-generated caves!
 - Progress bar
 - implement 2nd ship
 - "debug mode" which draws some help lines
+- only draw a background for the menu div and not the whole page
