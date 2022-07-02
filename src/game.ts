@@ -256,6 +256,12 @@ function main() {
     window.addEventListener("keydown", (e) => game.keydown(e));
     window.addEventListener("keyup", (e) => game.keyup(e));
     // loop is started when a key is pressed
+
+    // make every HTML select element lose keyboard focus after its value has been changed
+    // otherwise, the arrow keys will interfer with them when trying to play after changing
+    for (let select of Array.from(document.getElementsByTagName("select"))) {
+        select.addEventListener("change", () => select.blur());
+    }
 }
 
 // triggered from html
