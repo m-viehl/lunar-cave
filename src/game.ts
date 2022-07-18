@@ -1,5 +1,5 @@
 import { Cave } from "./cave";
-import { ShipState, Key, Point, Screen } from "./misc";
+import { ShipState, Key } from "./misc";
 import { Ship, Ship1 } from "./ship";
 
 document.body.removeChild(document.getElementById("noscript-text")!);

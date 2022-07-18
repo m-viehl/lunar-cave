@@ -1,55 +1,12 @@
 import { Point, Screen, ShipState } from "./misc";
+import * as angle_tools from "./angle_tools";
 
-type Polar = { phi: number, r: number };
-
-enum AnglePosition {
-    before,
-    after,
-    inside,
-    opposite
-}
 
 enum ShipPosition {
     before,
     after,
     inside,
     wall
-}
-
-function normalize(alpha: number) {
-    return (alpha + 8 * Math.PI) % (2 * Math.PI);
-}
-
-function in_angle_range(start: number, end: number, phi: number) {
-    // angle range is defined counter-clockwise from start to end (possibly going over zero).
-    start = normalize(start);
-    end = normalize(end);
-    phi = normalize(phi);
-    if (start === end)
-        return phi === start;
-    if (start < end)
-        return start <= phi && phi < end;
-    // start > end
-    return (0 <= phi && phi < end) || (start <= phi && phi < 2 * Math.PI);
-}
-
-function angle_between(phi: number, theta: number) {
-    // returns the *smaller* angle enclosed between phi and theta.
-    phi = normalize(phi);
-    theta = normalize(theta);
-    if (phi < theta) {
-        return Math.min(theta - phi, phi + (2 * Math.PI - theta));
-    } else {
-        return Math.min(phi - theta, theta + (2 * Math.PI - phi));
-    }
-}
-
-function angle_between_vectors(a: Point, b: Point) {
-    return Math.acos((a.x * b.x + a.y * b.y) / (Math.hypot(a.x, a.y) * Math.hypot(b.x, b.y)));
-}
-
-function deg2rad(deg: number) {
-    return deg / 360 * 2 * Math.PI;
 }
 
 function random_range(min: number, max: number, int = false) {
@@ -78,11 +35,11 @@ class Segment {
 
     constructor(center: Point, radius: number, start_angle: number, end_angle: number, ccw: boolean,
         start_inner_r: number, start_outer_r: number, end_inner_r: number, end_outer_r: number, previous?: Segment) {
-        this.start_angle = normalize(start_angle);
-        this.end_angle = normalize(end_angle);
+        this.start_angle = angle_tools.normalize(start_angle);
+        this.end_angle = angle_tools.normalize(end_angle);
         this.center = center;
         this.radius = radius;
-        this.enclosed_angle = angle_between(this.start_angle, this.end_angle);
+        this.enclosed_angle = angle_tools.angle_between(this.start_angle, this.end_angle);
         this.arc_length = radius * this.enclosed_angle;
         this.rotation_ccw = ccw;
         this.inner_edge = new Edge(start_inner_r, end_inner_r, this);
@@ -100,47 +57,10 @@ class Segment {
         }
     }
 
-    public to_polar(p: Point): Polar {
-        // returns the polar coordinates of p relative to this segment's center
-        return {
-            phi: Math.atan2(p.y - this.center.y, p.x - this.center.x),
-            r: Math.hypot(p.x - this.center.x, p.y - this.center.y)
-        };
-    }
-
-    private get_angle_position(phi: number): AnglePosition {
-        let A: number;
-        let B: number;
-        let ccw = this.rotation_ccw;
-        if (ccw) {
-            B = this.start_angle;
-            A = this.end_angle;
-        } else {
-            A = this.start_angle;
-            B = this.end_angle;
-        }
-        if (in_angle_range(B, A, phi)) {
-            return AnglePosition.inside;
-        }
-        if (ccw) {
-            if (in_angle_range(B - Math.PI / 2, B, phi))
-                return AnglePosition.before;
-            if (in_angle_range(A, A + Math.PI / 2, phi))
-                return AnglePosition.after;
-            return AnglePosition.opposite
-        } else {
-            if (in_angle_range(A, A + Math.PI / 2, phi))
-                return AnglePosition.before;
-            if (in_angle_range(B - Math.PI / 2, B, phi))
-                return AnglePosition.after;
-            return AnglePosition.opposite
-        }
-    }
-
-    public get_point_position(p: Polar): ShipPosition {
-        let pos = this.get_angle_position(p.phi)
+    public get_point_position(p: angle_tools.Polar): ShipPosition {
+        let pos = angle_tools.get_angle_position(p.phi, this.start_angle, this.end_angle, this.rotation_ccw);
         switch (pos) {
-            case AnglePosition.inside:
+            case angle_tools.AnglePosition.inside:
                 let inner_r = this.inner_edge.r(p.phi);
                 let outer_r = this.outer_edge.r(p.phi);
                 if (inner_r <= p.r && p.r <= outer_r) {
@@ -148,11 +68,11 @@ class Segment {
                 } else {
                     return ShipPosition.wall;
                 }
-            case AnglePosition.opposite:
+            case angle_tools.AnglePosition.opposite:
                 throw new Error("oops");
-            case AnglePosition.after:
+            case angle_tools.AnglePosition.after:
                 return ShipPosition.after;
-            case AnglePosition.before:
+            case angle_tools.AnglePosition.before:
                 return ShipPosition.before;
         }
     }
@@ -216,13 +136,13 @@ class Edge {
             x: segment.center.x - B.x,
             y: segment.center.y - B.y
         }
-        this.gamma = angle_between_vectors(ba, b0);
+        this.gamma = angle_tools.angle_between_vectors(ba, b0);
     }
 
     public r(phi: number): number {
-        if (!in_angle_range(this.phi_B, this.phi_A, phi))
+        if (!angle_tools.in_angle_range(this.phi_B, this.phi_A, phi))
             throw new Error("phi not in segment!");
-        let theta = angle_between(phi, this.phi_B);
+        let theta = angle_tools.angle_between(phi, this.phi_B);
         let delta = Math.PI - this.gamma - theta;
         return this.r_B * Math.sin(this.gamma) / Math.sin(delta);
     }
@@ -248,8 +168,8 @@ export class Cave {
 
     // settings
     spawn_segment_index = 5;
-    min_angle_per_center = deg2rad(30);
-    max_angle_per_center = deg2rad(120);
+    min_angle_per_center = angle_tools.deg2rad(30);
+    max_angle_per_center = angle_tools.deg2rad(120);
     // the following ones are multiplied by scale.
     min_segment_arc_length = .5;
     max_segment_arc_length = 5;
@@ -301,7 +221,7 @@ export class Cave {
             }
             if (prev.rotation_ccw !== ccw) {
                 // rotation direction changed! Flip start angle by 180°
-                start_angle = normalize(prev.end_angle + Math.PI);
+                start_angle = angle_tools.normalize(prev.end_angle + Math.PI);
             } else {
                 start_angle = prev.end_angle;
             }
@@ -347,13 +267,13 @@ export class Cave {
                     let max_segment_angle = this.max_segment_arc_length / current_radius;
                     let worst: number;
                     if (last.rotation_ccw) {
-                        let direction = normalize(last.end_angle + Math.PI / 2);
-                        worst = normalize(direction + max_segment_angle);
+                        let direction = angle_tools.normalize(last.end_angle + Math.PI / 2);
+                        worst = angle_tools.normalize(direction + max_segment_angle);
                     } else {
-                        let direction = normalize(last.end_angle - Math.PI / 2);
-                        worst = normalize(direction + max_segment_angle);
+                        let direction = angle_tools.normalize(last.end_angle - Math.PI / 2);
+                        worst = angle_tools.normalize(direction + max_segment_angle);
                     }
-                    if (!in_angle_range(3 / 2 * Math.PI, Math.PI / 2, worst))
+                    if (!angle_tools.in_angle_range(3 / 2 * Math.PI, Math.PI / 2, worst))
                         may_go_backwards = true;
                 }
                 let switch_center = enclosed_angle_of_current_center > target_enclosed_angle_of_current_center || may_go_backwards;
@@ -412,10 +332,10 @@ export class Cave {
         // performs a collision check and updates current_segment
         // call regularly with current ship position
         let curr = this.current_segment;
-        let polar = curr.to_polar(p);
+        let polar = angle_tools.to_polar(p, curr.center);
         // progress calculation
         this.current_arc_length = curr.previous_arc_length
-            + curr.arc_length * angle_between(polar.phi, curr.start_angle) / curr.enclosed_angle;
+            + curr.arc_length * angle_tools.angle_between(polar.phi, curr.start_angle) / curr.enclosed_angle;
         if (p === this.spawn) {
             // set spawn arc length
             this.spawn_arc_length = this.current_arc_length;
@@ -432,7 +352,7 @@ export class Cave {
                         return ShipState.alive;
                     } else {
                         curr = curr.next;
-                        let pos_next = curr.get_point_position(curr.to_polar(p));
+                        let pos_next = curr.get_point_position(angle_tools.to_polar(p, curr.center));
                         switch (pos_next) {
                             case ShipPosition.inside:
                                 return ShipState.alive;
@@ -454,7 +374,7 @@ export class Cave {
                         return ShipState.alive;
                     } else {
                         curr = curr.prev;
-                        let pos_next = curr.get_point_position(curr.to_polar(p));
+                        let pos_next = curr.get_point_position(angle_tools.to_polar(p, curr.center));
                         switch (pos_next) {
                             case ShipPosition.inside:
                                 return ShipState.alive;
