@@ -1,4 +1,4 @@
-import { Point, Screen, ShipState } from "./misc";
+import { Point, Screen, ShipState } from "../misc";
 import * as angle_tools from "./angle_tools";
 
 

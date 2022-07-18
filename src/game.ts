@@ -1,4 +1,4 @@
-import { Cave } from "./cave";
+import { Cave } from "./cave/cave";
 import { ShipState, Key } from "./misc";
 import { Ship, Ship1 } from "./ship";
 

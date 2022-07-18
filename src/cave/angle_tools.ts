@@ -1,4 +1,4 @@
-import { Point } from "./misc"
+import { Point } from "../misc"
 
 /**
  * A type representing a polar coordinate.
