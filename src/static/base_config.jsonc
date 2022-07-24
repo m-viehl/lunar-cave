@@ -1,0 +1,48 @@
+{
+    "game": {
+        "time_factor": 1,
+        "g": 9.81,
+        "zoom": {
+            "speed_avg_window_size": 90,
+            "min_zoom_factor": 0.5,
+            "max_zoom_factor": 1.5,
+            "min_speed": 0,
+            "max_speed": "scaled(30)"
+        },
+        "pbar": {
+            "x0": "scaled(20)",
+            "width": "scaled(30)",
+            "height": "scaled(5)",
+            "background": "#d1d1d1",
+            "foreground": "#344745",
+            "border": "black",
+            "border_thickness": "scaled(.5)"
+        },
+        "ship_model": "1"
+    },
+    "cave": {
+        "style": {
+            "background": "#344745",
+            "foreground": "#d1d1d1",
+            "stroke_width": "scaled(.1)", // maybe absolute 2px?
+            "stroke_col": "black",
+            "end_stroke_width": "scaled(.3)",
+            "end_col": "#009955"
+        },
+        // help line style?
+        "generator": {
+            "constrain_to_go_right": true,
+            "target_length": "scaled(350)",
+            "spawn_segment_index": 5,
+            "min_angle_per_center": "deg2rad(30)",
+            "max_angle_per_center": "deg2rad(120)",
+            // the following ones are multiplied by scale.
+            "min_segment_arc_length": "scaled(.5)",
+            "max_segment_arc_length": "scaled(5)",
+            "min_cave_diameter": "scaled(2.5)",
+            "max_cave_diameter": "scaled(20)",
+            "min_radius": "scaled(10)",
+            "max_radius": "scaled(40)"
+        }
+    }
+}
