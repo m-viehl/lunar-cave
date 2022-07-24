@@ -26,21 +26,21 @@ enum GameState {
 }
 
 class Game {
-    lander: Ship;
-    cave: Cave;
+    private readonly lander: Ship;
+    private cave: Cave;
 
-    style: "stroke" | "fill";
-    dead = false;
-    is_current_cave_new = false;
+    private style: "stroke" | "fill";
+    private dead = false;
+    private is_current_cave_new = false;
 
     // required for running average for scale calculation
-    speed_sum: number;
-    last_speeds: number[];
-    speed_avg_window_size = 1.5 / 0.01667; // X / __ : X seconds at 60fps... this is ugly. Count fps!
+    private speed_sum: number;
+    private last_speeds: number[];
+    private readonly speed_avg_window_size = 1.5 / 0.01667; // X / __ : X seconds at 60fps... this is ugly. Count fps!
 
-    time_factor: number;
-    scale = 20; // pixels, unit for game scaling
-    g = 9.81 * this.scale;
+    private time_factor: number;
+    private readonly scale = 20; // pixels, unit for game scaling
+    private readonly g = 9.81 * this.scale;
 
     constructor() {
         this.lander = new Ship1(0, 0, this.scale, this.g);
@@ -48,6 +48,7 @@ class Game {
     }
 
     public logic(dt: number) {
+        this.is_current_cave_new = false;
         dt *= this.time_factor;
 
         this.lander.tick(dt);
@@ -245,7 +246,6 @@ function unpause() {
     if (!paused)
         return;
 
-    game.is_current_cave_new = false;
     game.read_settings();
 
     switch_layout(GameState.ingame);

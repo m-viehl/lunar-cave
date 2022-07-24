@@ -4,21 +4,25 @@ import { Edge } from "./edge";
 
 
 export class Segment {
-    center: Point; // center of the corresponding circle
-    radius: number;
-    centroid: Point; // point in the middle of the segment
-    start_angle: number;
-    end_angle: number;
-    rotation_ccw: boolean;
-    arc_length: number;
-    enclosed_angle: number;
-    previous_arc_length: number; // sum of arc length of all previous segments
+    readonly center: Point; // center of the corresponding circle
+    readonly radius: number;
+    readonly centroid: Point; // point in the middle of the segment
+    readonly start_angle: number;
+    readonly end_angle: number;
+    readonly rotation_ccw: boolean;
+    readonly arc_length: number;
+    readonly enclosed_angle: number;
+    readonly previous_arc_length: number; // sum of arc length of all previous segments
 
-    inner_edge: Edge;
-    outer_edge: Edge;
+    readonly inner_edge: Edge;
+    readonly outer_edge: Edge;
 
-    next: Segment | null = null;
-    prev: Segment | null = null;
+    _next: Segment | null = null;
+    readonly prev: Segment | null = null;
+
+    public get next() {
+        return this._next;
+    }
 
     constructor(center: Point, radius: number, start_angle: number, end_angle: number, ccw: boolean,
         start_inner_r: number, start_outer_r: number, end_inner_r: number, end_outer_r: number, previous?: Segment) {
@@ -36,7 +40,7 @@ export class Segment {
             y: (this.inner_edge.start.y + this.inner_edge.end.y + this.outer_edge.start.y + this.outer_edge.end.y) / 4,
         }
         if (previous !== undefined) {
-            previous.next = this;
+            previous._next = this;
             this.prev = previous;
             this.previous_arc_length = previous.previous_arc_length + previous.arc_length;
         } else {

@@ -10,18 +10,18 @@ export class Edge {
      * This is (is it really?) required for some angle calculations, see the notes PDF about the geometry. (TODO!)
      */
 
-    r_A: number;
-    r_B: number;
-    r_start: number;
-    r_end: number;
-    phi_A: number;
-    phi_B: number;
+    readonly r_A: number;
+    readonly r_B: number;
+    readonly r_start: number;
+    readonly r_end: number;
+    readonly phi_A: number;
+    readonly phi_B: number;
 
-    gamma: number;
-    length: number;
+    readonly gamma: number;
+    readonly length: number;
 
-    start: Point;
-    end: Point;
+    readonly start: Point;
+    readonly end: Point;
 
     constructor(r_start: number, r_end: number, segment: Segment) {
         // give r_start and r_end without swapping for segment.rotation_ccw!

@@ -3,31 +3,35 @@ import * as angle_tools from "./angle_tools";
 import { Segment } from "./segment";
 
 export class Cave {
-    segments: Segment[] = [];
-    current_segment: Segment;
-    spawn: Point;
-    end_line: Line;
+    readonly segments: Segment[] = [];
+    private current_segment: Segment;
+    readonly spawn: Point;
+    readonly end_line: Line;
     help_lines = false;
 
     // progress calculation
-    progress = 0;
-    total_arc_length: number;
-    spawn_arc_length: number;
-    current_arc_length: number;
+    private _progress = 0;
+    private readonly total_arc_length: number;
+    private spawn_arc_length: number;
+    private current_arc_length: number;
 
     // settings
-    spawn_segment_index = 5;
-    min_angle_per_center = angle_tools.deg2rad(30);
-    max_angle_per_center = angle_tools.deg2rad(120);
+    private spawn_segment_index = 5;
+    private readonly min_angle_per_center = angle_tools.deg2rad(30);
+    private readonly max_angle_per_center = angle_tools.deg2rad(120);
     // the following ones are multiplied by scale.
-    min_segment_arc_length = .5;
-    max_segment_arc_length = 5;
-    min_cave_diameter = 2.5;
-    max_cave_diameter = 20;
-    min_radius = 10;
-    max_radius = 40;
-    end_line_width = 0.3;
+    private readonly min_segment_arc_length = .5;
+    private readonly max_segment_arc_length = 5;
+    private readonly min_cave_diameter = 2.5;
+    private readonly max_cave_diameter = 20;
+    private readonly min_radius = 10;
+    private readonly max_radius = 40;
+    private readonly end_line_width = 0.3;
     // additional hardcoded settings are marked with the comment // SETTING
+
+    public get progress() {
+        return this._progress;
+    }
 
     private get_random_inner_outer_radius(current_radius: number): [number, number] {
         return [
@@ -189,7 +193,7 @@ export class Cave {
             // set spawn arc length
             this.spawn_arc_length = this.current_arc_length;
         }
-        this.progress = (this.current_arc_length - this.spawn_arc_length) / (this.total_arc_length - this.spawn_arc_length);
+        this._progress = (this.current_arc_length - this.spawn_arc_length) / (this.total_arc_length - this.spawn_arc_length);
 
         switch (curr.get_point_position(polar)) {
             case ShipPosition.wall:
