@@ -43,4 +43,17 @@ import easy_config_json from "../static/easy_config.json";
 const hard_config = jsons_to_config([base_config_json]);
 const easy_config = jsons_to_config([base_config_json, easy_config_json]);
 
-export { hard_config, easy_config };
+var config: Config;
+
+function choose_config(name: "hard" | "easy") {
+    switch (name) {
+        case "easy":
+            config = easy_config;
+            break;
+        case "hard":
+            config = hard_config;
+            break;
+    }
+}
+
+export { config, choose_config };
