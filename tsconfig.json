@@ -6,13 +6,14 @@
             "ES2020",
             "dom"
         ],
-        "module": "ES2020",
+        "module": "Node16",
         "noImplicitAny": true,
         "removeComments": true,
         "strictNullChecks": true,
 
         "isolatedModules": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "resolveJsonModule": true
     },
     "files": ["src/typescript/game.ts"]
 }
