@@ -1,33 +1,47 @@
+import lodash from "lodash";
+
 type color = string;
-type scaled = number;
+type scaled = string;
 
-const SCALE = 20;
-
-// unit calculations
-function scaled(v: number) {
-    return v * SCALE;
-}
-
-function deg2rad(deg: number) {
-    return deg / 360 * 2 * Math.PI;
-}
-
-// copy for inheritance
-function deepcopy(o: object): object {
-    let out = {};
-    for (let key in o) {
-        let val = o[key];
-        if (typeof val === "object") {
-            out[key] = deepcopy(val);
-        } else {
-            out[key] = val;
+/**
+ * Applies special functions allowed in configuration jsons, which currently are:
+ * - `scaled`: a string of the format `"scaled:XXX"` is converted to `scale * XXX`.
+ * - `deg2rad`: a string of the format `"deg2rad:XXX"` is converted to `XXX (interpreted as number in degrees) in radians`
+ * 
+ * @param value an object. Functions are recursively applied to all matching string values.
+ * @param scale the scale to use for the function `scale`.
+ * @returns the object `value` with functions applied.
+ */
+function apply_functions(value: any, scale: number): any {
+    if (typeof value === "string") {
+        if (value.startsWith("scaled:")) {
+            return parseFloat(value.substring(7)) * scale;
         }
+        if (value.startsWith("deg2rad:")) {
+            return parseFloat(value.substring(8)) / 360 * 2 * Math.PI;
+        }
+    } else if (typeof value === "object") {
+        return lodash.mapValues(value, (value, key, object) => apply_functions(value, scale));
+    } else {
+        return value;
     }
-    return out;
 }
 
-// definition
+/**
+ * Combines multiple configuration objects to one by overwriting values in the ones with lower list index of `o` with
+ * values from the ones with higher values. Does not perform any type checks, but throws an error if there is no base element
+ * to overwrite.
+ * @param configs A list of configuration objects in correct order for merging
+ */
+function jsons_to_config(base: object, ...to_apply: object[]): Config {
+    let out = lodash.defaultsDeep(lodash.cloneDeep(base), to_apply);
+    return apply_functions(out, (base as Config).scale) as Config;
+}
+
+
+// configuration type definition
 type Config = {
+    scale: number
     game: {
         time_factor: number
         g: scaled
@@ -37,7 +51,6 @@ type Config = {
             max_zoom_factor: number
             min_speed: scaled
             max_speed: scaled
-            // different transition functions?
         }
         pbar: {
             x0: scaled
@@ -76,65 +89,11 @@ type Config = {
     }
 }
 
-// concrete settings
-let standard_config: Config = {
-    game: {
-        time_factor: 1,
-        g: 9.81,
-        zoom: {
-            speed_avg_window_size: 1.5 / 0.01667, // X / __ : X seconds at 60fps... this is ugly. Count fps!
-            min_zoom_factor: 0.5,
-            max_zoom_factor: 1.5,
-            min_speed: 0,
-            max_speed: scaled(30),
-            // different transition functions?
-        },
-        pbar: {
-            x0: scaled(20),
-            width: scaled(30),
-            height: scaled(5),
-            background: "#d1d1d1",
-            foreground: "#344745",
-            border: "black",
-            border_thickness: scaled(.5),
-        },
-        ship_model: "1",
-    },
-    cave: {
-        style: {
-            background: "#344745",
-            foreground: "#d1d1d1",
-            stroke_width: scaled(.1), // maybe absolute 2px?
-            stroke_col: "black",
-            end_stroke_width: scaled(.3),
-            end_col: "#009955",
-        },
-        // help line style?
-        generator: {
-            constrain_to_go_right: true,
-            target_length: scaled(350),
-            spawn_segment_index: 5,
-            min_angle_per_center: deg2rad(30),
-            max_angle_per_center: deg2rad(120),
-            // the following ones are multiplied by scale.
-            min_segment_arc_length: scaled(.5),
-            max_segment_arc_length: scaled(5),
-            min_cave_diameter: scaled(2.5),
-            max_cave_diameter: scaled(20),
-            min_radius: scaled(10),
-            max_radius: scaled(40),
-        },
-    }
-}
+import base_config_json from "../static/base_config.json";
+import easy_config_json from "../static/easy_config.json";
 
-let easy_config = deepcopy(standard_config) as Config;
-easy_config.game.time_factor = 0.4;
-easy_config.cave.generator.min_segment_arc_length *= 2;
-easy_config.cave.generator.max_segment_arc_length *= 2;
-easy_config.cave.generator.min_cave_diameter *= 2;
-easy_config.cave.generator.max_cave_diameter *= 2;
-easy_config.cave.generator.min_radius *= 2;
-easy_config.cave.generator.max_radius *= 2;
+const hard_config = jsons_to_config([base_config_json]);
+const easy_config = jsons_to_config([base_config_json, easy_config_json]);
 
 export type { Config };
-export { standard_config, easy_config };
+export { hard_config, easy_config };
