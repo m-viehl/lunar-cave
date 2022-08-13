@@ -37,8 +37,8 @@ function jsons_to_config(base: object, ...to_apply: object[]): Config {
 }
 
 
-import base_config_json from "../static/base_config.json";
-import easy_config_json from "../static/easy_config.json";
+import base_config_json from "../config/base_config.json";
+import easy_config_json from "../config/easy_config.json";
 
 const hard_config = jsons_to_config([base_config_json]);
 const easy_config = jsons_to_config([base_config_json, easy_config_json]);
