@@ -17,6 +17,7 @@ function apply_functions(value: any, scale: number): any {
         if (value.startsWith("deg2rad:")) {
             return parseFloat(value.substring(8)) / 360 * 2 * Math.PI;
         }
+        return value;
     } else if (typeof value === "object") {
         return lodash.mapValues(value, (value, key, object) => apply_functions(value, scale));
     } else {
@@ -32,7 +33,8 @@ function apply_functions(value: any, scale: number): any {
  * @param to_apply Configuration objects which will be applied to base in the given order
  */
 function jsons_to_config(base: object, ...to_apply: object[]): Config {
-    let out = lodash.defaultsDeep(lodash.cloneDeep(base), to_apply);
+    let out = lodash.cloneDeep(base);
+    out = lodash.merge(out, ...to_apply);
     return apply_functions(out, (base as Config).scale) as Config;
 }
 
@@ -40,10 +42,10 @@ function jsons_to_config(base: object, ...to_apply: object[]): Config {
 import base_config_json from "../config/base_config.json";
 import easy_config_json from "../config/easy_config.json";
 
-const hard_config = jsons_to_config([base_config_json]);
-const easy_config = jsons_to_config([base_config_json, easy_config_json]);
+const hard_config = jsons_to_config(base_config_json);
+const easy_config = jsons_to_config(base_config_json, easy_config_json);
 
-var config: Config;
+var config = hard_config;
 
 function choose_config(name: "hard" | "easy") {
     switch (name) {
