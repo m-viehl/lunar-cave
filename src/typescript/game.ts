@@ -40,6 +40,7 @@ class Game {
 
     constructor() {
         this.lander = new Ship1(0, 0);
+        this.read_settings();
         this.new_cave();
     }
 
@@ -200,9 +201,14 @@ class Game {
     }
 
     public read_settings() {
-        let difficulty = (document.getElementById("difficulty_selector") as HTMLSelectElement).value;
-        choose_config(difficulty as "easy" | "hard");
+        let difficulty_html = (document.getElementById("difficulty_selector") as HTMLSelectElement).value;
+        if (difficulty_html != config.difficulty) {
+            // difficulty changed
+            choose_config(difficulty_html as "easy" | "hard");
+            this.new_cave(); // cave proportions etc. may change
+        }
         this.style = (document.getElementById("style_selector") as HTMLSelectElement).value as "fill" | "stroke";
+        draw();
     }
 }
 
@@ -292,7 +298,6 @@ function main() {
     // global variables are set
 
     game = new Game();
-    game.read_settings();
     draw();
 
     window.addEventListener("resize", resized);
@@ -306,12 +311,14 @@ function main() {
         select.addEventListener("change", () => select.blur());
     }
     // instantly apply style change
-    document.getElementById("style_selector")!.addEventListener("change", () => {
+    let setting_changed_callback = () => {
         if (game !== undefined) {
             game.read_settings();
-            draw();
         }
-    });
+    };
+    // TODO use jQuery
+    document.getElementById("style_selector")!.addEventListener("change", setting_changed_callback);
+    document.getElementById("difficulty_selector")!.addEventListener("change", setting_changed_callback);
 }
 
 main();
