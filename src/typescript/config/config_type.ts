@@ -1,5 +1,6 @@
 type Config = {
     scale: number
+    difficulty: string
     game: {
         time_factor: number
         g: number

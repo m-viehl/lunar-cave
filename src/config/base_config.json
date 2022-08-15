@@ -1,5 +1,6 @@
 {
     "scale": 20,
+    "difficulty": "hard",
     "game": {
         "time_factor": 1,
         "g": "scaled:9.81",
