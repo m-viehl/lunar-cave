@@ -258,13 +258,11 @@ function switch_layout(gs: GameState) {
     if (gs == GameState.ingame) {
         menu.style.visibility = "hidden";
         document.body.style.cursor = "none";
-        progresstext.style.visibility = "visible";
         // show game info div, which is hidden before the first game
         document.getElementById("game_info")!.style.visibility = "inherit";
     } else {
         menu.style.visibility = "visible";
         document.body.style.cursor = "default";
-        progresstext.style.visibility = "hidden";
         let game_mesg = document.getElementById("game_mesg")!;
         switch (gs) {
             case GameState.gameover:
