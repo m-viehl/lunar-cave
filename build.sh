@@ -4,8 +4,8 @@
 export PATH="$PATH:node_modules/.bin"
 
 # build js
-tsc --noEmit
-esbuild src/typescript/game.ts --bundle --sourcemap --minify --outfile=build/main.js
+# tsc --noEmit
+esbuild src/typescript/game.ts --bundle --sourcemap --outfile=build/main.js
 
 # copy static files
 cp -r src/static/* build
