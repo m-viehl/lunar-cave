@@ -4,31 +4,22 @@ type Config = {
         time_factor: number
         g: number
         zoom: {
-            speed_avg_window_size: number // TODO unit?
+            speed_avg_window_size: number //TODO X seconds at 60fps... this is ugly. Count fps!
             min_zoom_factor: number
             max_zoom_factor: number
             min_speed: number
             max_speed: number
         }
-        pbar: {
-            x0: number
-            width: number
-            height: number
-            background: number
-            foreground: number
-            border: number
-            border_thickness: number
-        }
-        ship_model: string
     }
     cave: {
         style: {
-            background: number
-            foreground: number
+            background: string
+            foreground: string
             stroke_width: number
-            stroke_col: number
-            end_stroke_width: number
-            end_col: number
+            stroke_col: string
+            end_line_width: number
+            end_col: string
+            line_width: number
         }
         // help line style?
         generator: {
@@ -44,6 +35,12 @@ type Config = {
             min_radius: number
             max_radius: number
         }
+    }
+    ship: {
+        size: number
+        acc: number
+        rotation_speed: number
+        delta_thrust_factor_per_s: number
     }
 }
 
