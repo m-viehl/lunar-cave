@@ -2,24 +2,14 @@
     "scale": 20,
     "game": {
         "time_factor": 1,
-        "g": 9.81,
+        "g": "scaled:9.81",
         "zoom": {
             "speed_avg_window_size": 90,
             "min_zoom_factor": 0.5,
             "max_zoom_factor": 1.5,
             "min_speed": 0,
             "max_speed": "scaled:30"
-        },
-        "pbar": {
-            "x0": "scaled:20",
-            "width": "scaled:30",
-            "height": "scaled:5",
-            "background": "#d1d1d1",
-            "foreground": "#344745",
-            "border": "black",
-            "border_thickness": "scaled:.5"
-        },
-        "ship_model": "1"
+        }
     },
     "cave": {
         "style": {
@@ -27,8 +17,9 @@
             "foreground": "#d1d1d1",
             "stroke_width": "scaled:.1",
             "stroke_col": "black",
-            "end_stroke_width": "scaled:.3",
-            "end_col": "#009955"
+            "end_line_width": "scaled:.3",
+            "end_col": "#009955",
+            "line_width": 1.1
         },
         "generator": {
             "constrain_to_go_right": true,
@@ -43,5 +34,11 @@
             "min_radius": "scaled:10",
             "max_radius": "scaled:40"
         }
+    },
+    "ship": {
+        "acc": "scaled:30",
+        "size": "scaled:1",
+        "rotation_speed": "deg2rad:180",
+        "delta_thrust_factor_per_s": 7
     }
 }

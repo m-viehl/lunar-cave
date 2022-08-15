@@ -1,9 +1,10 @@
 {
     "game": {
-        "time_factor": 0.4
+        "time_factor": 0.5
     },
     "cave": {
         "generator": {
+            "target_length": "scaled:200",
             "min_segment_arc_length": "scaled:1",
             "max_segment_arc_length": "scaled:10",
             "min_cave_diameter": "scaled:5",
@@ -11,5 +12,8 @@
             "min_radius": "scaled:20",
             "max_radius": "scaled:80"
         }
+    },
+    "ship": {
+        "rotation_speed": "deg2rad:360"
     }
 }
