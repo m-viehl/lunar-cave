@@ -1,6 +1,7 @@
 import { Point, Screen, ShipState, Line, random_range, ShipPosition } from "../misc";
 import * as angle_tools from "./angle_tools";
 import { Segment } from "./segment";
+import { config } from "../config/config_manager";
 
 export class Cave {
     readonly segments: Segment[] = [];
@@ -15,28 +16,14 @@ export class Cave {
     private spawn_arc_length: number;
     private current_arc_length: number;
 
-    // settings
-    private spawn_segment_index = 5;
-    private readonly min_angle_per_center = angle_tools.deg2rad(30);
-    private readonly max_angle_per_center = angle_tools.deg2rad(120);
-    // the following ones are multiplied by scale.
-    private readonly min_segment_arc_length = .5;
-    private readonly max_segment_arc_length = 5;
-    private readonly min_cave_diameter = 2.5;
-    private readonly max_cave_diameter = 20;
-    private readonly min_radius = 10;
-    private readonly max_radius = 40;
-    private readonly end_line_width = 0.3;
-    // additional hardcoded settings are marked with the comment // SETTING
-
     public get progress() {
         return this._progress;
     }
 
     private get_random_inner_outer_radius(current_radius: number): [number, number] {
         return [
-            current_radius - random_range(this.min_cave_diameter / 2, this.max_cave_diameter / 2),
-            current_radius + random_range(this.min_cave_diameter / 2, this.max_cave_diameter / 2)
+            current_radius - random_range(config.cave.generator.min_cave_diameter / 2, config.cave.generator.max_cave_diameter / 2),
+            current_radius + random_range(config.cave.generator.min_cave_diameter / 2, config.cave.generator.max_cave_diameter / 2)
         ]
     }
 
@@ -80,7 +67,7 @@ export class Cave {
             }
         }
         // determine new segment's angle via arc length.
-        let arc_length = random_range(this.min_segment_arc_length, this.max_segment_arc_length);
+        let arc_length = random_range(config.cave.generator.min_segment_arc_length, config.cave.generator.max_segment_arc_length);
         let angle_delta = arc_length / radius * (ccw ? +1 : -1);
 
         let [end_inner_r, end_outer_r] = this.get_random_inner_outer_radius(radius);
@@ -89,24 +76,16 @@ export class Cave {
             start_inner_r, start_outer_r, end_inner_r, end_outer_r, prev === null ? undefined : prev);
     }
 
-    constructor(arc_length: number, scale: number) {
-        this.min_segment_arc_length *= scale;
-        this.max_segment_arc_length *= scale;
-        this.min_cave_diameter *= scale;
-        this.max_cave_diameter *= scale;
-        this.min_radius *= scale;
-        this.max_radius *= scale;
-        this.end_line_width *= scale;
-
+    constructor(arc_length: number) {
         // construct segments
         // SETTING: here are the starting segment settings
-        let current_radius = random_range(this.min_radius, this.max_radius);
+        let current_radius = random_range(config.cave.generator.min_radius, config.cave.generator.max_radius);
         let current_center = { x: 0, y: 0 };
         let currently_ccw = Math.random() > 0.5;
 
         let total_arc_length = 0;
         let enclosed_angle_of_current_center = 0;
-        let target_enclosed_angle_of_current_center = random_range(this.min_angle_per_center, this.max_angle_per_center);
+        let target_enclosed_angle_of_current_center = random_range(config.cave.generator.min_angle_per_center, config.cave.generator.max_angle_per_center);
 
         while (total_arc_length < arc_length) {
             // append new segment
@@ -117,7 +96,7 @@ export class Cave {
                 // determine whether to switch the current center.
                 let may_go_backwards = false;
                 {
-                    let max_segment_angle = this.max_segment_arc_length / current_radius;
+                    let max_segment_angle = config.cave.generator.max_segment_arc_length / current_radius;
                     let worst: number;
                     if (last.rotation_ccw) {
                         let direction = angle_tools.normalize(last.end_angle + Math.PI / 2);
@@ -134,7 +113,7 @@ export class Cave {
                 if (switch_center) {
                     if (switch_direction)
                         enclosed_angle_of_current_center = 0;
-                    target_enclosed_angle_of_current_center = random_range(this.min_angle_per_center, this.max_angle_per_center);
+                    target_enclosed_angle_of_current_center = random_range(config.cave.generator.min_angle_per_center, config.cave.generator.max_angle_per_center);
                     // move center.
                     let junction_point = {
                         x: last.center.x + Math.cos(last.end_angle) * last.radius,
@@ -144,7 +123,7 @@ export class Cave {
                         x: (last.center.x - junction_point.x) / last.radius,
                         y: (last.center.y - junction_point.y) / last.radius
                     }
-                    let new_radius = random_range(this.min_radius, this.max_radius);
+                    let new_radius = random_range(config.cave.generator.min_radius, config.cave.generator.max_radius);
                     // scale vector
                     v.x *= new_radius * (switch_direction ? -1 : 1);
                     v.y *= new_radius * (switch_direction ? -1 : 1);
@@ -171,13 +150,13 @@ export class Cave {
             let last = this.segments[this.segments.length - 1]
             this.total_arc_length = last.previous_arc_length + last.arc_length;
         }
-        this.spawn_segment_index = Math.min(this.spawn_segment_index, this.segments.length);
-        this.spawn = this.segments[this.spawn_segment_index].centroid;
+        config.cave.generator.spawn_segment_index = Math.min(config.cave.generator.spawn_segment_index, this.segments.length);
+        this.spawn = this.segments[config.cave.generator.spawn_segment_index].centroid;
         this.reset();
     }
 
     public reset() {
-        this.current_segment = this.segments[this.spawn_segment_index];
+        this.current_segment = this.segments[config.cave.generator.spawn_segment_index];
         this.check_collision(this.spawn);
     }
 
@@ -344,7 +323,7 @@ export class Cave {
         }
         // draw finish line
         context.strokeStyle = "#009955";
-        context.lineWidth = this.end_line_width;
+        context.lineWidth = config.cave.style.end_line_width;
         context.beginPath();
         context.moveTo(this.end_line.start.x, this.end_line.start.y);
         context.lineTo(this.end_line.end.x, this.end_line.end.y);

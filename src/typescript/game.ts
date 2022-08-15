@@ -1,6 +1,7 @@
 import { Cave } from "./cave/cave";
 import { ShipState, Key } from "./misc";
 import { Ship, Ship1 } from "./ship";
+import { config, choose_config } from "./config/config_manager";
 
 document.body.removeChild(document.getElementById("noscript-text")!);
 // public variables
@@ -36,20 +37,15 @@ class Game {
     // required for running average for scale calculation
     private speed_sum: number;
     private last_speeds: number[];
-    private readonly speed_avg_window_size = 1.5 / 0.01667; // X / __ : X seconds at 60fps... this is ugly. Count fps!
-
-    private time_factor: number;
-    private readonly scale = 20; // pixels, unit for game scaling
-    private readonly g = 9.81 * this.scale;
 
     constructor() {
-        this.lander = new Ship1(0, 0, this.scale, this.g);
+        this.lander = new Ship1(0, 0);
         this.new_cave();
     }
 
     public logic(dt: number) {
         this.is_current_cave_new = false;
-        dt *= this.time_factor;
+        dt *= config.game.time_factor;
 
         this.lander.tick(dt);
         // collision checks
@@ -75,7 +71,7 @@ class Game {
         if (this.is_current_cave_new) // stop key event spam
             return;
         this.freeze();
-        this.cave = new Cave(350 * this.scale, this.scale);
+        this.cave = new Cave(config.cave.generator.target_length);
         this.is_current_cave_new = true;
         switch_layout(GameState.init);
         this.reset_ship();
@@ -101,6 +97,7 @@ class Game {
     }
 
     private key(e: KeyboardEvent, down: boolean) {
+        // TODO make keys configurable?
         if (this.dead && down && e.code != "KeyN") {
             this.reset_ship();
             return;
@@ -148,27 +145,29 @@ class Game {
         // running avg
         this.last_speeds.push(v);
         this.speed_sum += v;
-        if (this.last_speeds.length > this.speed_avg_window_size)
+        if (this.last_speeds.length > config.game.zoom.speed_avg_window_size)
             this.speed_sum -= this.last_speeds.shift()!;
-        v = this.speed_sum / this.speed_avg_window_size;
+        v = this.speed_sum / config.game.zoom.speed_avg_window_size;
 
-        const vmax = 30 * this.scale; // TODO hardcoded!
-        if (v < vmax) {
-            return - Math.cos(Math.PI * v / vmax) * 0.5 + 1;
+        if (v < config.game.zoom.max_speed) {
+            return 1 - Math.cos(Math.PI * v / config.game.zoom.max_speed) * config.game.zoom.min_zoom_factor;
         }
-        return 1.5;
+        return config.game.zoom.max_zoom_factor;
     }
 
     public draw() {
         // fill background
         if (this.style == "fill")
-            context.fillStyle = "#344745";
+            context.fillStyle = config.cave.style.background;
         else
             context.fillStyle = "white";
         context.fillRect(0, 0, width, height);
 
         let scale_factor = this.scale_from_speed(this.lander.speed);
-        let base_line_width = 1.1 * scale_factor; // constant line width, independent from scale!
+
+        let base_line_width = config.cave.style.line_width * scale_factor;
+        // this makes the line width constant, independent from scale!
+
         context.resetTransform();
         context.translate(
             (-this.lander.x) / scale_factor + width / 2,
@@ -176,7 +175,7 @@ class Game {
         context.scale(1 / scale_factor, 1 / scale_factor);
         // draw cave
         if (this.style == "fill") {
-            context.fillStyle = "#d1d1d1";
+            context.fillStyle = config.cave.style.foreground;
         } else {
             context.strokeStyle = "black";
             context.lineWidth = base_line_width;
@@ -201,14 +200,8 @@ class Game {
     }
 
     public read_settings() {
-        switch ((document.getElementById("difficulty_selector") as HTMLSelectElement).value) {
-            case "easy":
-                this.time_factor = 0.5;
-                break;
-            case "hard":
-                this.time_factor = 1;
-                break;
-        }
+        let difficulty = (document.getElementById("difficulty_selector") as HTMLSelectElement).value;
+        choose_config(difficulty as "easy" | "hard");
         this.style = (document.getElementById("style_selector") as HTMLSelectElement).value as "fill" | "stroke";
     }
 }

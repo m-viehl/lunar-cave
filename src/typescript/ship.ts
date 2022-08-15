@@ -1,4 +1,5 @@
-import { Point, Key } from "./misc"
+import { Point, Key } from "./misc";
+import { config } from "./config/config_manager";
 
 export interface Ship extends Point {
     collision_points: Point[];
@@ -22,18 +23,11 @@ export class Ship1 implements Ship {
     // controls
     rotation_thrust = 0; // -1 = full left, +1 = full right
     thrust: boolean;
-    // settings
-    g: number;
-    delta_thrust_factor_per_s = 7;
-    size = 1; // * scale
-    acc = 3; // * g, maximum thruster acceleration
-    rotation_speed = 180 /* degrees per second */ / 360 * 2 * Math.PI;
     collision_points: Point[];
+    size: number;
 
-    constructor(x: number, y: number, scale: number, g: number) {
-        this.size *= scale;
-        this.g = g;
-        this.acc *= g;
+    constructor(x: number, y: number) {
+        this.size = config.ship.size;
         this.x = x;
         this.y = y;
         this.reset();
@@ -96,17 +90,17 @@ export class Ship1 implements Ship {
     public tick(dt: number) {
         // variable thrust
         if (this.thrust) {
-            this.thrust_factor += this.delta_thrust_factor_per_s * dt;
+            this.thrust_factor += config.ship.delta_thrust_factor_per_s * dt;
             this.thrust_factor = Math.min(this.thrust_factor, 1);
         } else {
-            this.thrust_factor -= this.delta_thrust_factor_per_s * dt;
+            this.thrust_factor -= config.ship.delta_thrust_factor_per_s * dt;
             this.thrust_factor = Math.max(this.thrust_factor, 0);
         }
         // rotation
-        this.angle += this.rotation_speed * this.rotation_thrust * dt;
+        this.angle += config.ship.rotation_speed * this.rotation_thrust * dt;
         // calc acceleration
-        let ax = - this.thrust_factor * this.acc * Math.cos(this.angle + Math.PI / 2);
-        let ay = - this.thrust_factor * this.acc * Math.sin(this.angle + Math.PI / 2) + this.g;
+        let ax = - this.thrust_factor * config.ship.acc * Math.cos(this.angle + Math.PI / 2);
+        let ay = - this.thrust_factor * config.ship.acc * Math.sin(this.angle + Math.PI / 2) + config.game.g;
         // apply acceleration
         this.vx += ax * dt;
         this.vy += ay * dt;
@@ -133,7 +127,8 @@ export class Ship1 implements Ship {
     }
 }
 
-
+/*
+// Ship 2 is currently unused
 export class Ship2 implements Ship {
     // state
     x: number;
@@ -263,3 +258,4 @@ export class Ship2 implements Ship {
         this.collision_points[3].x = this.x + Math.cos(this.angle - this.alpha) * this.r_edge;
     }
 }
+*/
