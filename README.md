@@ -6,5 +6,34 @@ Cool auto-generated caves!
 - Run `./build.sh`
 - Visit the displayed URL.
 
-# Serve
-Just serve the contents of the `build` directory after running `build.sh`.
+# Build for testing
+Just run `build.sh` and visit the displayed local URL.
+
+# Changelog
+This changelog is for user-visible features, not internal improvements.
+
+## Version 1.0, 2022-03-11
+Basic version, game is playable
+
+## Version 1.1, 2022-05-03
+- Allow to draw construction lines
+- Add velocity-dependent scaling
+- Add rudimentary difficulty selector
+
+## Version 2.0, 2022-06-02
+- Fix arrow keys affecting the difficulty selector
+- Add a HTML user interface with instructions
+- Switch from progress bar to percentage text
+- Hide the cursor when playing
+- Add two drawing modes: filled and lines only
+- Switch name to **Lunar Cave**
+- Freeze the game when crashing
+
+## Version 3.0, 2022-08-15
+Not mentioning the huge rewrite to allow for proper configuration would be sad...(But yes, this is no user-visible feature, I see.)
+
+- Do not hide progress on crash
+- Improve easy mode:
+    - Increase rotational speed by 100%
+    - Increase the cave dimensions
+    - Make the cave shorter
