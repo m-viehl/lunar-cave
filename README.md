@@ -6,14 +6,26 @@ Cool auto-generated caves!
 - Run `./build.sh`
 - Visit the displayed URL.
 
-# Build for testing
-Just run `build.sh` and visit the displayed local URL.
+# Build
+
+## For development
+Just run `./build.sh` and visit the displayed URL.
+
+## For production
+Run `./build.sh production`, which will place output files in the `build/` directory. These files can then be served. (E.g. by using the `./put_online.sh` script.)
 
 # Changelog
 This changelog is for user-visible features, not internal improvements.
 
+## Version 0, 2022-03-01
+- Playable game different from the current "lunar cave" game
+- No cave, but a landscape with landing areas
+
 ## Version 1.0, 2022-03-11
-Basic version, game is playable
+- Basic version of the "lunar cave" game
+- Add cave
+- New filled drawing style instead of lines
+- No "user interface" whatsoever
 
 ## Version 1.1, 2022-05-03
 - Allow to draw construction lines
@@ -29,8 +41,8 @@ Basic version, game is playable
 - Switch name to **Lunar Cave**
 - Freeze the game when crashing
 
-## Version 3.0, 2022-08-15
-Not mentioning the huge rewrite to allow for proper configuration would be sad...(But yes, this is no user-visible feature, I see.)
+## Version 3.0, 2022-08-16
+Not mentioning the huge rewrite to allow for proper configuration would be sad... (But yes, this is no user-visible feature, I see.)
 
 - Do not hide progress on crash
 - Improve easy mode:

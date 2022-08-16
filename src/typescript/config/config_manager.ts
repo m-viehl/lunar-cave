@@ -44,11 +44,6 @@ import easy_config_json from "../../config/easy_config.json";
 
 const hard_config = jsons_to_config(base_config_json);
 const easy_config = jsons_to_config(base_config_json, easy_config_json);
-console.log("easy config")
-console.log(easy_config)
-console.log("hard config")
-console.log(hard_config)
-
 
 var config = hard_config;
 
