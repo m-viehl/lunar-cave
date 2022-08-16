@@ -205,6 +205,7 @@ class Game {
         if (difficulty_html != config.difficulty) {
             // difficulty changed
             choose_config(difficulty_html as "easy" | "hard");
+            this.is_current_cave_new = false; // create a new cave even if we just generated one
             this.new_cave(); // cave proportions etc. may change
         }
         this.style = (document.getElementById("style_selector") as HTMLSelectElement).value as "fill" | "stroke";
@@ -223,6 +224,9 @@ function draw() {
 
 
 function loop(now: number = 0) {
+    if (paused)
+        return;
+
     now /= 1000; // convert to seconds
     if (start_time === undefined) {
         // 1st run
@@ -237,8 +241,7 @@ function loop(now: number = 0) {
         game.logic(dt);
         draw();
     }
-    if (!paused)
-        window.requestAnimationFrame(loop);
+    window.requestAnimationFrame(loop);
 }
 
 function unpause() {
