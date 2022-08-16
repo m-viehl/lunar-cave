@@ -4,11 +4,15 @@
 export PATH="$PATH:node_modules/.bin"
 
 # build js
-# tsc --noEmit
-esbuild src/typescript/game.ts --bundle --sourcemap --outfile=build/main.js
-
-# copy static files
-cp -r src/static/* build
-
-# serve locally
-python3 -m http.server -d build
+if [ "$1" = "production" ];
+then
+    echo "Generating production build..."
+    mkdir -p build
+    rm build/*
+    tsc --noEmit
+    esbuild src/typescript/game.ts --bundle --minify --outfile=build/main.js
+    cp -r src/static/* build
+    echo "Production build finished. Files can be found in the build directory."
+else
+    esbuild src/typescript/game.ts --bundle --sourcemap --outfile=src/static/main.js --servedir=src/static
+fi
