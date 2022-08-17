@@ -1,4 +1,6 @@
-import lodash from "lodash";
+import mapValues from "lodash/mapValues";
+import cloneDeep from "lodash/cloneDeep";
+import merge from "lodash/merge";
 import Config from "./config_type";
 /**
  * Applies special functions allowed in configuration jsons, which currently are:
@@ -19,7 +21,7 @@ function apply_functions(value: any, scale: number): any {
         }
         return value;
     } else if (typeof value === "object") {
-        return lodash.mapValues(value, (value, key, object) => apply_functions(value, scale));
+        return mapValues(value, (value, key, object) => apply_functions(value, scale));
     } else {
         return value;
     }
@@ -33,8 +35,8 @@ function apply_functions(value: any, scale: number): any {
  * @param to_apply Configuration objects which will be applied to base in the given order
  */
 function jsons_to_config(base: object, ...to_apply: object[]): Config {
-    let out = lodash.cloneDeep(base);
-    out = lodash.merge(out, ...to_apply);
+    let out = cloneDeep(base);
+    out = merge(out, ...to_apply);
     return apply_functions(out, (base as Config).scale) as Config;
 }
 
