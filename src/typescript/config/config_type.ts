@@ -20,7 +20,6 @@ type Config = {
             stroke_col: string
             end_line_width: number
             end_col: string
-            line_width: number
         }
         // help line style?
         generator: {

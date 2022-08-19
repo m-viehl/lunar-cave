@@ -166,7 +166,7 @@ class Game {
 
         let scale_factor = this.scale_from_speed(this.lander.speed);
 
-        let base_line_width = config.cave.style.line_width * scale_factor;
+        let base_line_width = config.cave.style.stroke_width * scale_factor;
         // this makes the line width constant, independent from scale!
 
         context.resetTransform();
