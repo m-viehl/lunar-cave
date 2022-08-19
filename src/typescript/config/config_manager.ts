@@ -9,7 +9,7 @@ import Config from "./config_type";
  * @param scale the scale to use for the function `scale`.
  * @returns the object `value` with functions applied.
  */
-function apply_functions(value: any, scale: number): any {
+export function apply_functions(value: any, scale: number): any {
     if (typeof value === "string") {
         if (value.startsWith("scaled:")) {
             return parseFloat(value.substring(7)) * scale;

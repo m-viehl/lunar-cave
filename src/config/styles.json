@@ -1,0 +1,50 @@
+{
+    "lines_bright": {
+        "name": "Lines only, bright",
+        "stroke_width": 1.1,
+        "cave": {
+            "background": "white",
+            "foreground": "white",
+            "stroke_col": "black",
+            "end_line_width": "scaled:.3",
+            "end_col": "#009955"
+        },
+        "lander": {
+            "body_col": "white",
+            "stroke_col": "black",
+            "fire_col": "white"
+        }
+    },
+    "lines_dark": {
+        "name": "Lines only, dark",
+        "stroke_width": 1.1,
+        "cave": {
+            "background": "black",
+            "foreground": "black",
+            "stroke_col": "white",
+            "end_line_width": "scaled:.3",
+            "end_col": "#004d2a"
+        },
+        "lander": {
+            "body_col": "black",
+            "stroke_col": "white",
+            "fire_col": "black"
+        }
+    },
+    "filled_colors": {
+        "name": "Filled",
+        "stroke_width": 1.1,
+        "cave": {
+            "background": "#344745",
+            "foreground": "#d1d1d1",
+            "stroke_col": "None",
+            "end_line_width": "scaled:.3",
+            "end_col": "#009955"
+        },
+        "lander": {
+            "body_col": "#5c5e5e",
+            "stroke_col": "None",
+            "fire_col": "#02e5ca"
+        }
+    }
+}

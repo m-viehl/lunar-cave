@@ -98,7 +98,6 @@ class Game {
     }
 
     private key(e: KeyboardEvent, down: boolean) {
-        // TODO make keys configurable?
         if (this.dead && down && e.code != "KeyN") {
             this.reset_ship();
             return;
