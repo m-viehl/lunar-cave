@@ -2,6 +2,7 @@ import { Cave } from "./cave/cave";
 import { ShipState, Key } from "./misc";
 import { Ship, Ship1 } from "./ship";
 import { config, choose_config } from "./config/config_manager";
+import { style, switch_style } from "./config/style_manager";
 
 document.body.removeChild(document.getElementById("noscript-text")!);
 // public variables
@@ -30,7 +31,6 @@ class Game {
     private readonly lander: Ship;
     private cave: Cave;
 
-    private style: "stroke" | "fill";
     private dead = false;
     private is_current_cave_new = false;
 
@@ -157,15 +157,12 @@ class Game {
 
     public draw() {
         // fill background
-        if (this.style == "fill")
-            context.fillStyle = config.cave.style.background;
-        else
-            context.fillStyle = "white";
+        context.fillStyle = style.cave.background;
         context.fillRect(0, 0, width, height);
 
         let scale_factor = this.scale_from_speed(this.lander.speed);
 
-        let base_line_width = config.cave.style.stroke_width * scale_factor;
+        let base_line_width = style.stroke_width * scale_factor;
         // this makes the line width constant, independent from scale!
 
         context.resetTransform();
@@ -174,16 +171,14 @@ class Game {
             (-this.lander.y) / scale_factor + height / 2);
         context.scale(1 / scale_factor, 1 / scale_factor);
         // draw cave
-        if (this.style == "fill") {
-            context.fillStyle = config.cave.style.foreground;
-        } else {
-            context.strokeStyle = "black";
-            context.lineWidth = base_line_width;
-        }
+        context.lineWidth = base_line_width;
+        context.fillStyle = style.cave.foreground;
+        context.strokeStyle = style.cave.stroke_col;
+
         this.cave.draw(context, {
             upper_left: { x: this.lander.x - width / 2 * scale_factor, y: this.lander.y - height / 2 * scale_factor },
             lower_right: { x: this.lander.x + width / 2 * scale_factor, y: this.lander.y + height / 2 * scale_factor }
-        }, this.style);
+        });
         // lander
         context.resetTransform();
         context.translate(width / 2, height / 2);
@@ -194,7 +189,7 @@ class Game {
         context.strokeStyle = "black";
         context.lineWidth = base_line_width;
 
-        this.lander.draw(context, this.style);
+        this.lander.draw(context);
         // set progress text
         progresstext.innerText = `${Math.round(Math.max(0, this.cave.progress * 100))}%`
     }
@@ -207,7 +202,8 @@ class Game {
             this.is_current_cave_new = false; // create a new cave even if we just generated one
             this.new_cave(); // cave proportions etc. may change
         }
-        this.style = (document.getElementById("style_selector") as HTMLSelectElement).value as "fill" | "stroke";
+
+        switch_style((document.getElementById("style_selector") as HTMLSelectElement).value);
         draw();
     }
 }
