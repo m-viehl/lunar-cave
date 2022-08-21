@@ -16,16 +16,25 @@ export type Style = {
         stroke_col: string
         fire_col: string
     }
+    text_col: string
+    menu_background: string
 }
 
 import styles_json from "../../config/styles.json";
 var styles = apply_functions(styles_json, config.scale);
 
-const DEFAULT_STYLE = "filled_colors";
-export var style: Style = styles[DEFAULT_STYLE];
+export var style: Style;
 
 export var available_style_names = Object.keys(styles);
 
 export function switch_style(name: string) {
     style = styles[name];
+    document.body.style.color = style.text_col;
+    document.getElementById("menu")!.style.backgroundColor = style.menu_background;
+    Array.from(document.getElementsByClassName("key")).forEach((e: HTMLElement) => {
+        e.style.borderColor = style.text_col;
+    })
 }
+
+const DEFAULT_STYLE = "filled_colors";
+switch_style(DEFAULT_STYLE);

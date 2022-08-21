@@ -13,7 +13,9 @@
             "body_col": "white",
             "stroke_col": "black",
             "fire_col": "white"
-        }
+        },
+        "text_col": "black",
+        "menu_background": "rgba(255, 255, 255, 0.25)"
     },
     "lines_dark": {
         "name": "Lines only, dark",
@@ -29,7 +31,9 @@
             "body_col": "black",
             "stroke_col": "white",
             "fire_col": "black"
-        }
+        },
+        "text_col": "white",
+        "menu_background": "rgba(0, 0, 0, 0.7)"
     },
     "filled_colors": {
         "name": "Filled",
@@ -45,6 +49,8 @@
             "body_col": "#5c5e5e",
             "stroke_col": "rgba(0, 0, 0, 0)",
             "fire_col": "#02e5ca"
-        }
+        },
+        "text_col": "black",
+        "menu_background": "rgba(255, 255, 255, 0.25)"
     }
 }
