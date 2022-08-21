@@ -49,3 +49,7 @@ Not mentioning the huge rewrite to allow for proper configuration would be sad..
     - Increase rotational speed by 100%
     - Increase the cave dimensions
     - Make the cave shorter
+
+## Version 3.1, 2022-08-22
+- Make style configurable via jsons
+- Add dark lines only mode
