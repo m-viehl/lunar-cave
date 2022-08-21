@@ -37,13 +37,13 @@
         "cave": {
             "background": "#344745",
             "foreground": "#d1d1d1",
-            "stroke_col": "None",
+            "stroke_col": "rgba(0, 0, 0, 0)",
             "end_line_width": "scaled:.3",
             "end_col": "#009955"
         },
         "lander": {
             "body_col": "#5c5e5e",
-            "stroke_col": "None",
+            "stroke_col": "rgba(0, 0, 0, 0)",
             "fire_col": "#02e5ca"
         }
     }
