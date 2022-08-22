@@ -1,6 +1,7 @@
 import { Point, Key } from "./misc";
 import { config } from "./config/config_manager";
 import { style } from "./config/style_manager";
+import { TouchManager } from "./touch_manager";
 
 export interface Ship extends Point {
     collision_points: Point[];
@@ -8,6 +9,7 @@ export interface Ship extends Point {
     tick: (dt: number) => void;
     draw: (context: CanvasRenderingContext2D) => void;
     key: (k: Key, down: boolean) => void;
+    update_touch: (touch_manager: TouchManager) => void;
     speed: number;
     angle: number;
 }
@@ -48,6 +50,22 @@ export class Ship1 implements Ship {
                 this.rotation_thrust = down ? +1 : 0;
                 break;
 
+        }
+    }
+
+    public update_touch(tm: TouchManager) {
+        if (tm.left && tm.right) {
+            this.rotation_thrust = 0;
+            this.thrust = true;
+        } else {
+            this.thrust = false;
+            if (tm.left) {
+                this.rotation_thrust = -1;
+            } else if (tm.right) {
+                this.rotation_thrust = 1;
+            } else {
+                this.rotation_thrust = 0;
+            }
         }
     }
 

@@ -3,12 +3,15 @@ import { ShipState, Key } from "./misc";
 import { Ship, Ship1 } from "./ship";
 import { config, choose_config } from "./config/config_manager";
 import { style, switch_style } from "./config/style_manager";
+import { TouchManager } from "./touch_manager";
 
+// javascript is working, obviously
 document.body.removeChild(document.getElementById("noscript-text")!);
+
 // public variables
-var canvas = document.getElementById("canvas") as HTMLCanvasElement;
-var context: CanvasRenderingContext2D = canvas.getContext("2d")!;
-var progresstext = document.getElementById("progress")!;
+var canvas: HTMLCanvasElement;
+var context: CanvasRenderingContext2D;
+var progresstext: HTMLElement;
 
 var start_time: number | undefined = undefined;
 var t: number = 0; // seconds since start
@@ -30,6 +33,7 @@ enum GameState {
 class Game {
     private readonly lander: Ship;
     private cave: Cave;
+    touch_manager: TouchManager;
 
     private dead = false;
     private is_current_cave_new = false;
@@ -40,6 +44,7 @@ class Game {
 
     constructor() {
         this.lander = new Ship1(0, 0);
+        this.touch_manager = new TouchManager();
         this.read_settings();
         this.new_cave();
     }
@@ -97,40 +102,53 @@ class Game {
         draw();
     }
 
-    private key(e: KeyboardEvent, down: boolean) {
-        if (this.dead && down && e.code != "KeyN") {
+    private game_input() {
+        if (this.dead) {
             this.reset_ship();
             return;
         }
+        unpause();
+    }
+
+    private key(e: KeyboardEvent, down: boolean) {
+        // return if input should not trigger game unpause
         switch (e.code) {
             case "KeyN":
                 this.new_cave();
-                break;
+                return;
             case "KeyH":
                 if (e.shiftKey && !down) {
                     this.cave.help_lines = !this.cave.help_lines;
                     draw();
                 }
-                break;
+                return;
             case "KeyW":
             case "ArrowUp":
-                if (down)
-                    unpause();
                 this.lander.key(Key.boost, down);
                 break;
             case "KeyA":
             case "ArrowLeft":
-                if (down)
-                    unpause();
                 this.lander.key(Key.left, down);
                 break;
             case "KeyD":
             case "ArrowRight":
-                if (down)
-                    unpause();
                 this.lander.key(Key.right, down);
                 break;
         }
+        if (down) {
+            this.game_input();
+        }
+    }
+
+    /**
+     * Call after changes to this.touch_manager, this will apply the new state to this.lander
+     */
+    public update_touch(te: TouchEvent, down: boolean) {
+        if (down) {
+            this.game_input();
+        }
+        this.touch_manager.update(te, down);
+        this.lander.update_touch(this.touch_manager);
     }
 
     public keyup(e: KeyboardEvent) {
@@ -289,9 +307,12 @@ function resized() {
 }
 
 function main() {
-    resized();
 
-    // global variables are set
+    canvas = document.getElementById("canvas") as HTMLCanvasElement;
+    context = canvas.getContext("2d")!;
+    progresstext = document.getElementById("progress")!;
+
+    resized();
 
     game = new Game();
     draw();
@@ -300,6 +321,9 @@ function main() {
     window.addEventListener("keydown", (e) => game.keydown(e));
     window.addEventListener("keyup", (e) => game.keyup(e));
     // loop is started when a key is pressed
+
+    canvas.addEventListener("touchstart", (e) => { game.update_touch(e, true) });
+    canvas.addEventListener("touchend", (e) => { game.update_touch(e, false) });
 
     // make every HTML select element lose keyboard focus after its value has been changed
     // otherwise, the arrow keys will interfer with them when trying to play after changing
