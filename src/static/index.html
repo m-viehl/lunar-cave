@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="user-scalable=no"/>
     <title>Lunar Cave</title>
     <style>
         body {
@@ -97,8 +98,13 @@
             </p>
             <p>Select draw style:
                 <select id="style_selector">
-                    <option value="fill" selected>Filled</option>
-                    <option value="stroke">Lines only</option>
+                    <!--
+                        This must match the names in src/config/styles.json.
+                        TODO: should be populated with style_manager.available_style_names!
+                    -->
+                    <option value="filled_colors" selected>Filled</option>
+                    <option value="lines_dark">Lines only, dark</option>
+                    <option value="lines_bright">Lines only, bright</option>
                 </select>
             </p>
             <p>Click <button onclick="document.body.requestFullscreen()">here</button> to go to fullscreen mode.</p>

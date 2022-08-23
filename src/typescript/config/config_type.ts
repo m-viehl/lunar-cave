@@ -13,16 +13,8 @@ type Config = {
         }
     }
     cave: {
-        style: {
-            background: string
-            foreground: string
-            stroke_width: number
-            stroke_col: string
-            end_line_width: number
-            end_col: string
-            line_width: number
-        }
         // help line style?
+        // TODO remove obsolete generator layer?
         generator: {
             constrain_to_go_right: boolean
             target_length: number

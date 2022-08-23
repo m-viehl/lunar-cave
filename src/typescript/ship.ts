@@ -1,12 +1,15 @@
 import { Point, Key } from "./misc";
 import { config } from "./config/config_manager";
+import { style } from "./config/style_manager";
+import { TouchManager } from "./touch_manager";
 
 export interface Ship extends Point {
     collision_points: Point[];
     reset: () => void;
     tick: (dt: number) => void;
-    draw: (context: CanvasRenderingContext2D, style: "fill" | "stroke") => void;
+    draw: (context: CanvasRenderingContext2D) => void;
     key: (k: Key, down: boolean) => void;
+    update_touch: (touch_manager: TouchManager) => void;
     speed: number;
     angle: number;
 }
@@ -50,6 +53,22 @@ export class Ship1 implements Ship {
         }
     }
 
+    public update_touch(tm: TouchManager) {
+        if (tm.left && tm.right) {
+            this.rotation_thrust = 0;
+            this.thrust = true;
+        } else {
+            this.thrust = false;
+            if (tm.left) {
+                this.rotation_thrust = -1;
+            } else if (tm.right) {
+                this.rotation_thrust = 1;
+            } else {
+                this.rotation_thrust = 0;
+            }
+        }
+    }
+
     public reset() {
         this.vx = 0;
         this.vy = 0;
@@ -60,31 +79,24 @@ export class Ship1 implements Ship {
         this.speed = 0;
     }
 
-    public draw(context: CanvasRenderingContext2D, style: "fill" | "stroke") {
+    public draw(context: CanvasRenderingContext2D) {
         // TODO WARNING: this depends on the translation done before in game.ts!
         // unify the context translations, zoom etc.!
         // draw thruster flame
+        context.strokeStyle = style.lander.stroke_col;
         if (this.thrust_factor > 0) {
             context.beginPath();
             context.moveTo(-this.size / 3, this.size / 3);
             context.lineTo(0, this.size * (1 + 1 / 3) * this.thrust_factor);
             context.lineTo(+this.size / 3, this.size / 3);
-            if (style == "fill") {
-                context.fillStyle = "#02e5ca"
-                context.fill();
-            } else {
-                context.stroke();
-            }
+            context.fillStyle = style.lander.fire_col;
+            context.fill();
+            context.stroke();
         }
         // draw body
-        if (style == "fill") {
-            context.fillStyle = "#5c5e5e";
-            context.fillRect(-this.size / 2, -this.size / 3, this.size, this.size * 2 / 3);
-        } else {
-            context.fillStyle = "white";
-            context.fillRect(-this.size / 2, -this.size / 3, this.size, this.size * 2 / 3);
-            context.strokeRect(-this.size / 2, -this.size / 3, this.size, this.size * 2 / 3);
-        }
+        context.fillStyle = style.lander.body_col;
+        context.fillRect(-this.size / 2, -this.size / 3, this.size, this.size * 2 / 3);
+        context.strokeRect(-this.size / 2, -this.size / 3, this.size, this.size * 2 / 3);
     }
 
     public tick(dt: number) {

@@ -2,12 +2,16 @@ import { Cave } from "./cave/cave";
 import { ShipState, Key } from "./misc";
 import { Ship, Ship1 } from "./ship";
 import { config, choose_config } from "./config/config_manager";
+import { style, switch_style } from "./config/style_manager";
+import { TouchManager } from "./touch_manager";
 
+// javascript is working, obviously
 document.body.removeChild(document.getElementById("noscript-text")!);
+
 // public variables
-var canvas = document.getElementById("canvas") as HTMLCanvasElement;
-var context: CanvasRenderingContext2D = canvas.getContext("2d")!;
-var progresstext = document.getElementById("progress")!;
+var canvas: HTMLCanvasElement;
+var context: CanvasRenderingContext2D;
+var progresstext: HTMLElement;
 
 var start_time: number | undefined = undefined;
 var t: number = 0; // seconds since start
@@ -29,8 +33,8 @@ enum GameState {
 class Game {
     private readonly lander: Ship;
     private cave: Cave;
+    touch_manager: TouchManager;
 
-    private style: "stroke" | "fill";
     private dead = false;
     private is_current_cave_new = false;
 
@@ -40,6 +44,7 @@ class Game {
 
     constructor() {
         this.lander = new Ship1(0, 0);
+        this.touch_manager = new TouchManager();
         this.read_settings();
         this.new_cave();
     }
@@ -97,41 +102,53 @@ class Game {
         draw();
     }
 
-    private key(e: KeyboardEvent, down: boolean) {
-        // TODO make keys configurable?
-        if (this.dead && down && e.code != "KeyN") {
+    private game_input() {
+        if (this.dead) {
             this.reset_ship();
             return;
         }
+        unpause();
+    }
+
+    private key(e: KeyboardEvent, down: boolean) {
+        // return if input should not trigger game unpause
         switch (e.code) {
             case "KeyN":
                 this.new_cave();
-                break;
+                return;
             case "KeyH":
                 if (e.shiftKey && !down) {
                     this.cave.help_lines = !this.cave.help_lines;
                     draw();
                 }
-                break;
+                return;
             case "KeyW":
             case "ArrowUp":
-                if (down)
-                    unpause();
                 this.lander.key(Key.boost, down);
                 break;
             case "KeyA":
             case "ArrowLeft":
-                if (down)
-                    unpause();
                 this.lander.key(Key.left, down);
                 break;
             case "KeyD":
             case "ArrowRight":
-                if (down)
-                    unpause();
                 this.lander.key(Key.right, down);
                 break;
         }
+        if (down) {
+            this.game_input();
+        }
+    }
+
+    /**
+     * Call after changes to this.touch_manager, this will apply the new state to this.lander
+     */
+    public update_touch(te: TouchEvent, down: boolean) {
+        if (down) {
+            this.game_input();
+        }
+        this.touch_manager.update(te, down);
+        this.lander.update_touch(this.touch_manager);
     }
 
     public keyup(e: KeyboardEvent) {
@@ -158,15 +175,12 @@ class Game {
 
     public draw() {
         // fill background
-        if (this.style == "fill")
-            context.fillStyle = config.cave.style.background;
-        else
-            context.fillStyle = "white";
+        context.fillStyle = style.cave.background;
         context.fillRect(0, 0, width, height);
 
         let scale_factor = this.scale_from_speed(this.lander.speed);
 
-        let base_line_width = config.cave.style.line_width * scale_factor;
+        let base_line_width = style.stroke_width * scale_factor;
         // this makes the line width constant, independent from scale!
 
         context.resetTransform();
@@ -175,16 +189,14 @@ class Game {
             (-this.lander.y) / scale_factor + height / 2);
         context.scale(1 / scale_factor, 1 / scale_factor);
         // draw cave
-        if (this.style == "fill") {
-            context.fillStyle = config.cave.style.foreground;
-        } else {
-            context.strokeStyle = "black";
-            context.lineWidth = base_line_width;
-        }
+        context.lineWidth = base_line_width;
+        context.fillStyle = style.cave.foreground;
+        context.strokeStyle = style.cave.stroke_col;
+
         this.cave.draw(context, {
             upper_left: { x: this.lander.x - width / 2 * scale_factor, y: this.lander.y - height / 2 * scale_factor },
             lower_right: { x: this.lander.x + width / 2 * scale_factor, y: this.lander.y + height / 2 * scale_factor }
-        }, this.style);
+        });
         // lander
         context.resetTransform();
         context.translate(width / 2, height / 2);
@@ -195,7 +207,7 @@ class Game {
         context.strokeStyle = "black";
         context.lineWidth = base_line_width;
 
-        this.lander.draw(context, this.style);
+        this.lander.draw(context);
         // set progress text
         progresstext.innerText = `${Math.round(Math.max(0, this.cave.progress * 100))}%`
     }
@@ -208,7 +220,8 @@ class Game {
             this.is_current_cave_new = false; // create a new cave even if we just generated one
             this.new_cave(); // cave proportions etc. may change
         }
-        this.style = (document.getElementById("style_selector") as HTMLSelectElement).value as "fill" | "stroke";
+
+        switch_style((document.getElementById("style_selector") as HTMLSelectElement).value);
         draw();
     }
 }
@@ -294,9 +307,12 @@ function resized() {
 }
 
 function main() {
-    resized();
 
-    // global variables are set
+    canvas = document.getElementById("canvas") as HTMLCanvasElement;
+    context = canvas.getContext("2d")!;
+    progresstext = document.getElementById("progress")!;
+
+    resized();
 
     game = new Game();
     draw();
@@ -305,6 +321,9 @@ function main() {
     window.addEventListener("keydown", (e) => game.keydown(e));
     window.addEventListener("keyup", (e) => game.keyup(e));
     // loop is started when a key is pressed
+
+    canvas.addEventListener("touchstart", (e) => { game.update_touch(e, true) });
+    canvas.addEventListener("touchend", (e) => { game.update_touch(e, false) });
 
     // make every HTML select element lose keyboard focus after its value has been changed
     // otherwise, the arrow keys will interfer with them when trying to play after changing

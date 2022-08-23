@@ -2,6 +2,7 @@ import { Point, Screen, ShipState, Line, random_range, ShipPosition } from "../m
 import * as angle_tools from "./angle_tools";
 import { Segment } from "./segment";
 import { config } from "../config/config_manager";
+import { style } from "../config/style_manager";
 
 export class Cave {
     readonly segments: Segment[] = [];
@@ -243,7 +244,7 @@ export class Cave {
             this.line_on_screen(seg.inner_edge, scr);
     }
 
-    public draw(context: CanvasRenderingContext2D, scr: Screen, style: "fill" | "stroke") {
+    public draw(context: CanvasRenderingContext2D, scr: Screen) {
         // get segments on screen
         let segments: Segment[] = [this.current_segment];
         {
@@ -294,10 +295,8 @@ export class Cave {
             context.lineTo(e.start.x, e.start.y);
         }
         context.closePath();
-        if (style == "fill")
-            context.fill();
-        else
-            context.stroke();
+        context.fill();
+        context.stroke();
         // draw help lines
         if (this.help_lines) {
             for (let s of segments) {
@@ -323,7 +322,7 @@ export class Cave {
         }
         // draw finish line
         context.strokeStyle = "#009955";
-        context.lineWidth = config.cave.style.end_line_width;
+        context.lineWidth = style.cave.end_line_width;
         context.beginPath();
         context.moveTo(this.end_line.start.x, this.end_line.start.y);
         context.lineTo(this.end_line.end.x, this.end_line.end.y);

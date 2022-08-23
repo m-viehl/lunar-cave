@@ -16,11 +16,10 @@
         "style": {
             "background": "#344745",
             "foreground": "#d1d1d1",
-            "stroke_width": "scaled:.1",
             "stroke_col": "black",
             "end_line_width": "scaled:.3",
             "end_col": "#009955",
-            "line_width": 1.1
+            "stroke_width": 1.1
         },
         "generator": {
             "constrain_to_go_right": true,
