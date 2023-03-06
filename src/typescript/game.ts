@@ -126,7 +126,7 @@ class Game {
                     if (!down)
                         return; // only on release, avoid multiple events
                     // get seed from user
-                    let seed_prompt = prompt("Enter a seed for cave generation", "123");
+                    let seed_prompt = prompt("Enter a seed (integer) for cave generation", "123");
                     if (seed_prompt !== null) {
                         let seed_parsed = parseInt(seed_prompt);
                         if (!isNaN(seed_parsed)) {

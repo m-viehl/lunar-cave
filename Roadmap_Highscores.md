@@ -5,6 +5,10 @@ Diese Grundlagen sind technisch nötig, es sind aber noch UI-Updates nötig, um 
 - Code aufsplitten in Client/Rendering und Spiellogik
     - game.ts aufräumen: Game-Objekt überarbeiten
     - Key-Events außerhalb von Game-Objekt verarbeiten und stattdessen public methods aufrufen
+    - Game-Klasse abstrakt machen, Steuerungs-API private setzen
+        - einmal als "PlayerGame" erben und Steuerungs-API für Key-Events implementieren, außerdem Events aufzeichnen, 
+        - einmal als "RecordedGame" erben und "virtuelle Inputs" anhand einer Aufnahme eines PlayerGames reproduzieren (aber ungenau, weil die dts nicht exakt stimmen)
+        - einmal als "
     - Vielleicht kann ein Spiel am Client von Game erben? Alles style-/render-spezifische dann dort hinein
     - public objects für style/config doch durch Funktionen in Objekte durchreichen
     - Ein Game-Objekt für genau einen Zustand, bestehend aus:
