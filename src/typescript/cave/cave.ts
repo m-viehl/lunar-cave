@@ -104,7 +104,7 @@ export class Cave {
                         worst = angle_tools.normalize(direction + max_segment_angle);
                     } else {
                         let direction = angle_tools.normalize(last.end_angle - Math.PI / 2);
-                        worst = angle_tools.normalize(direction + max_segment_angle);
+                        worst = angle_tools.normalize(direction - max_segment_angle);
                     }
                     if (!angle_tools.in_angle_range(3 / 2 * Math.PI, Math.PI / 2, worst))
                         may_go_backwards = true;
