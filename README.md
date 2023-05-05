@@ -2,20 +2,14 @@
 Cool auto-generated caves!
 
 # Build and run
-- Clone this repo, run `npm install`
-- Run `./build.sh`
-- Visit the displayed URL.
-
-# Build
-
-## For development
-Just run `./build.sh` and visit the displayed URL.
-
-## For production
-Run `./build.sh production`, which will place output files in the `build/` directory. These files can then be served. (E.g. by using the `./put_online.sh` script.)
+1. Clone this repo
+2. Run `npm install`
+3. Deployment:
+    - *Development server*: Run `npm run dev` and visit the displayed URL.
+    - *Production build*: Run `npm run build`, which will place output files in the `dist/` directory. These files can then be served. (E.g. by using the `./put_online.sh` script.)
 
 # Changelog
-This changelog is for user-visible features, not internal improvements.
+This changelog is for *user-visible features*, not internal improvements.
 
 ## Version 0, 2022-03-01
 - Playable game different from the current "lunar cave" game

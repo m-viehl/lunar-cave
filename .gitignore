@@ -2,3 +2,5 @@
 *.js.map
 build
 node_modules
+dist
+.parcel-cache
