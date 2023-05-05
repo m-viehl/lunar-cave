@@ -47,3 +47,11 @@ Not mentioning the huge rewrite to allow for proper configuration would be sad..
 ## Version 3.1, 2022-08-22
 - Make style configurable via jsons
 - Add dark lines only mode
+
+## Version 3.2, 2023-05-05
+- Make cave generation deterministic and add a seed selection prompt when pressing shift+N
+- Fix the cave generation bug which caused long straight cave segments sometimes even running "backwards"
+- Add a favicon
+- Switch to parceljs, which
+    - reduced the deployment size
+    - automatically adds hashed filenames for cache busting
