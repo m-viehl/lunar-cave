@@ -13,6 +13,6 @@
   "source": "src/static/index.html",
   "scripts": {
     "dev": "parcel",
-    "build": "rm -r dist ; parcel build"
+    "build": "rm -r dist ; parcel build --no-source-maps"
   }
 }
