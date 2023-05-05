@@ -1,3 +1,5 @@
+'use strict';
+
 import { Cave } from "./cave/cave";
 import { ShipState, Key } from "./misc";
 import { Ship, Ship1 } from "./ship";
@@ -38,6 +40,8 @@ class Game {
     private dead = false;
     private is_current_cave_new = false;
 
+    private draw_help_lines = false;
+
     // required for running average for scale calculation
     private speed_sum: number;
     private last_speeds: number[];
@@ -73,11 +77,15 @@ class Game {
         }
     }
 
-    private new_cave() {
+    private new_cave(seed?: number) {
         if (this.is_current_cave_new) // stop key event spam
             return;
         this.freeze();
-        this.cave = new Cave(config.cave.generator.target_length);
+        if (seed === undefined) {
+            seed = Date.now();
+        }
+        console.log(`Current cave's seed: ${seed}`);
+        this.cave = new Cave(config.cave.generator.target_length, config, seed);
         this.is_current_cave_new = true;
         switch_layout(GameState.init);
         this.reset_ship();
@@ -92,8 +100,8 @@ class Game {
     public reset_ship() {
         this.dead = false;
 
-        this.lander.x = this.cave.spawn.x;
-        this.lander.y = this.cave.spawn.y;
+        this.lander.x = this.cave.spawn.centroid.x;
+        this.lander.y = this.cave.spawn.centroid.y;
         this.lander.reset();
 
         this.speed_sum = 0;
@@ -114,11 +122,27 @@ class Game {
         // return if input should not trigger game unpause
         switch (e.code) {
             case "KeyN":
+                if (e.shiftKey) {
+                    if (!down)
+                        return; // only on release, avoid multiple events
+                    // get seed from user
+                    let seed_prompt = prompt("Enter a seed (integer) for cave generation", "123");
+                    if (seed_prompt !== null) {
+                        let seed_parsed = parseInt(seed_prompt);
+                        if (!isNaN(seed_parsed)) {
+                            // force new cave generation
+                            this.is_current_cave_new = false;
+                            this.new_cave(seed_parsed);
+                            return;
+                        }
+                        console.log("You entered an invalid seed.")
+                    }
+                }
                 this.new_cave();
                 return;
             case "KeyH":
                 if (e.shiftKey && !down) {
-                    this.cave.help_lines = !this.cave.help_lines;
+                    this.draw_help_lines = !this.draw_help_lines;
                     draw();
                 }
                 return;
@@ -196,7 +220,7 @@ class Game {
         this.cave.draw(context, {
             upper_left: { x: this.lander.x - width / 2 * scale_factor, y: this.lander.y - height / 2 * scale_factor },
             lower_right: { x: this.lander.x + width / 2 * scale_factor, y: this.lander.y + height / 2 * scale_factor }
-        });
+        }, style, this.draw_help_lines);
         // lander
         context.resetTransform();
         context.translate(width / 2, height / 2);

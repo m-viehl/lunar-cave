@@ -1,15 +1,16 @@
-import { Point, Screen, ShipState, Line, random_range, ShipPosition } from "../misc";
+import Config from "../config/config_type";
+import { Point, Screen, ShipState, Line, ShipPosition } from "../misc";
 import * as angle_tools from "./angle_tools";
 import { Segment } from "./segment";
-import { config } from "../config/config_manager";
-import { style } from "../config/style_manager";
+import { generate_cave as generate_cave_segments } from "./generator";
+import { Style } from "../config/style_manager";
 
 export class Cave {
     readonly segments: Segment[] = [];
     private current_segment: Segment;
-    readonly spawn: Point;
+    readonly spawn: Segment;
     readonly end_line: Line;
-    help_lines = false;
+    // help_lines = false;
 
     // progress calculation
     private _progress = 0;
@@ -17,131 +18,9 @@ export class Cave {
     private spawn_arc_length: number;
     private current_arc_length: number;
 
-    public get progress() {
-        return this._progress;
-    }
+    constructor(arc_length: number, config: Config, seed: number) {
+        this.segments = generate_cave_segments(arc_length, config, seed);
 
-    private get_random_inner_outer_radius(current_radius: number): [number, number] {
-        return [
-            current_radius - random_range(config.cave.generator.min_cave_diameter / 2, config.cave.generator.max_cave_diameter / 2),
-            current_radius + random_range(config.cave.generator.min_cave_diameter / 2, config.cave.generator.max_cave_diameter / 2)
-        ]
-    }
-
-    private next_segment(radius: number, center: Point, ccw: boolean, prev: Segment | null) {
-        let start_inner_r: number;
-        let start_outer_r: number;
-        let start_angle: number;
-        if (prev === null) {
-            // standard settings if prev is null
-            [start_inner_r, start_outer_r] = this.get_random_inner_outer_radius(radius);
-            // SETTING
-            // start to the right
-            start_angle = ccw ? 3 * Math.PI / 2 : Math.PI / 2;
-        } else {
-            // if prev exists, use its settings
-            if (prev.radius !== radius) {
-                // radius changed!
-                let delta_r_outer: number;
-                let delta_r_inner: number;
-                if (prev.rotation_ccw !== ccw) {
-                    // direction changed, flip outer and inner
-                    delta_r_outer = prev.radius - prev.inner_edge.r_end;
-                    delta_r_inner = prev.outer_edge.r_end - prev.radius;
-                } else {
-                    // direction didn't change, don't flip
-                    delta_r_outer = prev.outer_edge.r_end - prev.radius;
-                    delta_r_inner = prev.radius - prev.inner_edge.r_end;
-                }
-                start_inner_r = radius - delta_r_inner;
-                start_outer_r = radius + delta_r_outer;
-            } else {
-                // both radius and direction didn't change
-                start_inner_r = prev.inner_edge.r_end;
-                start_outer_r = prev.outer_edge.r_end;
-            }
-            if (prev.rotation_ccw !== ccw) {
-                // rotation direction changed! Flip start angle by 180°
-                start_angle = angle_tools.normalize(prev.end_angle + Math.PI);
-            } else {
-                start_angle = prev.end_angle;
-            }
-        }
-        // determine new segment's angle via arc length.
-        let arc_length = random_range(config.cave.generator.min_segment_arc_length, config.cave.generator.max_segment_arc_length);
-        let angle_delta = arc_length / radius * (ccw ? +1 : -1);
-
-        let [end_inner_r, end_outer_r] = this.get_random_inner_outer_radius(radius);
-
-        return new Segment(center, radius, start_angle, start_angle + angle_delta, ccw,
-            start_inner_r, start_outer_r, end_inner_r, end_outer_r, prev === null ? undefined : prev);
-    }
-
-    constructor(arc_length: number) {
-        // construct segments
-        // SETTING: here are the starting segment settings
-        let current_radius = random_range(config.cave.generator.min_radius, config.cave.generator.max_radius);
-        let current_center = { x: 0, y: 0 };
-        let currently_ccw = Math.random() > 0.5;
-
-        let total_arc_length = 0;
-        let enclosed_angle_of_current_center = 0;
-        let target_enclosed_angle_of_current_center = random_range(config.cave.generator.min_angle_per_center, config.cave.generator.max_angle_per_center);
-
-        while (total_arc_length < arc_length) {
-            // append new segment
-            let last: Segment | null = null;
-            if (this.segments.length > 0)
-                last = this.segments[this.segments.length - 1];
-            if (last !== null) {
-                // determine whether to switch the current center.
-                let may_go_backwards = false;
-                {
-                    let max_segment_angle = config.cave.generator.max_segment_arc_length / current_radius;
-                    let worst: number;
-                    if (last.rotation_ccw) {
-                        let direction = angle_tools.normalize(last.end_angle + Math.PI / 2);
-                        worst = angle_tools.normalize(direction + max_segment_angle);
-                    } else {
-                        let direction = angle_tools.normalize(last.end_angle - Math.PI / 2);
-                        worst = angle_tools.normalize(direction - max_segment_angle);
-                    }
-                    if (!angle_tools.in_angle_range(3 / 2 * Math.PI, Math.PI / 2, worst))
-                        may_go_backwards = true;
-                }
-                let switch_center = enclosed_angle_of_current_center > target_enclosed_angle_of_current_center || may_go_backwards;
-                let switch_direction = may_go_backwards || Math.random() > .5; // only make it random if we don't have to.
-                if (switch_center) {
-                    if (switch_direction)
-                        enclosed_angle_of_current_center = 0;
-                    target_enclosed_angle_of_current_center = random_range(config.cave.generator.min_angle_per_center, config.cave.generator.max_angle_per_center);
-                    // move center.
-                    let junction_point = {
-                        x: last.center.x + Math.cos(last.end_angle) * last.radius,
-                        y: last.center.y + Math.sin(last.end_angle) * last.radius
-                    }
-                    let v = { // union vector from junction point to last.center
-                        x: (last.center.x - junction_point.x) / last.radius,
-                        y: (last.center.y - junction_point.y) / last.radius
-                    }
-                    let new_radius = random_range(config.cave.generator.min_radius, config.cave.generator.max_radius);
-                    // scale vector
-                    v.x *= new_radius * (switch_direction ? -1 : 1);
-                    v.y *= new_radius * (switch_direction ? -1 : 1);
-
-                    current_center = {
-                        x: junction_point.x + v.x,
-                        y: junction_point.y + v.y
-                    };
-                    current_radius = new_radius;
-                    currently_ccw = switch_direction ? !currently_ccw : currently_ccw;
-                }
-            }
-            let new_segment = this.next_segment(current_radius, current_center, currently_ccw, last);
-            this.segments.push(new_segment);
-            enclosed_angle_of_current_center += new_segment.enclosed_angle;
-            total_arc_length += new_segment.arc_length;
-        }
         this.end_line = {
             start: this.segments[this.segments.length - 1].inner_edge.end,
             end: this.segments[this.segments.length - 1].outer_edge.end
@@ -151,14 +30,18 @@ export class Cave {
             let last = this.segments[this.segments.length - 1]
             this.total_arc_length = last.previous_arc_length + last.arc_length;
         }
-        config.cave.generator.spawn_segment_index = Math.min(config.cave.generator.spawn_segment_index, this.segments.length);
-        this.spawn = this.segments[config.cave.generator.spawn_segment_index].centroid;
+        let spawn_segment_index = Math.min(config.cave.generator.spawn_segment_index, this.segments.length);
+        this.spawn = this.segments[spawn_segment_index];
         this.reset();
     }
 
+    public get progress() {
+        return this._progress;
+    }
+
     public reset() {
-        this.current_segment = this.segments[config.cave.generator.spawn_segment_index];
-        this.check_collision(this.spawn);
+        this.current_segment = this.spawn;
+        this.check_collision(this.spawn.centroid);
     }
 
     public check_collision(p: Point, update_current_segment = false): ShipState {
@@ -169,8 +52,9 @@ export class Cave {
         // progress calculation
         this.current_arc_length = curr.previous_arc_length
             + curr.arc_length * angle_tools.angle_between(polar.phi, curr.start_angle) / curr.enclosed_angle;
-        if (p === this.spawn) {
-            // set spawn arc length
+        if (p === this.spawn.centroid) {
+            // set spawn arc length: setting this in the first reset() call (and before the first usage).
+            // We have the value here and it would be superfluous to calculate it in the constructor.
             this.spawn_arc_length = this.current_arc_length;
         }
         this._progress = (this.current_arc_length - this.spawn_arc_length) / (this.total_arc_length - this.spawn_arc_length);
@@ -244,7 +128,7 @@ export class Cave {
             this.line_on_screen(seg.inner_edge, scr);
     }
 
-    public draw(context: CanvasRenderingContext2D, scr: Screen) {
+    public draw(context: CanvasRenderingContext2D, scr: Screen, style: Style, draw_help_lines: boolean) {
         // get segments on screen
         let segments: Segment[] = [this.current_segment];
         {
@@ -298,7 +182,7 @@ export class Cave {
         context.fill();
         context.stroke();
         // draw help lines
-        if (this.help_lines) {
+        if (draw_help_lines) {
             for (let s of segments) {
                 context.strokeStyle = "#888888";
                 context.lineWidth = 1;

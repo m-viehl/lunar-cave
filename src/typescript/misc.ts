@@ -17,13 +17,6 @@ export enum ShipPosition {
     wall
 }
 
-export function random_range(min: number, max: number, int = false) {
-    let r = min + Math.random() * (max - min);
-    if (int)
-        return Math.trunc(r)
-    return r
-}
-
 
 export interface Line {
     start: Point,
