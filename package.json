@@ -1,18 +1,14 @@
 {
-  "name": "lunar-cave",
-  "version": "1.0.0",
-  "description": "Lunar Cave Game",
-  "author": "Max Viehl",
-  "license": "UNLICENSED",
-  "devDependencies": {
-    "@types/lodash": "^4.14.182",
-    "lodash": "^4.17.21",
-    "parcel": "^2.8.3",
-    "typescript": "^4.7.4"
-  },
-  "source": "src/static/index.html",
-  "scripts": {
-    "dev": "parcel",
-    "build": "rm -r dist ; parcel build --no-source-maps"
-  }
+    "name": "lunar-cave",
+    "description": "Lunar Cave Game",
+    "author": "Max Viehl",
+    "version": "1.0.0",
+    "scripts": {
+        "dev:frontend": "parcel src/frontend/index.html",
+        "build:frontend": "parcel build src/frontend/index.html",
+        "dev:backend": "bun run src/backend/server.ts"
+    },
+    "devDependencies": {
+        "parcel": "^2.0.0"
+    }
 }

@@ -1,0 +1,3 @@
+- This is a modified copy of the old cave generator from before the rewrite.
+- The config (only the hard version) is hardcoded to `config.ts`.
+- `converter.ts` converts the old object structure to the (new and much simpler) form required for the new Cave object.
