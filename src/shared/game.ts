@@ -1,6 +1,7 @@
 
 
 import { Cave, PointState } from "./cave";
+import { ConfigType } from "./config";
 import { Ship } from "./ship";
 
 export enum GameState {
@@ -24,11 +25,11 @@ export class Game {
     ship: Ship
     t: number = 0
 
-    constructor(cave: Cave) {
+    constructor(cave: Cave, config: ConfigType) {
         // TODO somehow pass game settings, which are also relevant
         this.cave = cave
         this.cave.reset() // if cave is reused.
-        this.ship = new Ship(this.cave.spawn_location)
+        this.ship = new Ship(this.cave.spawn_location, config)
     }
 
     /**

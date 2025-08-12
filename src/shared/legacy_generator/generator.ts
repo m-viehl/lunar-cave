@@ -1,4 +1,4 @@
-import type { LegacyCaveConfig } from "./config";
+import { ConfigType } from "../config";
 import { Point } from "../misc";
 import * as angle_tools from "./angle_tools";
 import { Segment } from "./segment";
@@ -27,7 +27,9 @@ function randomize_mulberry32(a: number) {
     random = out;
 }
 
-export function generate_cave(config: LegacyCaveConfig): Segment[] {
+export function generate_cave(full_config: ConfigType): Segment[] {
+    let config = full_config.legacy_cave_config
+
     randomize_mulberry32(config.seed);
     let segments: Segment[] = [];
 
@@ -90,7 +92,16 @@ export function generate_cave(config: LegacyCaveConfig): Segment[] {
                 currently_ccw = switch_direction ? !currently_ccw : currently_ccw;
             }
         }
-        let new_segment = next_segment(current_radius, current_center, currently_ccw, last, config);
+        let new_segment = next_segment(
+            current_radius,
+            current_center,
+            currently_ccw,
+            last,
+            config.min_cave_diameter,
+            config.max_cave_diameter,
+            config.min_segment_arc_length,
+            config.max_segment_arc_length,
+        );
         segments.push(new_segment);
         enclosed_angle_of_current_center += new_segment.enclosed_angle;
         total_arc_length += new_segment.arc_length;
@@ -105,26 +116,33 @@ function random_range(min: number, max: number, int = false) {
     return r
 }
 
-function get_random_inner_outer_radius(current_radius: number, config: LegacyCaveConfig): [number, number] {
+function get_random_inner_outer_radius(
+    current_radius: number,
+    min_diam: number,
+    max_diam: number,
+): [number, number] {
     return [
-        current_radius - random_range(config.min_cave_diameter / 2, config.max_cave_diameter / 2),
-        current_radius + random_range(config.min_cave_diameter / 2, config.max_cave_diameter / 2)
+        current_radius - random_range(min_diam / 2, max_diam / 2),
+        current_radius + random_range(min_diam / 2, max_diam / 2)
     ]
 }
 
 function next_segment(
-    radius: number, 
-    center: Point, 
-    ccw: boolean, 
+    radius: number,
+    center: Point,
+    ccw: boolean,
     prev: Segment | null,
-    config: LegacyCaveConfig,
+    min_diam: number,
+    max_diam: number,
+    min_arclength: number,
+    max_arclength: number,
 ) {
     let start_inner_r: number;
     let start_outer_r: number;
     let start_angle: number;
     if (prev === null) {
         // standard settings if prev is null
-        [start_inner_r, start_outer_r] = get_random_inner_outer_radius(radius, config);
+        [start_inner_r, start_outer_r] = get_random_inner_outer_radius(radius, min_diam, max_diam);
         // SETTING
         // start to the right
         start_angle = ccw ? 3 * Math.PI / 2 : Math.PI / 2;
@@ -158,10 +176,10 @@ function next_segment(
         }
     }
     // determine new segment's angle via arc length.
-    let arc_length = random_range(config.min_segment_arc_length, config.max_segment_arc_length);
+    let arc_length = random_range(min_arclength, max_arclength);
     let angle_delta = arc_length / radius * (ccw ? +1 : -1);
 
-    let [end_inner_r, end_outer_r] = get_random_inner_outer_radius(radius, config);
+    let [end_inner_r, end_outer_r] = get_random_inner_outer_radius(radius, min_diam, max_diam);
 
     return new Segment(center, radius, start_angle, start_angle + angle_delta, ccw,
         start_inner_r, start_outer_r, end_inner_r, end_outer_r, prev === null ? undefined : prev);

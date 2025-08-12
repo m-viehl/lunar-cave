@@ -1,4 +1,10 @@
-// just import this where it is needed, and the object can always be polled for the current state.
+/**
+ * Manages keyboard events: Registers listeners (on first import) and updates the `key_state`
+ * object which can be read from everywhere.
+ * 
+ * In addition, for certain keys, event listeners are run if set in the `key_listeners` object.
+ */
+
 export let key_state = {
     up: false,
     left: false,

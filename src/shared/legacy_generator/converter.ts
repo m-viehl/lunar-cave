@@ -1,8 +1,8 @@
 
 
 import { Cave } from "../cave";
+import { ConfigType } from "../config";
 import { Point, PointPair } from "../misc";
-import { generator_config } from "./config";
 import { Segment } from "./segment";
 
 /**
@@ -12,7 +12,7 @@ import { Segment } from "./segment";
  * Of counter-clockwise segments, the points of the *inner* edge become the A points,
  * for clockwise ones, the B points, and vice versa.
  */
-export function convert_cave(segments: Segment[]): Cave {
+export function convert_cave(segments: Segment[], config: ConfigType): Cave {
     let point_pairs: PointPair[] = []
     // we add the start of the first segment, and then all ends only.
     {
@@ -32,12 +32,17 @@ export function convert_cave(segments: Segment[]): Cave {
     }
 
     // spawn point
-    let spawn_index = generator_config.spawn_segment_index
+    let spawn_index = config.legacy_cave_config.spawn_segment_index
     let spawn_a = point_pairs[spawn_index]
     let spawn_b = point_pairs[spawn_index + 1]
     let spawn = centroidOfQuad(spawn_a.a, spawn_a.b, spawn_b.a, spawn_b.b)
 
-    return new Cave(point_pairs, generator_config.spawn_segment_index, spawn)
+    return new Cave(
+        point_pairs,
+        config.legacy_cave_config.spawn_segment_index,
+        spawn,
+        segments.length - 2,
+    )
 }
 
 

@@ -48,26 +48,17 @@
         h2 {
             margin-top: 2em;
         }
-
-        #progress {
-            position: absolute;
-            right: 1rem;
-            top: 1rem;
-            font-size: 3rem;
-            text-align: right;
-        }
     </style>
 
     <script type="module" src="main.ts" defer></script>
 </head>
 
 <body>
-    <h1 id="noscript-text">Enable Javascript to play this game.</h1>
-    <div id="progress">0%</div>
+    <h1 id="noscript-text">Javascript is required to play this game.</h1>
     <div id="menu">
         <h1>Lunar Cave</h1>
         <div id="game_info">
-            <h2 id="game_mesg">(Will be replaced.)</h2>
+            <h2 id="game_mesg">(Will be replaced by JS.)</h2>
             Press any key to retry this cave or <span class="key">N</span> for a new cave.
         </div>
         <div>
@@ -90,27 +81,29 @@
         </div>
         <div>
             <h2>Settings</h2>
-            <p>Select difficulty:
-                <select id="difficulty_selector">
-                    <option value="easy" selected>Easy</option>
-                    <option value="hard">Hard</option>
+            <p>Select physics speed:
+                <select id="physics_speed_select">
+                    <option value=0.5>Slow</option>
+                    <option value=1.0 selected>Fast</option>
                 </select>
             </p>
-            <p>Select draw style:
-                <select id="style_selector">
-                    <!--
-                        This must match the names in src/config/styles.json.
-                        TODO: should be populated with style_manager.available_style_names!
-                    -->
-                    <option value="filled_colors" selected>Filled</option>
-                    <option value="lines_dark">Lines only, dark</option>
-                    <option value="lines_bright">Lines only, bright</option>
+            <p>Select cave size:
+                <select id="cave_size_select">
+                    <option value=2.0>Wide</option>
+                    <option value=1.0 selected>Narrow</option>
+                </select>
+            </p>
+            <p>Select cave length:
+                <select id="cave_length_select">
+                    <option value=100>Short</option>
+                    <option value=250 selected>Medium</option>
+                    <option value=500>Long</option>
                 </select>
             </p>
             <p>Click <button onclick="document.body.requestFullscreen()">here</button> to go to fullscreen mode.</p>
         </div>
     </div>
-    <canvas id="canvas" width="100px" height="100px">Your browser does not support canvas.</canvas>
+    <canvas id="canvas" width="100px" height="100px">Your browser does not support HTML5 canvas.</canvas>
 </body>
 
 </html>

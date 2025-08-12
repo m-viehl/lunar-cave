@@ -27,13 +27,20 @@ export class Cave {
      * is updated during operation.
      * spawn_segment_index retains the initial one for resets.
      */
-    current_segment_index: number // 0 is between point pairs 0 and 1, and so on
+    current_segment_index!: number // 0 is between point pairs 0 and 1, and so on
     spawn_segment_index: number
+    goal_segment_index: number
 
     spawn_location: Point
 
-    constructor(point_pairs: PointPair[], spawn_segment_index: number, spawn_location: Point) {
+    constructor(
+        point_pairs: PointPair[],
+        spawn_segment_index: number,
+        spawn_location: Point,
+        goal_segment_index: number,
+    ) {
         this.spawn_segment_index = spawn_segment_index
+        this.goal_segment_index = goal_segment_index
         this.point_pairs = point_pairs
         this.spawn_location = spawn_location
         this.reset()
@@ -78,8 +85,7 @@ export class Cave {
             if (this.is_in_segment(p, i)) {
                 // point is in segment -> update current segment!
                 this.current_segment_index = i
-                if (i == this.point_pairs.length - 1) {
-                    // we've reached the last segment
+                if (i == this.goal_segment_index) {
                     return PointState.FINISH
                 }
                 return PointState.INSIDE // not crashed

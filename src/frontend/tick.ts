@@ -2,12 +2,15 @@
  * An object that calls a given callback with a delta t argument periodically via
  * `window.requestAnimationFrame`. Can be started and stopped arbitrarily.
  */
-class Tick {
+export class Tick {
 
     private paused = false
     private last_tick: number | null = null
     private callback: (dt: number) => void
 
+    /**
+     * @param callback the function to be called each tick
+     */
     constructor(callback: (dt: number) => void) {
         this.callback = callback
     }

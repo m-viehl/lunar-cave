@@ -4,8 +4,8 @@
     "author": "Max Viehl",
     "version": "1.0.0",
     "scripts": {
-        "dev:frontend": "parcel src/frontend/index.html",
-        "build:frontend": "parcel build src/frontend/index.html",
+        "dev:frontend": "bunx parcel src/frontend/index.html",
+        "build:frontend": "bunx parcel build src/frontend/index.html",
         "dev:backend": "bun run src/backend/server.ts"
     },
     "devDependencies": {
