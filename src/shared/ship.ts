@@ -19,7 +19,7 @@ export class Ship {
     constructor(spawn: Point, config: ConfigType) {
         this.spawn = spawn;
         this.collision_points = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }];
-        this.config = config.ship_config;
+        this.config = config;
         this.reset();
     }
 
@@ -31,7 +31,7 @@ export class Ship {
         this.angle = 0;
         this.thrust_factor = 0;
         this.speed = 0;
-        this.calc_collision_points(this.config.size);
+        this.calc_collision_points(this.config.ship_config.size);
     }
 
     /**
@@ -51,10 +51,10 @@ export class Ship {
 
         // calculate thrust level
         if (thrust) {
-            this.thrust_factor += this.config.delta_thrust_factor_per_s * dt;
+            this.thrust_factor += this.config.ship_config.delta_thrust_factor_per_s * dt;
             this.thrust_factor = Math.min(this.thrust_factor, 1);
         } else {
-            this.thrust_factor -= this.config.delta_thrust_factor_per_s * dt;
+            this.thrust_factor -= this.config.ship_config.delta_thrust_factor_per_s * dt;
             this.thrust_factor = Math.max(this.thrust_factor, 0);
         }
 
@@ -66,11 +66,11 @@ export class Ship {
             else
                 rotation_thrust = +1
         }
-        this.angle += this.config.rotation_speed * rotation_thrust * dt;
+        this.angle += this.config.ship_config.rotation_speed * rotation_thrust * dt;
         // calc acceleration
-        let acc = this.config.acc
+        let acc = this.config.ship_config.acc
         let ax = - this.thrust_factor * acc * Math.cos(this.angle + Math.PI / 2);
-        let ay = - this.thrust_factor * acc * Math.sin(this.angle + Math.PI / 2) + this.config.g;
+        let ay = - this.thrust_factor * acc * Math.sin(this.angle + Math.PI / 2) + this.config.ship_config.g;
         // apply acceleration
         this.vx += ax * dt;
         this.vy += ay * dt;
@@ -79,7 +79,7 @@ export class Ship {
         this.y += this.vy * dt;
         this.speed = Math.hypot(this.vx, this.vy);
 
-        this.calc_collision_points(this.config.size);
+        this.calc_collision_points(this.config.ship_config.size);
     }
 
     private calc_collision_points(size: number) {

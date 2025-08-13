@@ -16,21 +16,13 @@ import { FrontendGame } from "./main";
 let canvas = document.getElementById("canvas") as HTMLCanvasElement;
 let context = canvas.getContext("2d")!;
 let width = 0, height = 0;
-let speed_smoothed = 0;
 
 
 function scale_from_speed(v: number, config: ConfigType): number {
-    {
-        // speed smoothing
-        // TODO make this framerate-agnostic!
-        // (https://en.wikipedia.org/wiki/Exponential_smoothing)
-        let a = config.zoom_config.speed_smoothing_factor
-        speed_smoothed = v * a + speed_smoothed * (1 - a)
-    }
-
     let max_speed = config.zoom_config.max_speed
+    let min_zoom = config.zoom_config.min_zoom_factor
     if (v < max_speed) {
-        return 1 - Math.cos(Math.PI * v / max_speed) * config.zoom_config.min_zoom_factor;
+        return 1 - Math.cos(Math.PI * v / max_speed) * min_zoom;
     }
     return config.zoom_config.max_zoom_factor;
 }
@@ -48,7 +40,7 @@ export function draw_main(frontend_game: FrontendGame) {
     context.fillStyle = config.draw_config.cave.background;
     context.fillRect(0, 0, width, height);
 
-    let scale_factor = scale_from_speed(ship.speed, config);
+    let scale_factor = scale_from_speed(frontend_game.speed_smoothed, config);
 
     context.resetTransform();
     context.translate(

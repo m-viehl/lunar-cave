@@ -23,14 +23,16 @@ export function get_config(game_config: GameConfig) {
         ship_config: {
             "acc": game_config.ship_scale * 30,
             "size": game_config.ship_scale * 1,
-            "rotation_speed": deg2rad * 180,
+            "rotation_speed": deg2rad * 180 / game_config.time_factor,
+            // rotation shall be independent of the time factor!
+
             "delta_thrust_factor_per_s": 7,
             "g": game_config.ship_scale * 9.81,
             time_factor: game_config.time_factor,
         },
 
         zoom_config: {
-            speed_smoothing_factor: 0.02, // TODO anpassen!
+            speed_smoothing_factor: 0.02,
             "min_zoom_factor": 0.5,
             "max_zoom_factor": 1.5,
             "min_speed": 0,

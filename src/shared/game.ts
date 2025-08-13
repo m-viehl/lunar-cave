@@ -61,4 +61,9 @@ export class Game {
         this.t += dt
     }
 
+    public reset() {
+        this.ship.reset()
+        this.cave.reset()
+    }
+
 }
