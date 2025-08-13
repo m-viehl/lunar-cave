@@ -32,8 +32,6 @@ export class Ship {
         this.thrust_factor = 0;
         this.speed = 0;
         this.calc_collision_points(this.config.size);
-
-        console.log("ship reset")
     }
 
     /**
@@ -62,7 +60,7 @@ export class Ship {
 
         // rotation
         let rotation_thrust = 0;
-        if (!(turn_left && turn_right)) {
+        if (turn_left != turn_right) { // xor, only one rotation input active
             if (turn_left)
                 rotation_thrust = -1
             else

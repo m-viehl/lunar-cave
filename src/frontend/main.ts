@@ -3,22 +3,20 @@ import { generate_cave } from "../shared/legacy_generator/generator"
 import { convert_cave } from "../shared/legacy_generator/converter"
 
 import { key_state, key_listeners } from "./keyboard_io";
-import { ConfigType, GameConfig, set_config } from "../shared/config";
+import { ConfigType, GameConfig, get_config } from "../shared/config";
 import { draw_main, screen_size_changed } from "./rendering";
-import { Tick } from "./tick";
-
+import * as tick from "./tick"
 
 
 /**
  * Class that coordinates all objects/data required for a game running in the frontend.
  */
 export class FrontendGame {
-    tick: Tick
     game: Game
     config: ConfigType
 
     constructor(game_config: GameConfig) {
-        this.config = set_config(game_config)
+        this.config = get_config(game_config)
 
         let cave = convert_cave(
             generate_cave(this.config),
@@ -28,24 +26,21 @@ export class FrontendGame {
         this.game = new Game(cave, this.config)
         // TODO make this an inheriting RecordingGame that auto-records inputs?
 
-        this.tick = new Tick((dt) => this.tick_fct(dt))
-        key_listeners.any_control_key = () => this.tick.start()
+        tick.set_callback((dt) => this.tick_fct(dt))
+        key_listeners.any_control_key = () => tick.start()
     }
 
     private tick_fct(dt: number) {
-
-        this.game.tick(dt, key_state.up, key_state.left, key_state.right)
-
-        draw_main(this)
-
-        if (this.game.state == GameState.GAMEOVER) {
-            this.tick.stop()
+        if (this.game.state == GameState.INGAME) {
+            this.game.tick(dt, key_state.up, key_state.left, key_state.right)
+            draw_main(this)
+        } else if (this.game.state == GameState.GAMEOVER) {
+            tick.stop()
             // TODO handle this case, show message, add shadow, ...
         } else if (this.game.state == GameState.WON) {
-            this.tick.stop()
+            tick.stop()
             // TODO handle case: show message, highscore upload etc.
         }
-        // (else: ingame, do nothing)
     }
 }
 
@@ -54,13 +49,16 @@ function get_config_from_UI(): GameConfig {
     let scale_factor = parseFloat((document.getElementById("cave_size_select") as HTMLSelectElement).value)
     let length = parseFloat((document.getElementById("cave_length_select") as HTMLSelectElement).value)
     let seed = Date.now();
+    const SCALE = 20
     return {
         time_factor: time_factor,
-        scale: scale_factor * 20, // 20 is default scale
+        cave_scale: scale_factor * SCALE,
+        ship_scale: SCALE,
         length: length,
         seed: seed,
     }
 }
+
 
 let remove_window_callback: null | (() => void) = null;
 

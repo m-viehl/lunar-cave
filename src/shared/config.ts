@@ -4,11 +4,11 @@ const deg2rad = 2 * 3.141592 / 360;
 
 /**
  * Interface that contains all parameters the user can manually change in some way.
- * In `shared/config.ts`, this should then be used to derive the full config object. (TODO!)
  */
 export interface GameConfig {
     time_factor: number
-    scale: number  // default: 20
+    ship_scale: number  // default: 20
+    cave_scale: number
     length: number
     seed: number
 }
@@ -18,16 +18,14 @@ export interface GameConfig {
  * Obtain a full config object based on a game config.
  * Contains both frontend and backend related configs.
  */
-export function set_config(game_config: GameConfig) {
-    let SCALE = game_config.scale
-
+export function get_config(game_config: GameConfig) {
     return {
         ship_config: {
-            "acc": SCALE * 30,
-            "size": SCALE * 1,
+            "acc": game_config.ship_scale * 30,
+            "size": game_config.ship_scale * 1,
             "rotation_speed": deg2rad * 180,
             "delta_thrust_factor_per_s": 7,
-            "g": SCALE * 9.81,
+            "g": game_config.ship_scale * 9.81,
             time_factor: game_config.time_factor,
         },
 
@@ -36,7 +34,7 @@ export function set_config(game_config: GameConfig) {
             "min_zoom_factor": 0.5,
             "max_zoom_factor": 1.5,
             "min_speed": 0,
-            "max_speed": SCALE * 30
+            "max_speed": game_config.ship_scale * 30
         },
 
         draw_config: {
@@ -55,17 +53,17 @@ export function set_config(game_config: GameConfig) {
 
         legacy_cave_config: {
             constrain_to_go_right: true,
-            target_length: SCALE * 350,
+            target_length: game_config.cave_scale * 350,
             spawn_segment_index: 5,
             min_angle_per_center: deg2rad * 30,
             max_angle_per_center: deg2rad * 120,
-            min_segment_arc_length: SCALE * .5,
-            max_segment_arc_length: SCALE * 5,
-            min_cave_diameter: SCALE * 2.5,
-            max_cave_diameter: SCALE * 20,
-            min_radius: SCALE * 10,
-            max_radius: SCALE * 40,
-            arc_length: SCALE * game_config.length,
+            min_segment_arc_length: game_config.cave_scale * .5,
+            max_segment_arc_length: game_config.cave_scale * 5,
+            min_cave_diameter: game_config.cave_scale * 2.5,
+            max_cave_diameter: game_config.cave_scale * 20,
+            min_radius: game_config.cave_scale * 10,
+            max_radius: game_config.cave_scale * 40,
+            arc_length: game_config.cave_scale * game_config.length,
             seed: game_config.seed,
         }
     }
@@ -73,4 +71,4 @@ export function set_config(game_config: GameConfig) {
 }
 
 // infer the type from set_config, such that it can be used in the code without repeating it as interface
-export type ConfigType = ReturnType<typeof set_config>
+export type ConfigType = ReturnType<typeof get_config>
