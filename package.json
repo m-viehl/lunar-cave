@@ -8,6 +8,9 @@
         "build:frontend": "bunx parcel build src/frontend/index.html",
         "dev:backend": "bun run src/backend/server.ts"
     },
+    "dependencies": {
+        "lit": "^3.0.0"
+    },
     "devDependencies": {
         "parcel": "^2.0.0"
     }

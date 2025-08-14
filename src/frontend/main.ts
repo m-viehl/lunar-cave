@@ -6,14 +6,17 @@ import { key_state, key_listeners } from "./keyboard_io";
 import { ConfigType, GameConfig, get_config } from "../shared/config";
 import { draw_main, screen_size_changed } from "./rendering";
 import * as tick from "./tick"
+import { MenuComponent } from './menu-component';
 
+
+let menuComponent = document.getElementById('menu') as MenuComponent;
 
 /**
  * Class that coordinates all objects/data required for a game running in the frontend.
  */
 export class FrontendGame {
     // TODO record crashes and draw shadows of broken ships :D Retry-Hommage!
-    // (für weekly challenge: in localstorage für ALLE Versuche speicher :D)
+    // (für weekly challenge: in localstorage für ALLE Versuche speichern :D)
 
     game: Game
     config: ConfigType
@@ -63,39 +66,25 @@ export class FrontendGame {
         if (this.game.state == GameState.INGAME) {
             this.game.tick(dt, key_state.up, key_state.left, key_state.right)
             draw_main(this)
+            menuComponent.state = 'ingame';
         } else if (this.game.state == GameState.GAMEOVER) {
             tick.stop()
-            // TODO handle this case, show message, add shadow, ...
+            // TODO add shadow, ...
+            menuComponent.state = 'lost';
         } else if (this.game.state == GameState.WON) {
             tick.stop()
-            // TODO handle case: show message, highscore upload etc.
+            // TODO highscore upload etc.
+            menuComponent.state = 'won';
         }
     }
 }
 
-function get_config_from_UI(): GameConfig {
-    let time_factor = parseFloat((document.querySelector('input[name="physics_speed"]:checked') as HTMLInputElement).value)
-    let scale_factor = parseFloat((document.querySelector('input[name="cave_size"]:checked') as HTMLInputElement).value)
-    let length = parseFloat((document.querySelector('input[name="cave_length"]:checked') as HTMLInputElement).value)
-    let seed = Date.now();
-    const SCALE = 20
-    return {
-        time_factor: time_factor,
-        cave_scale: scale_factor * SCALE,
-        ship_scale: SCALE,
-        length: length,
-        seed: seed,
-    }
-}
-
-
 let remove_window_callback: null | (() => void) = null;
-
 function new_game() {
-    let config = get_config_from_UI()
+    let config = menuComponent.getConfig()
     let game = new FrontendGame(config)
 
-    // WINDOW RESIZE LISTENER
+    // window resize listener
     if (remove_window_callback) {
         remove_window_callback()
     }
@@ -108,7 +97,6 @@ function new_game() {
     remove_window_callback = () => { window.removeEventListener("resize", screen_size_callback) }
 
     screen_size_callback() // initial resize & draw
-    // TODO da war doch was, dass man mehrmals zeichnen muss, bis was ankommt, oder!?
 }
 
 // MAIN FUNCTION
@@ -116,22 +104,9 @@ function main() {
     document.body.removeChild(document.getElementById("noscript-text")!);
     key_listeners.N = new_game
     
-    // Add event listeners for radio button changes
-    const radioGroups = [
-        'input[name="physics_speed"]',
-        'input[name="cave_size"]', 
-        'input[name="cave_length"]'
-    ];
-    
-    radioGroups.forEach(selector => {
-        document.querySelectorAll(selector).forEach(radio => {
-            radio.addEventListener('change', new_game);
-        });
-    });
+    menuComponent.addEventListener('configChanged', new_game);
     
     new_game()
-
-    // TODO do sth with the game status message field!
 }
 
 main();

@@ -25,25 +25,25 @@ function on_key(e: KeyboardEvent, down: boolean) {
     // return if input should not trigger game unpause
     switch (e.code) {
         case "KeyN":
-            if (key_listeners.N)
+            if (down && !e.repeat && key_listeners.N) // debounce
                 key_listeners.N()
             break;
         case "KeyW":
         case "ArrowUp":
             key_state.up = down;
-            if (key_listeners.any_control_key)
+            if (key_listeners.any_control_key && down && !e.repeat)
                 key_listeners.any_control_key()
             break;
         case "KeyA":
         case "ArrowLeft":
             key_state.left = down;
-            if (key_listeners.any_control_key)
+            if (key_listeners.any_control_key && down && !e.repeat)
                 key_listeners.any_control_key()
             break;
         case "KeyD":
         case "ArrowRight":
             key_state.right = down;
-            if (key_listeners.any_control_key)
+            if (key_listeners.any_control_key && down && !e.repeat)
                 key_listeners.any_control_key()
             break;
     }
