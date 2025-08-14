@@ -64,6 +64,7 @@ export class Game {
     public reset() {
         this.ship.reset()
         this.cave.reset()
+        this.state = GameState.INGAME
     }
 
 }

@@ -2,12 +2,16 @@ import { Game, GameState } from "../shared/game";
 import { generate_cave } from "../shared/legacy_generator/generator"
 import { convert_cave } from "../shared/legacy_generator/converter"
 
-import { key_state, key_listeners } from "./keyboard_io";
+import { key_state } from "./keyboard_io";
 import { ConfigType, GameConfig, get_config } from "../shared/config";
 import { draw_main, screen_size_changed } from "./rendering";
 import * as tick from "./tick"
 import { MenuComponent } from './menu-component';
 
+import "./menu-component"
+// we need this call so that the component is actually registered, otherwise, parcel
+// will remove it as "unused" when tree-shaking (because it is only used as type here!).
+// We need it for the HTML though.
 
 let menuComponent = document.getElementById('menu') as MenuComponent;
 
@@ -35,18 +39,20 @@ export class FrontendGame {
         // TODO add recording inputs
 
         tick.set_callback((dt) => this.tick_fct(dt))
-        key_listeners.any_control_key = () => tick.start()
 
         this.reset()
     }
 
-    private reset() {
-        // TODO call somehow!
-
+    public reset() {
         this.game.reset()
 
         // we start with max speed to achieve a zoom-in effect on game start
         this.speed_smoothed = this.config.zoom_config.max_speed
+        draw_main(this)
+    }
+
+    public start() {
+        tick.start()
     }
 
     private tick_fct(dt: number) {
@@ -79,34 +85,39 @@ export class FrontendGame {
     }
 }
 
-let remove_window_callback: null | (() => void) = null;
-function new_game() {
-    let config = menuComponent.getConfig()
-    let game = new FrontendGame(config)
+let current_game: FrontendGame | null = null
 
-    // window resize listener
-    if (remove_window_callback) {
-        remove_window_callback()
-    }
-    let screen_size_callback = () => {
+function screen_size_callback() {
+    if (current_game) {
         screen_size_changed()
-        draw_main(game)
+        draw_main(current_game)
     }
-    window.addEventListener("resize", screen_size_callback)
-    // save a closure to remove the handler again later
-    remove_window_callback = () => { window.removeEventListener("resize", screen_size_callback) }
+}
 
+window.addEventListener("resize", screen_size_callback)
+
+///////////////////////////////////////////
+// FUNCTIONS CALLED BY menuComponent
+///////////////////////////////////////////
+
+export function new_game() {
+    let config = menuComponent.getConfig()
+    current_game = new FrontendGame(config)
     screen_size_callback() // initial resize & draw
 }
 
-// MAIN FUNCTION
-function main() {
-    document.body.removeChild(document.getElementById("noscript-text")!);
-    key_listeners.N = new_game
-    
-    menuComponent.addEventListener('configChanged', new_game);
-    
-    new_game()
+export function start() {
+    if (current_game)
+        current_game.start()
 }
 
-main();
+export function reset() {
+    if (current_game)
+        current_game.reset()
+}
+
+/////////////////////////////
+/////////////////////////////
+
+
+new_game()

@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { GameConfig } from '../shared/config';
+import * as main from './main';
 
 export type GameState = "init" | "ingame" | "won" | "lost";
 
@@ -97,19 +98,67 @@ export class MenuComponent extends LitElement {
     }
   `;
 
-    private _getGameMessage(): string {
-        switch (this.state) {
-            case "won":
-                return "You won!";
-            case "lost":
-                return "You lost!";
-            default:
-                return "";
+    connectedCallback() {
+        // COMPONENT ADDED TO DOM
+        super.connectedCallback();
+        window.addEventListener('keydown', this._handleKeyDown.bind(this));
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        window.removeEventListener('keydown', this._handleKeyDown.bind(this));
+    }
+
+    private _handleKeyDown(event: KeyboardEvent) {
+        // Skip if this is a repeated key press
+        if (event.repeat) {
+            return;
+        }
+
+        const key = event.key.toLowerCase();
+
+        // Handle N key
+        if (key === 'n') {
+            this._onNKeyPressed();
+        }
+
+        // Handle space key
+        if (key === ' ') {
+            this._onSpaceKeyPressed();
+        }
+
+        // Handle WASD and arrow keys
+        if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
+            this._onMovementKeyPressed(key);
         }
     }
 
+    // Callback functions for key presses
+    private _onNKeyPressed() {
+        if (this.state != "ingame"){
+            main.new_game()
+            this.state = "init"
+        }
+    }
+
+    private _onSpaceKeyPressed() {
+        if (this.state != "ingame") {
+            main.reset()
+            this.state = "init"
+        }
+    }
+
+    private _onMovementKeyPressed(key: string) {
+        if (this.state == "init") {
+            main.start()
+            // sets this.state in first tick
+        }
+    }
+
+
     private _onConfigChange() {
-        this.dispatchEvent(new CustomEvent('configChanged'));
+        main.new_game()
+        this.state = "init"
     }
 
     getConfig(): GameConfig {
@@ -127,6 +176,8 @@ export class MenuComponent extends LitElement {
         }
     }
 
+    // TODO extract the toggle buttons to separate lit components later, and simplyfy getConfig with that.
+
 
     render() {
         if (this.state == "ingame") {
@@ -138,7 +189,7 @@ export class MenuComponent extends LitElement {
         <h1>Lunar Cave</h1>
         ${this.state !== "init" ? html`
           <div>
-            <h2>${this._getGameMessage()}</h2>
+            <h2>${this.state == "won" ? "You won!" : "You lost!"}</h2>
           </div>
         ` : ''}
         <div>
@@ -160,11 +211,11 @@ export class MenuComponent extends LitElement {
                 <span class="key">→</span>
             </div> to control the ship.
           </p>
-          ${this.state == "init" ? 
-            html`<p>Press any of these keys to start.</p>` 
-            : 
-            html`<p>Press <span class="key">space</span> to retry this cave or <span class="key">N</span> for a new cave.</p>`
-          }
+          ${this.state == "init" ?
+                html`<p>Press any of these keys to start.</p>`
+                :
+                html`<p>Press <span class="key">space</span> to retry this cave or <span class="key">N</span> for a new cave.</p>`
+            }
         </div>
         <div>
           <h2>Settings</h2>
@@ -207,4 +258,4 @@ declare global {
     interface HTMLElementTagNameMap {
         'menu-component': MenuComponent;
     }
-} 
+}
