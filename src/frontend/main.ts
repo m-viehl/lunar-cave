@@ -74,9 +74,9 @@ export class FrontendGame {
 }
 
 function get_config_from_UI(): GameConfig {
-    let time_factor = parseFloat((document.getElementById("physics_speed_select") as HTMLSelectElement).value)
-    let scale_factor = parseFloat((document.getElementById("cave_size_select") as HTMLSelectElement).value)
-    let length = parseFloat((document.getElementById("cave_length_select") as HTMLSelectElement).value)
+    let time_factor = parseFloat((document.querySelector('input[name="physics_speed"]:checked') as HTMLInputElement).value)
+    let scale_factor = parseFloat((document.querySelector('input[name="cave_size"]:checked') as HTMLInputElement).value)
+    let length = parseFloat((document.querySelector('input[name="cave_length"]:checked') as HTMLInputElement).value)
     let seed = Date.now();
     const SCALE = 20
     return {
@@ -115,6 +115,20 @@ function new_game() {
 function main() {
     document.body.removeChild(document.getElementById("noscript-text")!);
     key_listeners.N = new_game
+    
+    // Add event listeners for radio button changes
+    const radioGroups = [
+        'input[name="physics_speed"]',
+        'input[name="cave_size"]', 
+        'input[name="cave_length"]'
+    ];
+    
+    radioGroups.forEach(selector => {
+        document.querySelectorAll(selector).forEach(radio => {
+            radio.addEventListener('change', new_game);
+        });
+    });
+    
     new_game()
 
     // TODO do sth with the game status message field!

@@ -48,6 +48,46 @@
         h2 {
             margin-top: 2em;
         }
+
+        /* Radio button group styling */
+        .radio-group {
+            display: flex;
+            gap: 0;
+            margin: 0.5rem 0;
+        }
+
+        .radio-group input[type="radio"] {
+            display: none;
+        }
+
+        .radio-group label {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ccc;
+            background-color: #f8f8f8;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .radio-group label:first-of-type {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .radio-group label:last-of-type {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        .radio-group input[type="radio"]:checked + label {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .radio-group label:hover:not(:has(input:checked)) {
+            background-color: #e9ecef;
+        }
     </style>
 
     <script type="module" src="main.ts" defer></script>
@@ -81,25 +121,32 @@
         </div>
         <div>
             <h2>Settings</h2>
-            <p>Select physics speed:
-                <select id="physics_speed_select">
-                    <option value=0.5>Slow</option>
-                    <option value=1.0 selected>Fast</option>
-                </select>
-            </p>
-            <p>Select cave size:
-                <select id="cave_size_select">
-                    <option value=2.0>Wide</option>
-                    <option value=1.0 selected>Narrow</option>
-                </select>
-            </p>
-            <p>Select cave length:
-                <select id="cave_length_select">
-                    <option value=100>Short</option>
-                    <option value=250 selected>Medium</option>
-                    <option value=500>Long</option>
-                </select>
-            </p>
+            <p>Select physics speed:</p>
+            <div class="radio-group" id="physics_speed_group">
+                <input type="radio" id="physics_slow" name="physics_speed" value="0.5">
+                <label for="physics_slow">Slow</label>
+                <input type="radio" id="physics_fast" name="physics_speed" value="1.0" checked>
+                <label for="physics_fast">Fast</label>
+            </div>
+            
+            <p>Select cave size:</p>
+            <div class="radio-group" id="cave_size_group">
+                <input type="radio" id="cave_wide" name="cave_size" value="2.0">
+                <label for="cave_wide">Wide</label>
+                <input type="radio" id="cave_narrow" name="cave_size" value="1.0" checked>
+                <label for="cave_narrow">Narrow</label>
+            </div>
+            
+            <p>Select cave length:</p>
+            <div class="radio-group" id="cave_length_group">
+                <input type="radio" id="cave_short" name="cave_length" value="100">
+                <label for="cave_short">Short</label>
+                <input type="radio" id="cave_medium" name="cave_length" value="350" checked>
+                <label for="cave_medium">Medium</label>
+                <input type="radio" id="cave_long" name="cave_length" value="600">
+                <label for="cave_long">Long</label>
+            </div>
+            
             <p>Click <button onclick="document.body.requestFullscreen()">here</button> to go to fullscreen mode.</p>
         </div>
     </div>
