@@ -9,7 +9,8 @@ import * as tick from "./tick"
 import { MenuComponent } from './menu-component';
 
 import "./menu-component"
-// we need this call so that the component is actually registered, otherwise, parcel
+import "./select-button"
+// we need these import so that the components are actually registered, otherwise, parcel
 // will remove it as "unused" when tree-shaking (because it is only used as type here!).
 // We need it for the HTML though.
 
@@ -118,6 +119,3 @@ export function reset() {
 
 /////////////////////////////
 /////////////////////////////
-
-
-new_game()

@@ -1,17 +1,18 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, PropertyValues } from 'lit';
 import { GameConfig } from '../shared/config';
 import * as main from './main';
+import { SelectButton } from './select-button';
 
 export type GameState = "init" | "ingame" | "won" | "lost";
 
 export class MenuComponent extends LitElement {
-    static properties = {
-        state: { type: String }
-    };
+  static properties = {
+    state: { type: String }
+  };
 
-    state: GameState = "init";
+  state: GameState = "init";
 
-    static styles = css`
+  static styles = css`
     :host {
       display: block;
     }
@@ -41,39 +42,6 @@ export class MenuComponent extends LitElement {
       margin-top: 2em;
     }
 
-    /* Radio button group styling */
-    .radio-group {
-      display: flex;
-      gap: 0;
-      margin: 0.5rem 0;
-      padding: 0.5rem;
-      background-color: rgba(255, 255, 255, 0.25);
-      border-radius: 0.5rem;
-      width: fit-content;
-    }
-
-    .radio-group input[type="radio"] {
-      display: none;
-    }
-
-    .radio-group label {
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      user-select: none;
-      margin: 0 0.125rem;
-      border-radius: 0.25rem;
-      outline: none;
-    }
-
-    .radio-group input[type="radio"]:checked + label {
-      background-color: rgba(255, 255, 255, 0.4);
-    }
-
-    .radio-group label:hover {
-      background-color: rgba(255, 255, 255, 0.2);
-    }
-
     /* Button styling to match radio buttons */
     button {
       padding: 0.5rem 1rem;
@@ -98,93 +66,105 @@ export class MenuComponent extends LitElement {
     }
   `;
 
-    connectedCallback() {
-        // COMPONENT ADDED TO DOM
-        super.connectedCallback();
-        window.addEventListener('keydown', this._handleKeyDown.bind(this));
+  connectedCallback() {
+    // COMPONENT ADDED TO DOM
+    super.connectedCallback();
+    window.addEventListener('keydown', this._handleKeyDown.bind(this));
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    window.removeEventListener('keydown', this._handleKeyDown.bind(this));
+  }
+
+  private _handleKeyDown(event: KeyboardEvent) {
+    // Skip if this is a repeated key press
+    if (event.repeat) {
+      return;
     }
 
-    disconnectedCallback() {
-        super.disconnectedCallback();
-        window.removeEventListener('keydown', this._handleKeyDown.bind(this));
+    const key = event.key.toLowerCase();
+
+    // Handle N key
+    if (key === 'n') {
+      this._onNKeyPressed();
     }
 
-    private _handleKeyDown(event: KeyboardEvent) {
-        // Skip if this is a repeated key press
-        if (event.repeat) {
-            return;
-        }
-
-        const key = event.key.toLowerCase();
-
-        // Handle N key
-        if (key === 'n') {
-            this._onNKeyPressed();
-        }
-
-        // Handle space key
-        if (key === ' ') {
-            this._onSpaceKeyPressed();
-        }
-
-        // Handle WASD and arrow keys
-        if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
-            this._onMovementKeyPressed(key);
-        }
+    // Handle space key
+    if (key === ' ') {
+      this._onSpaceKeyPressed();
     }
 
-    // Callback functions for key presses
-    private _onNKeyPressed() {
-        if (this.state != "ingame"){
-            main.new_game()
-            this.state = "init"
-        }
+    // Handle WASD and arrow keys
+    if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
+      this._onMovementKeyPressed(key);
+    }
+  }
+
+  // Callback functions for key presses
+  private _onNKeyPressed() {
+    if (this.state != "ingame") {
+      main.new_game()
+      this.state = "init"
+    }
+  }
+
+  private _onSpaceKeyPressed() {
+    if (this.state != "ingame") {
+      main.reset()
+      this.state = "init"
+    }
+  }
+
+  private _onMovementKeyPressed(key: string) {
+    if (this.state == "init") {
+      main.start()
+      // sets this.state in first tick
+    }
+  }
+
+  firstUpdated() {
+    console.log("MENU firstupdated")
+    main.new_game() // everything is loaded by now
+  }
+
+
+  private _onConfigChange() {
+    main.new_game()
+    this.state = "init"
+  }
+
+  getConfig(): GameConfig {
+    // TODO how do I access these now? the getElements are null...
+    console.log("speed_select: ", this.shadowRoot?.getElementById("speed_select"), "value", this.shadowRoot?.getElementById("speed_select").value)
+    let time_factor = parseFloat((this.shadowRoot?.getElementById("speed_select") as SelectButton).value)
+    let scale_factor = parseFloat((this.shadowRoot?.getElementById("size_select") as SelectButton).value)
+    let length = parseFloat((this.shadowRoot?.getElementById("length_select") as SelectButton).value)
+
+    console.log(`getConfig:`)
+
+    let seed = Date.now();
+    const SCALE = 20
+    
+    let config = {
+      time_factor: time_factor,
+      cave_scale: scale_factor * SCALE,
+      ship_scale: SCALE,
+      length: length,
+      seed: seed,
+    }
+    console.log("config: ", config)
+    return config
+  }
+
+
+  render() {
+    console.log("render")
+    if (this.state == "ingame") {
+      return html``;
     }
 
-    private _onSpaceKeyPressed() {
-        if (this.state != "ingame") {
-            main.reset()
-            this.state = "init"
-        }
-    }
-
-    private _onMovementKeyPressed(key: string) {
-        if (this.state == "init") {
-            main.start()
-            // sets this.state in first tick
-        }
-    }
-
-
-    private _onConfigChange() {
-        main.new_game()
-        this.state = "init"
-    }
-
-    getConfig(): GameConfig {
-        let time_factor = parseFloat((this.shadowRoot?.querySelector('input[name="physics_speed"]:checked') as HTMLInputElement)?.value || "1.0")
-        let scale_factor = parseFloat((this.shadowRoot?.querySelector('input[name="cave_size"]:checked') as HTMLInputElement)?.value || "1.0")
-        let length = parseFloat((this.shadowRoot?.querySelector('input[name="cave_length"]:checked') as HTMLInputElement)?.value || "350")
-        let seed = Date.now();
-        const SCALE = 20
-        return {
-            time_factor: time_factor,
-            cave_scale: scale_factor * SCALE,
-            ship_scale: SCALE,
-            length: length,
-            seed: seed,
-        }
-    }
-
-    // TODO extract the toggle buttons to separate lit components later, and simplyfy getConfig with that.
-
-
-    render() {
-        if (this.state == "ingame") {
-            return html``;
-        }
-
-        return html`
+    return html`
       <div class="menu">
         <h1>Lunar Cave</h1>
         ${this.state !== "init" ? html`
@@ -212,50 +192,40 @@ export class MenuComponent extends LitElement {
             </div> to control the ship.
           </p>
           ${this.state == "init" ?
-                html`<p>Press any of these keys to start.</p>`
-                :
-                html`<p>Press <span class="key">space</span> to retry this cave or <span class="key">N</span> for a new cave.</p>`
-            }
+        html`<p>Press any of these keys to start.</p>`
+        :
+        html`<p>Press <span class="key">space</span> to retry this cave or <span class="key">N</span> for a new cave.</p>`
+      }
         </div>
         <div>
           <h2>Settings</h2>
-          <p>Select physics speed:</p>
-          <div class="radio-group" id="physics_speed_group">
-            <input type="radio" id="physics_slow" name="physics_speed" value="0.5" @change=${this._onConfigChange}>
-            <label for="physics_slow">Slow</label>
-            <input type="radio" id="physics_fast" name="physics_speed" value="1.0" checked @change=${this._onConfigChange}>
-            <label for="physics_fast">Fast</label>
-          </div>
-          
-          <p>Select cave size:</p>
-          <div class="radio-group" id="cave_size_group">
-            <input type="radio" id="cave_wide" name="cave_size" value="2.0" @change=${this._onConfigChange}>
-            <label for="cave_wide">Wide</label>
-            <input type="radio" id="cave_narrow" name="cave_size" value="1.0" checked @change=${this._onConfigChange}>
-            <label for="cave_narrow">Narrow</label>
-          </div>
-          
-          <p>Select cave length:</p>
-          <div class="radio-group" id="cave_length_group">
-            <input type="radio" id="cave_short" name="cave_length" value="100" @change=${this._onConfigChange}>
-            <label for="cave_short">Short</label>
-            <input type="radio" id="cave_medium" name="cave_length" value="350" checked @change=${this._onConfigChange}>
-            <label for="cave_medium">Medium</label>
-            <input type="radio" id="cave_long" name="cave_length" value="600" @change=${this._onConfigChange}>
-            <label for="cave_long">Long</label>
-          </div>
-          
+          <select-button id="speed_select" label="Select physics speed:" @change=${this._onConfigChange}>
+            <option value="0.5">Slow</option>
+            <option value="1.0" selected>Fast</option>
+          </select-button>
+
+          <select-button id="size_select" label="Select cave size:" @change=${this._onConfigChange}>
+            <option value="2.0">Wide</option>
+            <option value="1.0" selected>Narrow</option>
+          </select-button>
+
+          <select-button id="length_select" label="Select cave length:" @change=${this._onConfigChange}>
+            <option value="100">Short</option>
+            <option value="350" selected>Medium</option>
+            <option value="600">Long</option>
+          </select-button>
+
           <p>Click <button onclick="document.body.requestFullscreen()">here</button> to go to fullscreen mode.</p>
         </div>
       </div>
     `;
-    }
+  }
 }
 
 customElements.define('menu-component', MenuComponent);
 
 declare global {
-    interface HTMLElementTagNameMap {
-        'menu-component': MenuComponent;
-    }
+  interface HTMLElementTagNameMap {
+    'menu-component': MenuComponent;
+  }
 }
