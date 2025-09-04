@@ -15,9 +15,9 @@ export enum GameState {
  * Represents *one single* game run with a specific map seed.
  * Has the following state flow graph:
  * ```
- * ╾──init───ingame─┬─gameover
- *                  └─won
- * 
+ * ╾──ingame─┬─gameover
+ *           └─won
+ * ```
  */
 export class Game {
     state: GameState = GameState.INGAME
@@ -26,10 +26,9 @@ export class Game {
     t: number = 0
 
     constructor(cave: Cave, config: ConfigType) {
-        // TODO somehow pass game settings, which are also relevant
         this.cave = cave
-        this.cave.reset() // if cave is reused.
         this.ship = new Ship(this.cave.spawn_location, config)
+        this.reset()
     }
 
     /**
@@ -65,6 +64,7 @@ export class Game {
         this.ship.reset()
         this.cave.reset()
         this.state = GameState.INGAME
+        this.t = 0
     }
 
 }

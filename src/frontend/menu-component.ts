@@ -111,7 +111,7 @@ export class MenuComponent extends LitElement {
         }
     }
 
-    private _onSpaceKeyPressed() {
+    private _onSpaceKeyPressed() { // TODO this will interfere with pressing space when entering name for highscore
         if (this.state != "ingame") {
             main.reset()
             this.state = "init"

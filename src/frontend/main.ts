@@ -10,6 +10,7 @@ import { MenuComponent } from './menu-component';
 
 import "./menu-component"
 import "./select-button"
+import { RecordingGame } from "./recording_game";
 
 // we need these import so that the components are actually registered, otherwise, parcel
 // will remove it as "unused" when tree-shaking (because it is only used as type here!).
@@ -24,7 +25,7 @@ export class FrontendGame {
     // TODO record crashes and draw shadows of broken ships :D Retry-Hommage!
     // (für weekly challenge: in localstorage für ALLE Versuche speichern :D)
 
-    game: Game
+    game: RecordingGame
     config: ConfigType
 
     speed_smoothed = 0
@@ -37,7 +38,7 @@ export class FrontendGame {
             this.config,
         )
 
-        this.game = new Game(cave, this.config)
+        this.game = new RecordingGame(cave, this.config)
         // TODO add recording inputs
 
         tick.set_callback((dt) => this.tick_fct(dt))
