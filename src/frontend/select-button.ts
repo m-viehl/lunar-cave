@@ -1,46 +1,9 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html } from 'lit';
 
 const LOCALSTORAGE_PREFIX = "SELECT_BTN_" // TODO is this random enough? Should be app-specific..?
 
 export class SelectButton extends LitElement {
 
-
-    static styles = css`
-    
-        /* Radio button group styling */
-        .radio-group {
-          display: flex;
-          gap: 0;
-          margin: 0.5rem 0;
-          padding: 0.5rem;
-          background-color: rgba(255, 255, 255, 0.25);
-          border-radius: 0.5rem;
-          width: fit-content;
-        }
-    
-        .radio-group input[type="radio"] {
-          display: none;
-        }
-    
-        .radio-group label {
-          padding: 0.5rem 1rem;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          user-select: none;
-          margin: 0 0.125rem;
-          border-radius: 0.25rem;
-          outline: none;
-        }
-    
-        .radio-group input[type="radio"]:checked + label {
-          background-color: rgba(255, 255, 255, 0.4);
-        }
-    
-        .radio-group label:hover {
-          background-color: rgba(255, 255, 255, 0.2);
-        }
-    
-      `;
 
     // state
     static properties = {
@@ -119,9 +82,9 @@ export class SelectButton extends LitElement {
     `;
     }
 
-    // createRenderRoot() {
-    //     return this; // Light DOM for existing CSS // TODO put all into global CSS!
-    // }
+    createRenderRoot() {
+        return this; // Light DOM for global CSS
+    }
 }
 
 customElements.define('select-button', SelectButton);

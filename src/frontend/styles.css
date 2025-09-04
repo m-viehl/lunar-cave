@@ -1,0 +1,102 @@
+/* Global styles extracted from inline and component styles */
+
+/* From index.html */
+body {
+    margin: 0px;
+    overflow: hidden;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#canvas {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: -1;
+}
+
+/* From menu-component.ts */
+menu-component {
+    display: block;
+}
+
+.menu {
+    padding: 2rem;
+    margin: 2rem;
+    background-color: rgba(255, 255, 255, 0.25);
+    border-radius: 1rem;
+    width: fit-content;
+    height: fit-content;
+}
+
+.key {
+    border: 1pt solid black;
+    padding-left: 3pt;
+    padding-right: 3pt;
+    border-radius: 3pt;
+}
+
+.keygrid {
+    display: inline-grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+h2 {
+    margin-top: 2em;
+}
+
+/* Button styling to match radio buttons */
+button {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    background-color: rgba(255, 255, 255, 0.25);
+    border: none;
+    border-radius: 0.25rem;
+    outline: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+button:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.hidden {
+    display: none;
+}
+
+/* From select-button.ts */
+/* Radio button group styling */
+.radio-group {
+    display: flex;
+    gap: 0;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.25);
+    border-radius: 0.5rem;
+    width: fit-content;
+}
+
+.radio-group input[type="radio"] {
+    display: none;
+}
+
+.radio-group label {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    margin: 0 0.125rem;
+    border-radius: 0.25rem;
+    outline: none;
+}
+
+.radio-group input[type="radio"]:checked + label {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.radio-group label:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+} 

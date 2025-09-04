@@ -1,4 +1,4 @@
-import { LitElement, html, css, PropertyValues } from 'lit';
+import { LitElement, html, PropertyValues } from 'lit';
 import { GameConfig } from '../shared/config';
 import * as main from './main';
 import { SelectButton } from './select-button';
@@ -15,59 +15,6 @@ export class MenuComponent extends LitElement {
     seed = Date.now();
     first_init_done = false;
 
-    static styles = css`
-    :host {
-      display: block;
-    }
-
-    .menu {
-      padding: 2rem;
-      margin: 2rem;
-      background-color: rgba(255, 255, 255, 0.25);
-      border-radius: 1rem;
-      width: fit-content;
-      height: fit-content;
-    }
-
-    .key {
-      border: 1pt solid black;
-      padding-left: 3pt;
-      padding-right: 3pt;
-      border-radius: 3pt;
-    }
-
-    .keygrid {
-      display: inline-grid;
-      grid-template-columns: 1fr 1fr 1fr;
-    }
-
-    h2 {
-      margin-top: 2em;
-    }
-
-    /* Button styling to match radio buttons */
-    button {
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      user-select: none;
-      background-color: rgba(255, 255, 255, 0.25);
-      border: none;
-      border-radius: 0.25rem;
-      outline: none;
-      color: inherit;
-      font-family: inherit;
-      font-size: inherit;
-    }
-
-    button:hover {
-      background-color: rgba(255, 255, 255, 0.4);
-    }
-
-    .hidden {
-      display: none;
-    }
-  `;
 
     connectedCallback() {
         super.connectedCallback();
@@ -151,9 +98,15 @@ export class MenuComponent extends LitElement {
      * @returns the gameconfig or undefined if the UI is not ready yet
      */
     getConfig(new_seed: boolean): GameConfig | undefined {
-        let time_factor = parseFloat((this.shadowRoot?.getElementById("speed_select") as SelectButton).value)
-        let scale_factor = parseFloat((this.shadowRoot?.getElementById("size_select") as SelectButton).value)
-        let length = parseFloat((this.shadowRoot?.getElementById("length_select") as SelectButton).value)
+        const speedEl = this.querySelector('#speed_select') as SelectButton | null;
+        const sizeEl = this.querySelector('#size_select') as SelectButton | null;
+        const lengthEl = this.querySelector('#length_select') as SelectButton | null;
+        if (!speedEl || !sizeEl || !lengthEl)
+            return undefined;
+
+        let time_factor = parseFloat(speedEl.value)
+        let scale_factor = parseFloat(sizeEl.value)
+        let length = parseFloat(lengthEl.value)
 
         if (isNaN(time_factor) || isNaN(scale_factor) || isNaN(length))
             return undefined;
@@ -229,6 +182,10 @@ export class MenuComponent extends LitElement {
         </div>
     </div>
     `;
+    }
+
+    createRenderRoot() {
+        return this; // Light DOM for global CSS
     }
 }
 
