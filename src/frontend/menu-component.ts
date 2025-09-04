@@ -6,13 +6,16 @@ import { SelectButton } from './select-button';
 export type GameState = "init" | "ingame" | "won" | "lost";
 
 export class MenuComponent extends LitElement {
-  static properties = {
-    state: { type: String }
-  };
+    static properties = {
+        state: { type: String }
+    };
 
-  state: GameState = "init";
+    state: GameState = "init";
 
-  static styles = css`
+    seed = Date.now();
+    first_init_done = false;
+
+    static styles = css`
     :host {
       display: block;
     }
@@ -66,166 +69,173 @@ export class MenuComponent extends LitElement {
     }
   `;
 
-  connectedCallback() {
-    // COMPONENT ADDED TO DOM
-    super.connectedCallback();
-    window.addEventListener('keydown', this._handleKeyDown.bind(this));
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    window.removeEventListener('keydown', this._handleKeyDown.bind(this));
-  }
-
-  private _handleKeyDown(event: KeyboardEvent) {
-    // Skip if this is a repeated key press
-    if (event.repeat) {
-      return;
+    connectedCallback() {
+        super.connectedCallback();
+        window.addEventListener('keydown', this._handleKeyDown.bind(this));
     }
 
-    const key = event.key.toLowerCase();
-
-    // Handle N key
-    if (key === 'n') {
-      this._onNKeyPressed();
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        window.removeEventListener('keydown', this._handleKeyDown.bind(this));
     }
 
-    // Handle space key
-    if (key === ' ') {
-      this._onSpaceKeyPressed();
+    private _handleKeyDown(event: KeyboardEvent) {
+        // Skip if this is a repeated key press
+        if (event.repeat) {
+            return;
+        }
+
+        const key = event.key.toLowerCase();
+
+        // Handle N key
+        if (key === 'n') {
+            this._onNKeyPressed();
+        }
+
+        // Handle space key
+        if (key === ' ') {
+            this._onSpaceKeyPressed();
+        }
+
+        // Handle WASD and arrow keys
+        if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
+            this._onMovementKeyPressed(key);
+        }
     }
 
-    // Handle WASD and arrow keys
-    if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
-      this._onMovementKeyPressed(key);
-    }
-  }
-
-  // Callback functions for key presses
-  private _onNKeyPressed() {
-    if (this.state != "ingame") {
-      main.new_game()
-      this.state = "init"
-    }
-  }
-
-  private _onSpaceKeyPressed() {
-    if (this.state != "ingame") {
-      main.reset()
-      this.state = "init"
-    }
-  }
-
-  private _onMovementKeyPressed(key: string) {
-    if (this.state == "init") {
-      main.start()
-      // sets this.state in first tick
-    }
-  }
-
-  firstUpdated() {
-    console.log("MENU firstupdated")
-    main.new_game() // everything is loaded by now
-  }
-
-
-  private _onConfigChange() {
-    main.new_game()
-    this.state = "init"
-  }
-
-  getConfig(): GameConfig {
-    // TODO how do I access these now? the getElements are null...
-    console.log("speed_select: ", this.shadowRoot?.getElementById("speed_select"), "value", this.shadowRoot?.getElementById("speed_select").value)
-    let time_factor = parseFloat((this.shadowRoot?.getElementById("speed_select") as SelectButton).value)
-    let scale_factor = parseFloat((this.shadowRoot?.getElementById("size_select") as SelectButton).value)
-    let length = parseFloat((this.shadowRoot?.getElementById("length_select") as SelectButton).value)
-
-    console.log(`getConfig:`)
-
-    let seed = Date.now();
-    const SCALE = 20
-    
-    let config = {
-      time_factor: time_factor,
-      cave_scale: scale_factor * SCALE,
-      ship_scale: SCALE,
-      length: length,
-      seed: seed,
-    }
-    console.log("config: ", config)
-    return config
-  }
-
-
-  render() {
-    console.log("render")
-    if (this.state == "ingame") {
-      return html``;
+    // Callback functions for key presses
+    private _onNKeyPressed() {
+        if (this.state != "ingame") {
+            main.new_game(this.getConfig(true)!)
+            this.state = "init"
+        }
     }
 
-    return html`
-      <div class="menu">
+    private _onSpaceKeyPressed() {
+        if (this.state != "ingame") {
+            main.reset()
+            this.state = "init"
+        }
+    }
+
+    private _onMovementKeyPressed(key: string) {
+        if (this.state == "init") {
+            main.start()
+            // sets this.state in first tick
+        }
+    }
+
+    private on_config_init() {
+        // each config element calls this after init.
+        // if all are ready, getConfig will not return undefined and we can start the game.
+        // this is just for the very first init, where we want to create the very first game instance.
+        if (this.first_init_done)
+            return
+        let config = this.getConfig(false) // new seed only when we press N
+        if (config) {
+            main.new_game(config)
+            this.first_init_done = true
+        }
+    }
+
+
+    private _onConfigChange() {
+        this.state = "init"
+        let config = this.getConfig(false) // new seed only when we press N
+        if (config) {
+            main.new_game(config)
+        }
+    }
+
+    /**
+     * @returns the gameconfig or undefined if the UI is not ready yet
+     */
+    getConfig(new_seed: boolean): GameConfig | undefined {
+        let time_factor = parseFloat((this.shadowRoot?.getElementById("speed_select") as SelectButton).value)
+        let scale_factor = parseFloat((this.shadowRoot?.getElementById("size_select") as SelectButton).value)
+        let length = parseFloat((this.shadowRoot?.getElementById("length_select") as SelectButton).value)
+
+        if (isNaN(time_factor) || isNaN(scale_factor) || isNaN(length))
+            return undefined;
+
+        if (new_seed) {
+            this.seed = Date.now();
+        }
+        const SCALE = 20
+
+        let config = {
+            time_factor: time_factor,
+            cave_scale: scale_factor * SCALE,
+            ship_scale: SCALE,
+            length: length,
+            seed: this.seed,
+        }
+        return config
+    }
+
+
+    render() {
+        if (this.state == "ingame") {
+            return html``;
+        }
+
+        return html`
+    <div class="menu">
         <h1>Lunar Cave</h1>
         ${this.state !== "init" ? html`
-          <div>
+        <div>
             <h2>${this.state == "won" ? "You won!" : "You lost!"}</h2>
-          </div>
+        </div>
         ` : ''}
         <div>
-          <h2>Controls</h2>
-          <p>
-            Use <div class="keygrid">
-                <span></span>
-                <span class="key">W</span>
-                <span></span>
-                <span class="key">A</span>
-                <span></span>
-                <span class="key">D</span>
-            </div> or <div class="keygrid">
-                <span></span>
-                <span class="key">↑</span>
-                <span></span>
-                <span class="key">←</span>
-                <span></span>
-                <span class="key">→</span>
-            </div> to control the ship.
-          </p>
-          ${this.state == "init" ?
-        html`<p>Press any of these keys to start.</p>`
-        :
-        html`<p>Press <span class="key">space</span> to retry this cave or <span class="key">N</span> for a new cave.</p>`
-      }
+            <h2>Controls</h2>
+            <p>
+                Use <div class="keygrid">
+                    <span></span>
+                    <span class="key">W</span>
+                    <span></span>
+                    <span class="key">A</span>
+                    <span></span>
+                    <span class="key">D</span>
+                </div> or <div class="keygrid">
+                    <span></span>
+                    <span class="key">↑</span>
+                    <span></span>
+                    <span class="key">←</span>
+                    <span></span>
+                    <span class="key">→</span>
+                </div> to control the ship.
+            </p>
+            ${this.state == "init" ? 
+                html`<p>Press any of these keys to start.</p>`
+                :
+                html`<p>Press <span class="key">space</span> to retry this cave or <span class="key">N</span> for a new cave.
+            </p>`
+            }
         </div>
         <div>
-          <h2>Settings</h2>
-          <select-button id="speed_select" label="Select physics speed:" @change=${this._onConfigChange}>
-            <option value="0.5">Slow</option>
-            <option value="1.0" selected>Fast</option>
-          </select-button>
-
-          <select-button id="size_select" label="Select cave size:" @change=${this._onConfigChange}>
-            <option value="2.0">Wide</option>
-            <option value="1.0" selected>Narrow</option>
-          </select-button>
-
-          <select-button id="length_select" label="Select cave length:" @change=${this._onConfigChange}>
-            <option value="100">Short</option>
-            <option value="350" selected>Medium</option>
-            <option value="600">Long</option>
-          </select-button>
-
-          <p>Click <button onclick="document.body.requestFullscreen()">here</button> to go to fullscreen mode.</p>
+            <h2>Settings</h2>
+            <select-button id="speed_select" label="Select physics speed:" @change=${this._onConfigChange}
+                @init=${this.on_config_init} options="Slow;Fast" values="0.5;1.0" default_index=1></select-button>
+    
+            <select-button id="size_select" label="Select cave size:" @change=${this._onConfigChange}
+                @init=${this.on_config_init} options="Wide;Narrow" values="2.0;1.0" default_index=1></select-button>
+    
+            <select-button id="length_select" label="Select cave length:" @change=${this._onConfigChange}
+                @init=${this.on_config_init} options="Short;Medium;Long" values="100;350;600" default_index=1>
+            </select-button>
+    
+            <p>Click <button onclick="document.body.requestFullscreen()">here</button> to go to fullscreen mode.</p>
         </div>
-      </div>
+    </div>
     `;
-  }
+    }
 }
 
 customElements.define('menu-component', MenuComponent);
 
 declare global {
-  interface HTMLElementTagNameMap {
-    'menu-component': MenuComponent;
-  }
+    interface HTMLElementTagNameMap {
+        'menu-component': MenuComponent;
+    }
 }

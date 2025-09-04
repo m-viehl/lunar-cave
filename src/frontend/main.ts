@@ -10,6 +10,7 @@ import { MenuComponent } from './menu-component';
 
 import "./menu-component"
 import "./select-button"
+
 // we need these import so that the components are actually registered, otherwise, parcel
 // will remove it as "unused" when tree-shaking (because it is only used as type here!).
 // We need it for the HTML though.
@@ -101,8 +102,7 @@ window.addEventListener("resize", screen_size_callback)
 // FUNCTIONS CALLED BY menuComponent
 ///////////////////////////////////////////
 
-export function new_game() {
-    let config = menuComponent.getConfig()
+export function new_game(config: GameConfig) {
     current_game = new FrontendGame(config)
     screen_size_callback() // initial resize & draw
 }
