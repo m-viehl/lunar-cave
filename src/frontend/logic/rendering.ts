@@ -4,10 +4,10 @@
  * maybe, the avg. speed over the last time (for zoom) should also be calculated in the game object?
  */
 
-import { Cave } from "../shared/cave";
-import { ConfigType } from "../shared/config";
-import { Point, PointPair } from "../shared/misc";
-import { Ship } from "../shared/ship";
+import { Cave } from "../../shared/cave";
+import { ConfigType } from "../../shared/config";
+import { Point, PointPair } from "../../shared/misc";
+import { Ship } from "../../shared/ship";
 
 import { FrontendGame } from "./main";
 

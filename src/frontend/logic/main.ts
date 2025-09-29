@@ -1,15 +1,15 @@
-import { Game, GameState } from "../shared/game";
-import { generate_cave } from "../shared/legacy_generator/generator"
-import { convert_cave } from "../shared/legacy_generator/converter"
+import { Game, GameState } from "../../shared/game";
+import { generate_cave } from "../../shared/legacy_generator/generator"
+import { convert_cave } from "../../shared/legacy_generator/converter"
 
 import { key_state } from "./keyboard_io";
-import { ConfigType, GameConfig, get_config } from "../shared/config";
+import { ConfigType, GameConfig, get_config } from "../../shared/config";
 import { draw_main, screen_size_changed } from "./rendering";
 import * as tick from "./tick"
-import { MenuComponent } from './menu-component';
+import { MenuComponent } from '../lit_ui/menu-component';
 
-import "./menu-component"
-import "./select-button"
+import "../lit_ui/menu-component"
+import "../lit_ui/select-button"
 import { RecordingGame } from "./recording_game";
 
 // we need these import so that the components are actually registered, otherwise, parcel

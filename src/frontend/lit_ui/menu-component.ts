@@ -1,11 +1,13 @@
-import { LitElement, html, PropertyValues } from 'lit';
-import { GameConfig } from '../shared/config';
-import * as main from './main';
+import { LitElement, html } from 'lit';
+import { GameConfig } from '../../shared/config';
+import * as main from '../logic/main';
 import { SelectButton } from './select-button';
 
 export type GameState = "init" | "ingame" | "won" | "lost";
 
 export class MenuComponent extends LitElement {
+
+    // TODO hide mouse cursor! (and show briefly when moved and hidden, then re-hide.)
     static properties = {
         state: { type: String }
     };
