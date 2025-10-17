@@ -28,6 +28,12 @@ menu-component {
     height: fit-content;
 }
 
+.right {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
 .key {
     border: 1pt solid black;
     padding-left: 3pt;
@@ -40,8 +46,21 @@ menu-component {
     grid-template-columns: 1fr 1fr 1fr;
 }
 
-h2 {
+
+.menu h1:first-child,
+.menu h2:first-child,
+.menu h3:first-child {
+    margin-top: 0;
+}
+
+.menu h1,
+.menu h2 {
     margin-top: 2em;
+}
+
+.menu .menu {
+    margin-left: 0;
+    margin-right: 0;
 }
 
 /* Button styling to match radio buttons */

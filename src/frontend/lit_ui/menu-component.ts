@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit';
+import { LitElement, TemplateResult, html } from 'lit';
 import { GameConfig } from '../../shared/config';
 import * as main from '../logic/frontend_game';
 import { SelectButton } from './select-button';
@@ -134,6 +134,7 @@ export class MenuComponent extends LitElement {
 
     private _onConfigChange() {
         // called when any config selectbutton is changed.
+        // TODO include support for the mode toggle!
 
         this.state = "init" // when game ended and config is changed, go back to init
         let config = this.getConfig(false) // new seed only when we press N
@@ -146,6 +147,8 @@ export class MenuComponent extends LitElement {
      * @returns the gameconfig or undefined if the UI is not ready yet
      */
     getConfig(new_seed: boolean): GameConfig | undefined {
+        // TODO also query mode toggle and respond appropriately!
+
         const speedEl = this.querySelector('#speed_select') as SelectButton | null;
         const sizeEl = this.querySelector('#size_select') as SelectButton | null;
         const lengthEl = this.querySelector('#length_select') as SelectButton | null;
@@ -180,15 +183,41 @@ export class MenuComponent extends LitElement {
             return html``;
         }
 
+        let msg: string | TemplateResult = ""
+        if (this.state != "init") {
+            msg = html`
+                <div>
+                    <h2>${this.state == "won" ? "You won!" : "You lost!"}</h2>
+                </div>
+                `
+        }
+
         return html`
     <div class="menu">
         <h1>Lunar Cave</h1>
-        ${this.state !== "init" ? html`
-        <div>
-            <h2>${this.state == "won" ? "You won!" : "You lost!"}</h2>
+        ${msg}
+
+        <select-button id="mode_select" label="Select Game Mode:" @change=${this._onConfigChange}
+                @init=${this.on_config_init} options="Weekly Challenge;Custom Game" values="challenge;custom" default_index=1></select-button>
+
+        <div class="menu">
+            <h2>Settings</h2>
+            <select-button id="speed_select" label="Select physics speed:" @change=${this._onConfigChange}
+                @init=${this.on_config_init} options="Slow;Fast" values="0.5;1.0" default_index=1></select-button>
+    
+            <select-button id="size_select" label="Select cave size:" @change=${this._onConfigChange}
+                @init=${this.on_config_init} options="Wide;Narrow" values="2.0;1.0" default_index=1></select-button>
+    
+            <select-button id="length_select" label="Select cave length:" @change=${this._onConfigChange}
+                @init=${this.on_config_init} options="Short;Medium;Long" values="100;350;600" default_index=1>
+            </select-button>
+    
+            <p>Click <button onclick="document.body.requestFullscreen()">here</button> to go to fullscreen mode.</p>
         </div>
-        ` : ''}
-        <div>
+    </div>
+
+
+    <div class="menu right">
             <h2>Controls</h2>
             <p>
                 Use <div class="keygrid">
@@ -214,21 +243,6 @@ export class MenuComponent extends LitElement {
             </p>`
             }
         </div>
-        <div>
-            <h2>Settings</h2>
-            <select-button id="speed_select" label="Select physics speed:" @change=${this._onConfigChange}
-                @init=${this.on_config_init} options="Slow;Fast" values="0.5;1.0" default_index=1></select-button>
-    
-            <select-button id="size_select" label="Select cave size:" @change=${this._onConfigChange}
-                @init=${this.on_config_init} options="Wide;Narrow" values="2.0;1.0" default_index=1></select-button>
-    
-            <select-button id="length_select" label="Select cave length:" @change=${this._onConfigChange}
-                @init=${this.on_config_init} options="Short;Medium;Long" values="100;350;600" default_index=1>
-            </select-button>
-    
-            <p>Click <button onclick="document.body.requestFullscreen()">here</button> to go to fullscreen mode.</p>
-        </div>
-    </div>
     `;
     }
 
