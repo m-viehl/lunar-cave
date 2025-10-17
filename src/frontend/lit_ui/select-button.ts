@@ -22,11 +22,20 @@ export class SelectButton extends LitElement {
         values: { type: String },
         default_index: { type: Number },
     };
-    value: string = ""
-    label: string = ""
-    options: string = ""
-    values: string = ""
-    default_index: number = 0
+    declare value: string
+    declare label: string
+    declare options: string
+    declare values: string
+    declare default_index: number
+
+    constructor() {
+        super();
+        this.value = ""
+        this.label = ""
+        this.options = ""
+        this.values = ""
+        this.default_index = 0
+    }
 
     // non-state fields
     initialized = false
@@ -106,7 +115,7 @@ export class SelectButton extends LitElement {
     <p>${this.label}</p>
     <div class="radio-group" id=${groupId}>
         ${this.options_list.map(o => html`
-        <input type="radio" id=${o.id} name=${groupId} value=${o.value} ?checked=${this.value === o.value}
+        <input type="radio" id=${o.id} name=${groupId} value=${o.value} ?checked=${this.value===o.value}
             @change=${this.on_change}>
         <label for=${o.id}>${o.option}</label>
         `)}

@@ -4,19 +4,12 @@ import { convert_cave } from "../../shared/legacy_generator/converter"
 
 import { key_state } from "./keyboard_io";
 import { ConfigType, GameConfig, get_config } from "../../shared/config";
-import { draw_main, screen_size_changed } from "./rendering";
+import { draw_main } from "./rendering";
 import * as tick from "./tick"
-import { MenuComponent } from '../lit_ui/menu-component';
 
-import "../lit_ui/menu-component"
-import "../lit_ui/select-button"
 import { RecordingGame } from "./recording_game";
+import { MenuComponent } from "../lit_ui/menu-component";
 
-// we need these import so that the components are actually registered, otherwise, parcel
-// will remove it as "unused" when tree-shaking (because it is only used as type here!).
-// We need it for the HTML though.
-
-let menuComponent = document.getElementById('menu') as MenuComponent;
 
 /**
  * Class that coordinates all objects/data required for a game running in the frontend.
@@ -27,10 +20,12 @@ export class FrontendGame {
 
     game: RecordingGame
     config: ConfigType
+    menu: MenuComponent
 
     speed_smoothed = 0
 
-    constructor(game_config: GameConfig) {
+    constructor(game_config: GameConfig, menu: MenuComponent) {
+        this.menu = menu
         this.config = get_config(game_config)
 
         let cave = convert_cave(
@@ -72,51 +67,14 @@ export class FrontendGame {
         }
 
         // game tick
+        // somehow tell the UI when game ends!
         if (this.game.state == GameState.INGAME) {
             this.game.tick(dt, key_state.up, key_state.left, key_state.right)
             draw_main(this)
-            menuComponent.state = 'ingame';
-        } else if (this.game.state == GameState.GAMEOVER) {
+        } else {
             tick.stop()
-            // TODO add shadow, ...
-            menuComponent.state = 'lost';
-        } else if (this.game.state == GameState.WON) {
-            tick.stop()
-            // TODO highscore upload etc.
-            menuComponent.state = 'won';
+            this.menu.gameover()
         }
+        // TODO dispatch event? such that UI can react
     }
 }
-
-let current_game: FrontendGame | null = null
-
-function screen_size_callback() {
-    if (current_game) {
-        screen_size_changed()
-        draw_main(current_game)
-    }
-}
-
-window.addEventListener("resize", screen_size_callback)
-
-///////////////////////////////////////////
-// FUNCTIONS CALLED BY menuComponent
-///////////////////////////////////////////
-
-export function new_game(config: GameConfig) {
-    current_game = new FrontendGame(config)
-    screen_size_callback() // initial resize & draw
-}
-
-export function start() {
-    if (current_game)
-        current_game.start()
-}
-
-export function reset() {
-    if (current_game)
-        current_game.reset()
-}
-
-/////////////////////////////
-/////////////////////////////

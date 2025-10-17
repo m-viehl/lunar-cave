@@ -1,31 +1,52 @@
 import { LitElement, html } from 'lit';
 import { GameConfig } from '../../shared/config';
-import * as main from '../logic/main';
+import * as main from '../logic/frontend_game';
 import { SelectButton } from './select-button';
+import { draw_main, screen_size_changed } from '../logic/rendering';
+import { GameState } from '../../shared/game';
 
-export type GameState = "init" | "ingame" | "won" | "lost";
+export type UIGameState = "init" | "ingame" | "won" | "lost";
 
 export class MenuComponent extends LitElement {
 
     // TODO hide mouse cursor! (and show briefly when moved and hidden, then re-hide.)
+
+    // REACTIVE STATE
     static properties = {
         state: { type: String }
     };
 
-    state: GameState = "init";
+    declare state: UIGameState;
 
+    constructor() {
+        super();
+        // initialize reactive state variables, these must be initialized in the constructor!
+        this.state = "init";
+    }
+
+    // OTHER VARIABLES
     seed = Date.now();
     first_init_done = false;
+    game: main.FrontendGame | null = null;
 
 
     connectedCallback() {
         super.connectedCallback();
         window.addEventListener('keydown', this._handleKeyDown.bind(this));
+        window.addEventListener("resize", this.screen_size_callback.bind(this));
     }
 
     disconnectedCallback() {
         super.disconnectedCallback();
         window.removeEventListener('keydown', this._handleKeyDown.bind(this));
+        window.removeEventListener("resize", this.screen_size_callback.bind(this));
+    }
+
+    screen_size_callback() {
+        if (this.game) {
+            screen_size_changed()
+            draw_main(this.game)
+        }
     }
 
     private _handleKeyDown(event: KeyboardEvent) {
@@ -55,44 +76,69 @@ export class MenuComponent extends LitElement {
     // Callback functions for key presses
     private _onNKeyPressed() {
         if (this.state != "ingame") {
-            main.new_game(this.getConfig(true)!)
+            this.new_game(this.getConfig(true)!)
             this.state = "init"
         }
     }
 
-    private _onSpaceKeyPressed() { // TODO this will interfere with pressing space when entering name for highscore
-        if (this.state != "ingame") {
-            main.reset()
+    private _onSpaceKeyPressed() {
+        // TODO this will interfere with pressing space when entering name for highscore
+        if (this.state != "ingame" && this.game) {
+            this.game.reset()
             this.state = "init"
         }
     }
 
     private _onMovementKeyPressed(key: string) {
-        if (this.state == "init") {
-            main.start()
-            // sets this.state in first tick
+        if (this.state == "init" && this.game) {
+            this.state = "ingame"
+            this.game.start()
         }
     }
 
+    private new_game(config: GameConfig) {
+        this.game = new main.FrontendGame(config, this)
+        screen_size_changed();
+        draw_main(this.game);
+    }
+
     private on_config_init() {
-        // each config element calls this after init.
-        // if all are ready, getConfig will not return undefined and we can start the game.
+        // each config element calls this after it is fully initialized.
+        // if all are ready, getConfig will not return undefined anymore and we can start the game.
         // this is just for the very first init, where we want to create the very first game instance.
+        // This is introduced because the config selectbuttons handle their own defaults and current values
+        // and we need to wait with reading their values until they are fully initialized.
+        // A bit ugly, yes, but seemed pragmatic.
+
         if (this.first_init_done)
             return
         let config = this.getConfig(false) // new seed only when we press N
         if (config) {
-            main.new_game(config)
+            this.new_game(config)
             this.first_init_done = true
         }
     }
 
 
+    public gameover() {
+        switch (this.game?.game.state) {
+            case GameState.GAMEOVER:
+                this.state = "lost"
+                break
+            case GameState.WON:
+                this.state = "won"
+                break
+        }
+    }
+
+
     private _onConfigChange() {
-        this.state = "init"
+        // called when any config selectbutton is changed.
+
+        this.state = "init" // when game ended and config is changed, go back to init
         let config = this.getConfig(false) // new seed only when we press N
         if (config) {
-            main.new_game(config)
+            this.new_game(config)
         }
     }
 

@@ -9,7 +9,7 @@ import { ConfigType } from "../../shared/config";
 import { Point, PointPair } from "../../shared/misc";
 import { Ship } from "../../shared/ship";
 
-import { FrontendGame } from "./main";
+import { FrontendGame } from "./frontend_game";
 
 
 // variables
