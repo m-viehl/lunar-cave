@@ -1,4 +1,4 @@
-import { Point } from "../misc";
+import { type Point } from "../misc";
 import * as angle_tools from "./angle_tools";
 import { Edge } from "./edge";
 

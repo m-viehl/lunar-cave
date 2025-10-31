@@ -1,5 +1,5 @@
-import { ConfigType } from "./config";
-import { Point } from "./misc";
+import type { ConfigType } from "./config";
+import type { Point } from "./misc";
 
 export class Ship {
     // state variables (are initialized in this.reset)
@@ -83,16 +83,16 @@ export class Ship {
     }
 
     private calc_collision_points(size: number) {
-        this.collision_points[0].x = this.x + Math.cos(this.angle + 0.59) * size * 0.601;
-        this.collision_points[0].y = this.y + Math.sin(this.angle + 0.59) * size * 0.601;
+        this.collision_points[0]!.x = this.x + Math.cos(this.angle + 0.59) * size * 0.601;
+        this.collision_points[0]!.y = this.y + Math.sin(this.angle + 0.59) * size * 0.601;
 
-        this.collision_points[1].x = this.x + Math.cos(this.angle + 2.55) * size * 0.601;
-        this.collision_points[1].y = this.y + Math.sin(this.angle + 2.55) * size * 0.601;
+        this.collision_points[1]!.x = this.x + Math.cos(this.angle + 2.55) * size * 0.601;
+        this.collision_points[1]!.y = this.y + Math.sin(this.angle + 2.55) * size * 0.601;
 
-        this.collision_points[2].x = this.x + Math.cos(this.angle + 3.73) * size * 0.601;
-        this.collision_points[2].y = this.y + Math.sin(this.angle + 3.73) * size * 0.601;
+        this.collision_points[2]!.x = this.x + Math.cos(this.angle + 3.73) * size * 0.601;
+        this.collision_points[2]!.y = this.y + Math.sin(this.angle + 3.73) * size * 0.601;
 
-        this.collision_points[3].x = this.x + Math.cos(this.angle + 5.69) * size * 0.601;
-        this.collision_points[3].y = this.y + Math.sin(this.angle + 5.69) * size * 0.601;
+        this.collision_points[3]!.x = this.x + Math.cos(this.angle + 5.69) * size * 0.601;
+        this.collision_points[3]!.y = this.y + Math.sin(this.angle + 5.69) * size * 0.601;
     }
 }

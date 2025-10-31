@@ -1,8 +1,8 @@
 
 
 import { Cave } from "../cave";
-import { ConfigType } from "../config";
-import { Point, PointPair } from "../misc";
+import { type ConfigType } from "../config";
+import { type Point, type PointPair } from "../misc";
 import { Segment } from "./segment";
 
 /**
@@ -16,7 +16,7 @@ export function convert_cave(segments: Segment[], config: ConfigType): Cave {
     let point_pairs: PointPair[] = []
     // we add the start of the first segment, and then all ends only.
     {
-        let s = segments[0]
+        let s = segments[0]!
         if (s.rotation_ccw) {
             point_pairs.push({ a: s.inner_edge.start, b: s.outer_edge.start })
         } else {
@@ -33,8 +33,8 @@ export function convert_cave(segments: Segment[], config: ConfigType): Cave {
 
     // spawn point
     let spawn_index = config.legacy_cave_config.spawn_segment_index
-    let spawn_a = point_pairs[spawn_index]
-    let spawn_b = point_pairs[spawn_index + 1]
+    let spawn_a = point_pairs[spawn_index]!
+    let spawn_b = point_pairs[spawn_index + 1]!
     let spawn = centroidOfQuad(spawn_a.a, spawn_a.b, spawn_b.a, spawn_b.b)
 
     return new Cave(

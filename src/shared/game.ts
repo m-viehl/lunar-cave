@@ -1,7 +1,7 @@
 
 
 import { Cave, PointState } from "./cave";
-import { ConfigType } from "./config";
+import { type ConfigType } from "./config";
 import { Ship } from "./ship";
 
 export enum GameState {

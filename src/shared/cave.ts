@@ -1,4 +1,4 @@
-import { Point, PointPair } from "./misc";
+import type { Point, PointPair } from "./misc";
 
 export enum PointState {
     INSIDE, CRASH, FINISH
@@ -95,8 +95,8 @@ export class Cave {
     }
 
     private is_in_segment(p: Point, index: number) {
-        let pair1 = this.point_pairs[index]
-        let pair2 = this.point_pairs[index + 1]
+        let pair1 = this.point_pairs[index]!
+        let pair2 = this.point_pairs[index + 1]!
         return pointInConvexQuad(
             p,
             pair1.a, pair1.b, pair2.b, pair2.a,

@@ -3,7 +3,7 @@ import { generate_cave } from "../../shared/legacy_generator/generator"
 import { convert_cave } from "../../shared/legacy_generator/converter"
 
 import { key_state } from "./keyboard_io";
-import { ConfigType, GameConfig, get_config } from "../../shared/config";
+import { type ConfigType, type GameConfig, get_config } from "../../shared/config";
 import { draw_main } from "./rendering";
 import * as tick from "./tick"
 

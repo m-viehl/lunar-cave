@@ -5,8 +5,8 @@
  */
 
 import { Cave } from "../../shared/cave";
-import { ConfigType } from "../../shared/config";
-import { Point, PointPair } from "../../shared/misc";
+import type { ConfigType } from "../../shared/config";
+import type { Point, PointPair } from "../../shared/misc";
 import { Ship } from "../../shared/ship";
 
 import { FrontendGame } from "./frontend_game";
@@ -133,16 +133,16 @@ function draw_cave(cave: Cave, config: ConfigType, upper_left: Point, lower_righ
     // now draw a polygon with all those segments.
     context.fillStyle = config.draw_config.cave.foreground;
     context.beginPath();
-    let p = cave.point_pairs[draw_first]
+    let p = cave.point_pairs[draw_first]!
     context.moveTo(p.a.x, p.a.y);
     // forward pass, draw all A points (see cave doc, all A/B points are on one side)
     for (let i = draw_first + 1; i <= draw_last; i++) {
-        p = cave.point_pairs[i]
+        p = cave.point_pairs[i]!
         context.lineTo(p.a.x, p.a.y);
     }
     // backward pass, draw all B points
     for (let i = draw_last; i >= draw_first; i--) {
-        p = cave.point_pairs[i]
+        p = cave.point_pairs[i]!
         context.lineTo(p.b.x, p.b.y);
     }
     // finish polygon
@@ -152,8 +152,8 @@ function draw_cave(cave: Cave, config: ConfigType, upper_left: Point, lower_righ
     // draw goal segment
     context.fillStyle = config.draw_config.cave.end_col
     context.beginPath()
-    let p1 = cave.point_pairs[cave.goal_segment_index]
-    let p2 = cave.point_pairs[cave.goal_segment_index + 1]
+    let p1 = cave.point_pairs[cave.goal_segment_index]!
+    let p2 = cave.point_pairs[cave.goal_segment_index + 1]!
     context.moveTo(p1.a.x, p1.a.y)
     context.lineTo(p2.a.x, p2.a.y)
     context.lineTo(p2.b.x, p2.b.y)

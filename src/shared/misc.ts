@@ -47,10 +47,10 @@ function deserializeTickLog(s: string): TickLog | null {
     if (!match) return null
     const [_, flags, dtStr] = match
     return {
-        dt: parseFloat(dtStr) / 1000, // back to seconds
-        left: flags.includes('l'),
-        right: flags.includes('r'),
-        thrust: flags.includes('t'),
+        dt: parseFloat(dtStr!) / 1000, // back to seconds
+        left: flags!.includes('l'),
+        right: flags!.includes('r'),
+        thrust: flags!.includes('t'),
     }
 }
 

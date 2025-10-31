@@ -1,5 +1,5 @@
 import { Game } from "../../shared/game";
-import { TickLog } from "../../shared/misc";
+import { type TickLog } from "../../shared/misc";
 
 export class RecordingGame extends Game {
     recording: TickLog[] = []

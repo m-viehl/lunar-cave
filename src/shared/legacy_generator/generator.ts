@@ -1,5 +1,5 @@
-import { ConfigType } from "../config";
-import { Point } from "../misc";
+import { type ConfigType } from "../config";
+import { type Point } from "../misc";
 import * as angle_tools from "./angle_tools";
 import { Segment } from "./segment";
 
@@ -47,7 +47,7 @@ export function generate_cave(full_config: ConfigType): Segment[] {
         // append new segment
         let last: Segment | null = null;
         if (segments.length > 0)
-            last = segments[segments.length - 1];
+            last = segments[segments.length - 1]!;
         if (last !== null) {
             // determine whether to switch the current center.
             let may_go_backwards = false;
