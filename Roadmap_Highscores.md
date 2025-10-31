@@ -8,7 +8,6 @@ Diese Grundlagen sind technisch nötig, es sind aber noch UI-Updates nötig, um 
     - Game-Klasse abstrakt machen, Steuerungs-API private setzen
         - einmal als "PlayerGame" erben und Steuerungs-API für Key-Events implementieren, außerdem Events aufzeichnen, 
         - einmal als "RecordedGame" erben und "virtuelle Inputs" anhand einer Aufnahme eines PlayerGames reproduzieren (aber ungenau, weil die dts nicht exakt stimmen)
-        - einmal als "
     - Vielleicht kann ein Spiel am Client von Game erben? Alles style-/render-spezifische dann dort hinein
     - public objects für style/config doch durch Funktionen in Objekte durchreichen
     - Ein Game-Objekt für genau einen Zustand, bestehend aus:
@@ -59,7 +58,7 @@ Diese Grundlagen sind technisch nötig, es sind aber noch UI-Updates nötig, um 
 
 Gültig ist:
 - wenn nicht in Wand geflogen -> am Ende angekommen
-- wenn Seed und difficulty zur Cave of the day passen
+- wenn Seed und difficulty zur Cave of the day passen (das muss ich gar nicht prüfen, auch egal!)
 
 Die aktualisierte Highscore-Liste kann dann mit dem dafür vorgesehenen Request erhalten werden. 
 
@@ -76,3 +75,17 @@ Server antwortet mit dem aktuellen Status:
     - gültig bis?
 - Aktuelle Highscores
 - Event-Liste des ersten Platzes im Highscore
+
+
+
+# Okt 2025: Neue Notizen
+- UI ändern, je nachdem, ob custom oder challenge
+- für Challenge ein dauerhaftes LocalGame, damit die crash-Schatten in localstorage persistieren
+- wenn UI lädt (unabhängig vom gewählten Modus), einmal den aktuellen Seed laden (ggf. die aktuelle Config gleich mit?)
+- challenge-UI: Bestenliste anzeigen
+- wenn man im challenge-mode gewonnen hat, und score noch nicht hochgeladen wurde: Upload-Widget anzeigen
+    - Eingabefeld für Namen
+    - Absendeknopf
+    - im Namen für Highscore nur `0-9A-Za-z_-.` und 20 Zeichen erlauben?
+- server implementieren, offensichtlich
+- lassen wir in der Logik absichtlich die Lücke, dass ticks beliebig lang sein dürfen? Damit kann man cheaten und sich direkt vors Ziel teleportieren (: Denke, ich lass es erst mal drin, wenn das jemand ausnutzt, freue ich mich über eine Nachricht :D 
