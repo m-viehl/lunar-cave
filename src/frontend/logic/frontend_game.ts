@@ -8,7 +8,6 @@ import { draw_main } from "./rendering";
 import * as tick from "./tick"
 
 import { RecordingGame } from "./recording_game";
-import { MenuComponent } from "../lit_ui/menu-component";
 
 
 /**
@@ -20,13 +19,16 @@ export class FrontendGame {
 
     game: RecordingGame
     config: ConfigType
-    menu: MenuComponent
 
     speed_smoothed = 0
 
-    constructor(game_config: GameConfig, menu: MenuComponent) {
-        this.menu = menu
+    lost_callback: () => void
+    won_callback: () => void
+
+    constructor(game_config: GameConfig, lost_callback: () => void, won_callback: () => void) {
         this.config = get_config(game_config)
+        this.lost_callback = lost_callback
+        this.won_callback = won_callback
 
         let cave = convert_cave(
             generate_cave(this.config),
@@ -73,7 +75,11 @@ export class FrontendGame {
             draw_main(this)
         } else {
             tick.stop()
-            this.menu.gameover()
+            if (this.game.state == GameState.WON) {
+                this.won_callback()
+            } else {
+                this.lost_callback()
+            }
         }
         // TODO dispatch event? such that UI can react
     }

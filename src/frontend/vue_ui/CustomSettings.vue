@@ -8,6 +8,7 @@
         '1.0': 'Narrow'
       }"
       label="Select cave size"
+      group_id="size-sel"
     />
 
     <SelBtn
@@ -18,6 +19,7 @@
         '600': 'Long'
       }"
       label="Select cave length"
+      group_id="len-sel"
     />
 
     <SelBtn
@@ -27,12 +29,13 @@
         '1.0': 'Fast'
       }"
       label="Select physics speed"
+      group_id="speed-sel"
     />
   </div>
   
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import SelBtn from "./SelBtn.vue";
 import { state } from "./state";
 </script>

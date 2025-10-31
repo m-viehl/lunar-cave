@@ -20,7 +20,7 @@
         </div> to control the ship.
         </p>
 
-        <p v-if="state.mode == 'init'">
+        <p v-if="initmode">
             Press any of these keys to start.
         </p>
         <p v-else>
@@ -30,6 +30,8 @@
 </template>
 
 
-<script setup>
-import { state } from "./state";
+<script lang="ts" setup>
+const props = defineProps<{
+  initmode: boolean;
+}>();
 </script>
