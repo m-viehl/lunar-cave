@@ -3,15 +3,24 @@
     "description": "Lunar Cave Game",
     "author": "Max Viehl",
     "version": "1.0.0",
+    "type": "module",
     "scripts": {
-        "dev:frontend": "bunx parcel src/frontend/index.html",
-        "build:frontend": "bunx parcel build src/frontend/index.html",
-        "dev:backend": "bun run src/backend/server.ts"
+        "dev": "vite",
+        "preview": "vite preview",
+        "build": "vite build",
+        "type-check-not-working": "vue-tsc --build"
     },
     "dependencies": {
-        "lit": "^3.0.0"
+        "vue": "^3.5.22"
     },
     "devDependencies": {
-        "parcel": "^2.0.0"
+        "@tsconfig/node22": "^22.0.2",
+        "@types/node": "^22.18.11",
+        "@vitejs/plugin-vue": "^6.0.1",
+        "@vue/tsconfig": "^0.8.1",
+        "typescript": "~5.9.0",
+        "vite": "^7.1.11",
+        "vite-plugin-vue-devtools": "^8.0.3",
+        "vue-tsc": "^3.1.1"
     }
 }

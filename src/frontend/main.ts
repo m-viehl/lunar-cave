@@ -1,5 +1,5 @@
-// import lit components
-import "./lit_ui/menu-component"
-import "./lit_ui/select-button"
+import { createApp } from 'vue'
+import App from './vue_ui/App.vue'
+// TODO fix this typescript error
 
-// <menu-component> in UI handles remaining init
+createApp(App).mount('#app')
