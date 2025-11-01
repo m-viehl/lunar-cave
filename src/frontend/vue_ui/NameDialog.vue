@@ -5,7 +5,7 @@
             <input v-model="inputValue" type="text" maxlength="30" />
             <div class="buttons">
                 <button @click="cancel">Cancel</button>
-                <button :disabled="!!error" @click="confirm">OK</button>
+                <button :disabled="!!error" :class="{ clickable: !error }" @click="confirm">OK</button>
             </div>
             <p v-if="error" class="error">{{ error }}</p>
         </div>
@@ -60,14 +60,14 @@ function cancel() {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.4);
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .dialog {
-    background: rgb(200, 200, 200);
+    background: rgba(255, 255, 255, 0.7);
 }
 
 .error {

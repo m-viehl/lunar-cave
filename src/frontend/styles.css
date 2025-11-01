@@ -69,17 +69,30 @@ button {
     cursor: pointer;
     transition: all 0.2s ease;
     user-select: none;
-    background-color: rgba(255, 255, 255, 0.25);
     border: none;
     border-radius: 0.25rem;
     outline: none;
     color: inherit;
     font-family: inherit;
     font-size: inherit;
+
+    --bg: 255, 255, 255;
+    --alpha: 0.25;
+    background-color: rgba(var(--bg), var(--alpha));
 }
 
 button:hover {
-    background-color: rgba(255, 255, 255, 0.4);
+    --alpha: 0.4;
+}
+
+button:disabled {
+    --bg: 255, 200, 200;
+    --alpha: 0.25;
+    color: gray;
+}
+
+button.clickable {
+    --bg: 200, 255, 200;
 }
 
 .hidden {
@@ -112,10 +125,10 @@ button:hover {
     outline: none;
 }
 
-.radio-group input[type="radio"]:checked + label {
+.radio-group input[type="radio"]:checked+label {
     background-color: rgba(255, 255, 255, 0.4);
 }
 
 .radio-group label:hover {
     background-color: rgba(255, 255, 255, 0.2);
-} 
+}
