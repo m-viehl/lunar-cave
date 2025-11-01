@@ -1,0 +1,14 @@
+/* Space Grotesk font */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
+
+body {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 400;
+}
+
+strong,
+b {
+    font-weight: 700;
+}
+
+/* Space mono was cool, but had problems with exclamation marks... */
