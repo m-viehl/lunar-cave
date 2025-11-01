@@ -10,7 +10,7 @@
       <CustomSettings v-show="state.mode == 'custom'" />
       <ChallengeMenu v-show="state.mode == 'challenge'" ref="challengeMenu" />
     </div>
-    <Help :initmode="ui_game_state == 'init'" />
+    <Help :ui_state="ui_game_state" />
   </div>
 </template>
 
