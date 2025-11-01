@@ -11,6 +11,7 @@
         "type-check-not-working": "vue-tsc --build"
     },
     "dependencies": {
+        "fastify": "^5.6.1",
         "vue": "^3.5.22"
     },
     "devDependencies": {
