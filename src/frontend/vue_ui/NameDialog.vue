@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, defineEmits } from "vue";
+import { ref, watch, defineEmits, onMounted, onUnmounted } from "vue";
 import { is_dialog_open } from "./state";
 
 
@@ -50,6 +50,28 @@ function confirm() {
 function cancel() {
     emit("cancel");
 }
+
+function handleKeydown(event: KeyboardEvent) {
+    if (!is_dialog_open.value) {
+        return;
+    }
+    
+    if (event.key === "Escape") {
+        event.preventDefault();
+        cancel();
+    } else if (event.key === "Enter") {
+        event.preventDefault();
+        confirm();
+    }
+}
+
+onMounted(() => {
+    window.addEventListener("keydown", handleKeydown);
+});
+
+onUnmounted(() => {
+    window.removeEventListener("keydown", handleKeydown);
+});
 </script>
 
 
