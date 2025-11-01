@@ -4,10 +4,14 @@
  */
 
 let paused = true
-let last_tick: number | null = null
-let callback: ((dt: number) => void) | undefined = undefined
+let last_tick_s: number | null = null
+let callback: ((dt_s: number) => void) | undefined = undefined
 
-export function set_callback(fct: (dt: number) => void) {
+/**
+ * Sets the callback function to be called periodically.
+ * @param fct The callback function to be called. It will be called with the delta t in seconds.
+ */
+export function set_callback(fct: (dt_s: number) => void) {
     callback = fct
 }
 
@@ -19,7 +23,7 @@ export function start() {
     if (!paused)
         return
     paused = false
-    last_tick = null
+    last_tick_s = null
     window.requestAnimationFrame(loop)
 }
 
@@ -30,21 +34,21 @@ export function stop() {
     paused = true
 }
 
-function loop(now: number = -1000) {
+function loop(now_ms: number = -1000) {
     if (paused)
         return
 
-    now /= 1000 // convert to seconds
-    if (last_tick === null) {
+    let now_s = now_ms / 1000 // convert to seconds
+    if (last_tick_s === null) {
         // 1st run
-        last_tick = now;
+        last_tick_s = now_s;
     } else {
         // normal tick
-        let dt = now - last_tick;
-        last_tick = now;
-        
+        let dt_s = now_s - last_tick_s;
+        last_tick_s = now_s;
+
         if (callback)
-            callback(dt);
+            callback(dt_s);
     }
     window.requestAnimationFrame((t) => loop(t));
 }

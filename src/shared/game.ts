@@ -34,14 +34,14 @@ export class Game {
     /**
      * Update the game state by a discrete time step
      * 
-     * @param dt time step length
+     * @param dt_s time step length in seconds
      * @param thrust whether thrust input is active
      * @param turn_left whether turn left input is active
      * @param turn_right whether turn right input is active
      */
-    public tick(dt: number, thrust: boolean, turn_left: boolean, turn_right: boolean) {
+    public tick(dt_s: number, thrust: boolean, turn_left: boolean, turn_right: boolean) {
         // 1. update ship
-        this.ship.tick(dt, thrust, turn_left, turn_right)
+        this.ship.tick(dt_s, thrust, turn_left, turn_right)
 
         // 2. collision check (which also updates the cave's current_segment state)
         for (let p of this.ship.collision_points) {
@@ -57,7 +57,7 @@ export class Game {
         }
 
         // 3. update time counter
-        this.t += dt
+        this.t += dt_s
     }
 
     public reset() {

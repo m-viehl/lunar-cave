@@ -55,15 +55,15 @@ export class FrontendGame {
         tick.start()
     }
 
-    private tick_fct(dt: number) {
-        dt *= this.config.ship_config.time_factor
+    private tick_fct(dt_s: number) {
+        dt_s *= this.config.ship_config.time_factor
 
         // calculate smoothed speed
         {
             // Normalize v to be frame rate agnostic.
             // Without this, smoothing would be quicker with higher frame rates.
             // We normalize to 60Hz, for which the smoothing factor was tuned during development.
-            let v_norm = this.game.ship.speed / dt * 0.0167
+            let v_norm = this.game.ship.speed / dt_s * 0.0167
             let a = this.config.zoom_config.speed_smoothing_factor
             this.speed_smoothed = v_norm * a + this.speed_smoothed * (1 - a)
         }
@@ -71,7 +71,7 @@ export class FrontendGame {
         // game tick
         // somehow tell the UI when game ends!
         if (this.game.state == GameState.INGAME) {
-            this.game.tick(dt, key_state.up, key_state.left, key_state.right)
+            this.game.tick(dt_s, key_state.up, key_state.left, key_state.right)
             draw_main(this)
         } else {
             tick.stop()
