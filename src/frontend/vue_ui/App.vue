@@ -8,25 +8,28 @@
       }" />
 
       <CustomSettings v-show="state.mode == 'custom'" />
+      <ChallengeMenu v-show="state.mode == 'challenge'" ref="challengeMenu" />
     </div>
     <Help :initmode="ui_game_state == 'init'" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { state } from "./state";
+import { is_dialog_open, state } from "./state";
 import SelBtn from "./SelBtn.vue";
 import CustomSettings from "./CustomSettings.vue";
 import Help from "./Help.vue";
 // TODO what are these ts errors?
 import { draw_main, screen_size_changed } from '../logic/rendering';
-import { computed, onMounted, ref, watch, type ComputedRef, type Ref } from "vue";
+import { computed, onMounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from "vue";
 import { FrontendGame } from "../logic/frontend_game";
+import ChallengeMenu from "./ChallengeMenu.vue";
 
 type UIGameState = "init" | "ingame" | "won" | "lost";
 
 let ui_game_state: Ref<UIGameState> = ref("init");
 let seed: Ref<number> = ref(Date.now())
+let challengeMenu = useTemplateRef("challengeMenu")
 
 let game: ComputedRef<FrontendGame> = computed(() => {
   // get config
@@ -58,6 +61,9 @@ onMounted(() => {
 })
 
 function handleKeyDown(event: KeyboardEvent) {
+  // don't react if the dialog is open
+  if (is_dialog_open.value) return;
+
   // Skip if this is a repeated key press
   if (event.repeat) return;
 
@@ -91,8 +97,10 @@ function gameover() {
 }
 
 function won() {
-  // TODO pass game result to handle upload
   ui_game_state.value = "won"
+  if (state.mode == "challenge") {
+    challengeMenu.value!.won_game(1234, "TODO DUMMY");
+  }
 }
 
 </script>

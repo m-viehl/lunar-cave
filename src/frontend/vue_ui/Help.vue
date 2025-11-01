@@ -32,6 +32,6 @@
 
 <script lang="ts" setup>
 defineProps<{
-    initmode:     olean;
+    initmode: boolean;
 }>();
 </script>

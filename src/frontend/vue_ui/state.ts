@@ -1,4 +1,4 @@
-import { reactive, watch, type Reactive } from "vue";
+import { reactive, ref, watch, type Reactive } from "vue";
 
 const STORAGE_KEY = "app_state";
 
@@ -31,6 +31,8 @@ function getInitialState(): StateType {
 }
 
 export let state: Reactive<StateType> = reactive(getInitialState());
+// TODO rename somehow, e.g. "persistentState"
+
 
 watch(
     state,
@@ -43,3 +45,6 @@ watch(
     },
     { deep: true }
 );
+
+
+export let is_dialog_open = ref(false);
