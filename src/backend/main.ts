@@ -1,6 +1,8 @@
 import Fastify from "fastify";
 import { get_highscores, handle_request } from "./scores";
-import { get_game_config } from "./config";
+import { get_game_config } from "./data";
+import { CONFIG } from "./config";
+
 
 const fastify = Fastify({ logger: true });
 
@@ -37,7 +39,7 @@ fastify.post("/new-score", async (request, reply) => {
     }
 });
 
-fastify.listen({ port: 3000 }, (err, address) => {
+fastify.listen({ port: CONFIG.PORT }, (err, address) => {
     if (err) throw err;
     console.log(`Fastify API on ${address}`);
 });

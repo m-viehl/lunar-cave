@@ -1,9 +1,9 @@
 import { deserializeTickLogs } from "../shared/misc";
-import { Game, GameState } from "../shared/game";
-import * as fs from "fs";
-import { get_new_game_object } from "./config";
+import { GameState } from "../shared/game";
+import * as fs from "node:fs";
+import { get_new_game_object } from "./data";
+import {CONFIG} from "./config";
 
-const MAX_LEADERBOARD_LENGTH = 10;
 
 interface Score {
     name: string
@@ -11,10 +11,9 @@ interface Score {
 }
 
 // initialize highscores
-let HIGHSCORES_FILE = "/data/highscores.json";
 let highscores: Score[] = [];
-if (fs.existsSync(HIGHSCORES_FILE)) {
-    highscores = JSON.parse(fs.readFileSync(HIGHSCORES_FILE, "utf8"));
+if (fs.existsSync(CONFIG.HIGHSCORES_FILE)) {
+    highscores = JSON.parse(fs.readFileSync(CONFIG.HIGHSCORES_FILE, "utf8"));
 } else {
     highscores = [];
 }
@@ -22,11 +21,11 @@ if (fs.existsSync(HIGHSCORES_FILE)) {
 export function clear_highscores() {
     console.log("Clearing highscores")
     highscores = [];
-    fs.writeFileSync(HIGHSCORES_FILE, JSON.stringify(highscores));
+    fs.writeFileSync(CONFIG.HIGHSCORES_FILE, JSON.stringify(highscores));
 }
 
 function add_score(s: Score) {
-    if (highscores.length == MAX_LEADERBOARD_LENGTH) {
+    if (highscores.length == CONFIG.MAX_LEADERBOARD_LENGTH) {
         let worst_time = highscores[highscores.length - 1]!.time;
         if (s.time > worst_time) {
             // Skip, score is too bad for the leaderboard. 
@@ -44,11 +43,11 @@ function add_score(s: Score) {
     
     // TODO Deduplicate by name?
 
-    // keep only the top MAX_LEADERBOARD_LENGTH scores
-    highscores = highscores.slice(0, MAX_LEADERBOARD_LENGTH);
+    // keep only the top N scores
+    highscores = highscores.slice(0, CONFIG.MAX_LEADERBOARD_LENGTH);
     
     // save highscores to file
-    fs.writeFileSync(HIGHSCORES_FILE, JSON.stringify(highscores, null, 2));
+    fs.writeFileSync(CONFIG.HIGHSCORES_FILE, JSON.stringify(highscores, null, 2));
 }
 
 export function get_highscores(): Score[] {
