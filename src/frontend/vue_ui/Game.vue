@@ -1,5 +1,5 @@
 <template>
-    <canvas ref="canvas" id="canvas" width="100px" height="100px" :class="{ blurred: blur }">Your browser does not
+    <canvas ref="canvas" width="100px" height="100px" :class="{ blurred: blur }">Your browser does not
         support
         HTML5 canvas.</canvas>
 </template>
@@ -34,5 +34,12 @@ onMounted(() => {
 canvas.blurred {
     filter: blur(2em);
     transform: scale(1.2);
+}
+
+canvas {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    z-index: -1;
 }
 </style>

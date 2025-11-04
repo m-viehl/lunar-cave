@@ -1,19 +1,21 @@
 <template>
-    <div v-show="is_dialog_open" class="overlay">
-        <div class="dialog menu">
-            <p>New highscore! Enter your name to upload:</p>
-            <input v-model="inputValue" type="text" maxlength="30" />
-            <div class="buttons">
-                <button @click="cancel">Cancel</button>
-                <button :disabled="!!error" :class="{ clickable: !error }" @click="confirm">OK</button>
+    <teleport to="body">
+        <div v-show="is_dialog_open" class="overlay">
+            <div class="dialog menu">
+                <p>New highscore! Enter your name to upload:</p>
+                <input v-model="inputValue" type="text" maxlength="20" />
+                <div class="buttons">
+                    <button @click="cancel">Cancel</button>
+                    <button :disabled="!is_valid" :class="{ clickable: is_valid }" @click="confirm">OK</button>
+                </div>
+                <p v-if="error" class="error">{{ error }}</p>
             </div>
-            <p v-if="error" class="error">{{ error }}</p>
         </div>
-    </div>
+    </teleport>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import { is_dialog_open } from "./state";
 
 
@@ -25,23 +27,20 @@ const emit = defineEmits<{
 }>();
 
 const inputValue = ref(localStorage.getItem(NAME_LOCALSTORAGE_KEY) || "")
-const error = ref<string | null>(null);
 
 const regex = /^[a-zA-Z0-9]*$/;
 
-watch(inputValue, (val) => {
-    if (!regex.test(val)) {
-        error.value = "Only alphanumeric characters allowed.";
-    } else if (val.length > 30 || val.length < 2) {
-        error.value = "Length must be 2-30 characters."
-    } else {
-        error.value = null;
-    }
-});
+let error = computed(() => {
+    if (!regex.test(inputValue.value))
+        return "Only alphanumeric characters allowed.";
+    return null;
+})
+
+let is_valid = computed(() => { return error.value == null && inputValue.value.length >= 2 })
 
 
 function confirm() {
-    if (!error.value) {
+    if (is_valid.value) {
         localStorage.setItem(NAME_LOCALSTORAGE_KEY, inputValue.value)
         emit("confirm", inputValue.value);
     }
@@ -55,7 +54,7 @@ function handleKeydown(event: KeyboardEvent) {
     if (!is_dialog_open.value) {
         return;
     }
-    
+
     if (event.key === "Escape") {
         event.preventDefault();
         cancel();
@@ -91,6 +90,16 @@ onUnmounted(() => {
 
 .dialog {
     background: rgba(255, 255, 255, 0.7);
+}
+
+.dialog input {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 0.5rem;
+}
+
+.dialog p {
+    margin-top: 0;
 }
 
 .error {

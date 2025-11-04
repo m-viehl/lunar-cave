@@ -1,5 +1,5 @@
 <template>
-  <Game :game="game" :blur="!is_game_ready" ></Game>
+  <Game :game="game" :blur="!is_game_ready"></Game>
   <div v-show="ui_game_state != 'ingame'">
     <div class="menu">
       <h1>Lunar Cave</h1>

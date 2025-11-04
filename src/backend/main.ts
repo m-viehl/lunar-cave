@@ -26,7 +26,7 @@ fastify.post(
                 required: ['name', 'input_sequence'],
                 additionalProperties: false,
                 properties: {
-                    name: { type: 'string', pattern: '^[0-9a-zA-Z]{2,30}$' },
+                    name: { type: 'string', pattern: '^[0-9a-zA-Z]{2,20}$' },
                     input_sequence: { type: 'string' }
                 }
             }
@@ -38,7 +38,7 @@ fastify.post(
             input_sequence: string;
         };
 
-        const nameRegex = /^[0-9a-zA-Z]{2,30}$/;
+        const nameRegex = /^[0-9a-zA-Z]{2,20}$/;
         if (!nameRegex.test(name)) {
             reply.code(400);
             return { status: "bad name" };

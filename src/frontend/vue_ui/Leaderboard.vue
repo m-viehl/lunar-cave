@@ -5,7 +5,7 @@
       <tr v-for="([name, time], index) in highscores" :key="name">
         <td><b>{{ index + 1 }}</b></td>
         <td>{{ name }}</td>
-        <td>{{ time .toFixed(2)}} s</td>
+        <td>{{ time .toFixed(2)}}</td>
       </tr>
     </table>
     <p v-else-if="highscores?.length == 0">No highscores yet</p>

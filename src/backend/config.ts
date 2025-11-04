@@ -19,7 +19,7 @@ function get_config(seed: number): GameConfig {
     return {
         time_factor: 1,
         cave_scale: 20,
-        length: 70, // TODO DEBUG, eigl 350,
+        length: 350,
         seed: seed,
         ship_scale: 20,
     }
