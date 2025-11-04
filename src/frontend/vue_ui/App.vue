@@ -15,6 +15,7 @@
     </div>
     <Help v-if="is_game_ready" :ui_state="ui_game_state" />
   </div>
+  <Timer v-if="ui_game_state != 'init'" :tstart="game_start_t" :running="ui_game_state == 'ingame'" />
 </template>
 
 <script lang="ts" setup>
@@ -28,6 +29,7 @@ import { FrontendGame } from "../logic/frontend_game";
 import ChallengeMenu from "./ChallengeMenu.vue";
 import type { CurrentChallengeType } from "../../backend/api_types"
 import type { GameConfig } from "../../shared/config";
+import Timer from "./Timer.vue";
 
 type UIGameState = "init" | "ingame" | "won" | "lost";
 
@@ -38,6 +40,7 @@ let ui_game_state: Ref<UIGameState> = ref("init");
 let custom_seed = ref(Date.now()) // seed for custom mode
 let challengeMenu = useTemplateRef("challengeMenu")
 let challenge_config: Ref<GameConfig | null> = ref(null);
+let game_start_t = ref(Date.now());
 
 //////////////////////////////////////////////
 // Computed refs
@@ -131,7 +134,9 @@ function handleKeyDown(event: KeyboardEvent) {
   // Handle WASD and arrow keys
   if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
     if (ui_game_state.value == "init") {
+      // START GAME
       ui_game_state.value = "ingame"
+      game_start_t.value = Date.now()
       game.value.start()
     }
   }

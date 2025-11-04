@@ -23,6 +23,13 @@ menu-component {
     top: 0;
 }
 
+.timer {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 0.7em;
+}
+
 .key {
     border: 1pt solid black;
     padding-left: 3pt;
