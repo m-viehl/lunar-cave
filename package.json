@@ -7,7 +7,7 @@
     "scripts": {
         "dev:frontend": "vite --config vite-config-frontend.ts",
         "build:frontend": "vite --config vite-config-frontend.ts",
-        "dev:backend": "mkdir -p dev-data ; DATA_DIR='dev-data' bun src/backend/main.ts",
+        "dev:backend": "mkdir -p dev-data ; DATA_DIR='dev-data' bun --watch src/backend/main.ts",
         "build:backend": ""
     },
     "dependencies": {

@@ -1,10 +1,5 @@
 # Frontend
-- style table
-- get config + seed from server
-- upload scores and reload highscores
-- dialog is ugly, error msg always appears when starting to type and moves dialog up because it is centered vertically
 - add routing: https://url/game?seed=234234234 should lead to custom seed
-- in challengemenu.won_game: measure time and compare to highscores before uploading
 
 
 # Combined

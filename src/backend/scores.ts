@@ -2,7 +2,7 @@ import { deserializeTickLogs } from "../shared/misc";
 import { GameState } from "../shared/game";
 import * as fs from "node:fs";
 import { get_new_game_object } from "./data";
-import {CONFIG} from "./config";
+import { CONFIG } from "./config";
 
 
 interface Score {
@@ -37,21 +37,24 @@ function add_score(s: Score) {
     console.log("Adding highscore to leaderboard")
 
     highscores.push(s)
-    
+
     // sort highscores by time
     highscores.sort((a, b) => a.time - b.time);
-    
+
     // TODO Deduplicate by name?
 
     // keep only the top N scores
     highscores = highscores.slice(0, CONFIG.MAX_LEADERBOARD_LENGTH);
-    
+
     // save highscores to file
     fs.writeFileSync(CONFIG.HIGHSCORES_FILE, JSON.stringify(highscores, null, 2));
 }
 
-export function get_highscores(): Score[] {
-    return highscores;
+export function get_highscores() {
+    return {
+        max_length: CONFIG.MAX_LEADERBOARD_LENGTH,
+        highscores: highscores
+    }
 }
 
 /**

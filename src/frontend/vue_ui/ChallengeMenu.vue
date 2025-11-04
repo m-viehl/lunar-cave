@@ -44,8 +44,9 @@ function name_cancel() {
  * @param input_sequence the serialized input sequence for validation
  */
 function won_game(time_s: number, input_sequence: string) {
-    // TODO check time_s before doing anything!
-    
+    if (!leaderboardRef.value?.is_qualified_for_highscore(time_s))
+        return;
+
     last_input = input_sequence;
     is_dialog_open.value = true;
     // logic continues in name_confirm!

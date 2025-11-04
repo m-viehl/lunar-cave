@@ -147,7 +147,7 @@ function gameover() {
 function won() {
   ui_game_state.value = "won"
   if (state.mode == "challenge") {
-    challengeMenu.value!.won_game(1234, game.value.game.get_recording_string()); // TODO number currently unused!
+    challengeMenu.value!.won_game(game.value.game.t, game.value.game.get_recording_string());
   }
 }
 
