@@ -13,9 +13,15 @@ import { FrontendGame } from "./frontend_game";
 
 
 // variables
-let canvas = document.getElementById("canvas") as HTMLCanvasElement;
-let context = canvas.getContext("2d")!;
+let canvas: HTMLCanvasElement | null = null;
+let context: CanvasRenderingContext2D | null = null;
 let width = 0, height = 0;
+
+export function set_canvas(_canvas: HTMLCanvasElement) {
+    // call when canvas is ready
+    canvas = _canvas;
+    context = canvas.getContext("2d")!;
+}
 
 
 function scale_from_speed(v: number, config: ConfigType): number {
@@ -29,6 +35,8 @@ function scale_from_speed(v: number, config: ConfigType): number {
 
 
 export function draw_main(frontend_game: FrontendGame) {
+    if (canvas == null || context == null) return;
+
     let ship = frontend_game.game.ship
     let cave = frontend_game.game.cave
     let config = frontend_game.config
@@ -67,6 +75,8 @@ export function draw_main(frontend_game: FrontendGame) {
 }
 
 function draw_ship(ship: Ship, config: ConfigType) {
+    if (canvas == null || context == null) return;
+
     let s = config.ship_config.size
     // draw thruster flame
     if (ship.thrust_factor > 0) {
@@ -83,50 +93,9 @@ function draw_ship(ship: Ship, config: ConfigType) {
 }
 
 
-function is_point_pair_on_screen(
-    pair: PointPair,
-    upper_left: Point,
-    lower_right: Point
-): boolean {
-    const { a, b } = pair
-
-    const isOnScreen = (p: Point): boolean => {
-        return (
-            p.x >= upper_left.x &&
-            p.x <= lower_right.x &&
-            p.y >= upper_left.y &&
-            p.y <= lower_right.y
-        )
-    }
-
-    return isOnScreen(a) || isOnScreen(b)
-}
-
-
-
 function draw_cave(cave: Cave, config: ConfigType, upper_left: Point, lower_right: Point) {
-    // determine which segments to draw
-    // let draw_first = -1
-    // let draw_last = -1
+    if (canvas == null || context == null) return;
 
-    // for (let i = 0; i < cave.point_pairs.length; i++) {
-    //     let pp = cave.point_pairs[i]
-    //     if (draw_first == -1) {
-    //         // search for first visible one
-    //         if (is_point_pair_on_screen(pp, upper_left, lower_right)) {
-    //             // then save the one before, which is fully off-screen
-    //             draw_first = Math.max(0, i - 1)
-    //         }
-    //     } else {
-    //         // search for last visible one
-    //         if (!is_point_pair_on_screen(pp, upper_left, lower_right)) {
-    //             // then save the next one, which is fully off-screen
-    //             draw_first = Math.min(cave.point_pairs.length - 1, i + 1)
-    //         }
-    //     }
-    // }
-
-    // TODO tmp? Draw all segments, even if out of screen!
     let draw_first = 0
     let draw_last = cave.point_pairs.length - 1
 
@@ -163,6 +132,8 @@ function draw_cave(cave: Cave, config: ConfigType, upper_left: Point, lower_righ
 }
 
 export function screen_size_changed() {
+    if (canvas == null || context == null) return;
+
     width = window.innerWidth;
     height = window.innerHeight;
     canvas.width = width;

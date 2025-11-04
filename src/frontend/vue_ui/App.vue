@@ -1,4 +1,5 @@
 <template>
+  <Game :game="game" :blur="!is_game_ready" ></Game>
   <div v-show="ui_game_state != 'ingame'">
     <div class="menu">
       <h1>Lunar Cave</h1>
@@ -21,8 +22,8 @@ import { is_dialog_open, state } from "./state";
 import SelBtn from "./SelBtn.vue";
 import CustomSettings from "./CustomSettings.vue";
 import Help from "./Help.vue";
-import { draw_main, screen_size_changed } from '../logic/rendering';
-import { computed, onMounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from "vue";
+import Game from "./Game.vue"
+import { computed, onMounted, ref, useTemplateRef, watch, type Ref } from "vue";
 import { FrontendGame } from "../logic/frontend_game";
 import ChallengeMenu from "./ChallengeMenu.vue";
 import type { CurrentChallengeType } from "../../backend/api_types"
@@ -48,7 +49,6 @@ let is_game_ready = computed(() => {
     return false
   return true
 })
-// TODO blur game canvas when not ready!
 
 let game = computed(() => {
   if (state.mode == "challenge" && challenge_config.value != null) {
@@ -74,13 +74,6 @@ let game = computed(() => {
 //////////////////////////////////////////////
 // watchers
 //////////////////////////////////////////////
-watch(game, () => {
-  // redraw with new game
-  screen_size_changed()
-  draw_main(game.value)
-},
-  { immediate: true } // also run when game is initialized!
-)
 
 // on new game, go to init mode
 watch(game, () => { ui_game_state.value = "init" })
@@ -90,10 +83,6 @@ watch(game, () => { ui_game_state.value = "init" })
 //////////////////////////////////////////////
 onMounted(() => {
   window.addEventListener("keydown", handleKeyDown);
-  window.addEventListener("resize", () => {
-    screen_size_changed()
-    draw_main(game.value)
-  });
 })
 
 
@@ -104,7 +93,7 @@ async function fetchChallengeGame() {
       return
 
     const data = await response.json() as CurrentChallengeType
-    
+
     challenge_config.value = data.game_config;
 
     // TODO handle expiration of challenge!

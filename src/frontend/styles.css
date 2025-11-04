@@ -21,6 +21,7 @@ menu-component {
     border-radius: 1rem;
     width: fit-content;
     height: fit-content;
+    backdrop-filter: blur(10px);
 }
 
 .right {
