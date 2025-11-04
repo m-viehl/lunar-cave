@@ -1,5 +1,5 @@
 import { Game } from "../../shared/game";
-import { type TickLog } from "../../shared/misc";
+import { serializeTickLogs, type TickLog } from "../../shared/misc";
 
 export class RecordingGame extends Game {
     recording: TickLog[] = []
@@ -17,5 +17,9 @@ export class RecordingGame extends Game {
     public reset() {
         super.reset();
         this.recording = [];
+    }
+
+    public get_recording_string() {
+        return serializeTickLogs(this.recording)
     }
 }

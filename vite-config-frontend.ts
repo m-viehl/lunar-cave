@@ -1,5 +1,3 @@
-import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
@@ -11,9 +9,9 @@ export default defineConfig({
     vueDevTools(),
   ],
   root: 'src/frontend',
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }, // todo this is copied from a scaffold project and probably not working?
-  },
+  server: {
+    proxy: {
+      '/api': 'http://localhost:3000',
+    }
+  }
 })

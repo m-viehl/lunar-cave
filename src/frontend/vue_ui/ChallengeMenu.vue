@@ -2,20 +2,37 @@
 import Leaderboard from './Leaderboard.vue';
 import NameDialog from './NameDialog.vue';
 import { is_dialog_open } from "./state";
+import { useTemplateRef } from "vue";
 
 
 let last_input = "";
+const leaderboardRef = useTemplateRef("leaderboardRef")
 
-function name_confirm(name_entered: string) {
+async function name_confirm(name_entered: string) {
+    // close dialog
     is_dialog_open.value = false;
 
-    // TODO now upload last_input!
-    console.log("uploading highscore")
-    // TODO and re-fetch highscore list!
+    // upload last_input and re-fetch highscore list
+    try {
+        const response = await fetch('/api/new-score', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name_entered, input_sequence: last_input })
+        })
+        if (!response.ok) {
+            console.log("error while uploading score")
+        }
+    } catch (_) {
+        console.log("network error while uploading score")
+    }
+    last_input = "";
+    // refresh leaderboard regardless of upload result
+    leaderboardRef.value!.fetchHighscores()
 }
 
 function name_cancel() {
     is_dialog_open.value = false;
+    last_input = "";
 }
 
 /**
@@ -28,6 +45,7 @@ function name_cancel() {
  */
 function won_game(time_s: number, input_sequence: string) {
     // TODO check time_s before doing anything!
+    
     last_input = input_sequence;
     is_dialog_open.value = true;
     // logic continues in name_confirm!
@@ -42,7 +60,7 @@ defineExpose({
 
 <template>
     <div>
-        <Leaderboard />
+        <Leaderboard ref="leaderboardRef" />
         <NameDialog @confirm="name_confirm" @cancel="name_cancel" />
     </div>
 </template>

@@ -5,7 +5,7 @@ const STORAGE_KEY = "app_state";
 function GET_DEFAULT() {
     return {
         settings_version: 1,
-        mode: "custom",
+        mode: "custom" as "custom" | "challenge",
         customSettings: {
             size_select: "1.0",
             length_select: "350",

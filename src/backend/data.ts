@@ -35,6 +35,11 @@ function get_seed_from_file(): number | null {
 }
 
 
+function persist_seed() {
+  console.log("Writing seed to file")
+  fs.writeFileSync(CONFIG.SEED_FILE, __seed_internal.toString(), "utf8");
+}
+
 
 function get_seed() {
   if (__seed_internal == -1) {
@@ -45,6 +50,7 @@ function get_seed() {
     } else {
       console.log("Initializing seed to Date.now()")
       __seed_internal = Date.now();
+      persist_seed();
     }
   }
 
@@ -52,10 +58,7 @@ function get_seed() {
     // seed expired, update
     console.log("Seed is expired, updating")
     __seed_internal = __seed_internal + CONFIG.SEED_VALID_FOR_ms;
-
-    // persist to file
-    console.log("Writing seed to file")
-    fs.writeFileSync(CONFIG.SEED_FILE, __seed_internal.toString(), "utf8");
+    persist_seed();
 
     // clear cache
     full_config_cache = null;
@@ -101,6 +104,9 @@ export function get_game_config() {
   ensure_cache_exists();
   return {
     expires_at: get_seed() + CONFIG.SEED_VALID_FOR_ms,
-    game_config: game_config_cache
+    game_config: game_config_cache!
   }
 }
+
+// try loading seed from file when starting
+get_seed();

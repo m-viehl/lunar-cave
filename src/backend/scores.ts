@@ -39,7 +39,7 @@ function add_score(s: Score) {
     highscores.push(s)
     
     // sort highscores by time
-    highscores.sort((a, b) => b.time - a.time);
+    highscores.sort((a, b) => a.time - b.time);
     
     // TODO Deduplicate by name?
 
@@ -67,10 +67,11 @@ export function handle_request(name: string, input_sequence: string) {
 
     let game = get_new_game_object()
     for (let ticklog of ticklogs) {
-        game.tick(ticklog.dt, ticklog.left, ticklog.right, ticklog.thrust);
+        game.tick(ticklog.dt, ticklog.thrust, ticklog.left, ticklog.right);
         if (game.state == GameState.GAMEOVER) {
             return "gameover";
-        } else if (game.state == GameState.WON) {
+        }
+        if (game.state == GameState.WON) {
             add_score({ name, time: game.t });
             return null;
         }

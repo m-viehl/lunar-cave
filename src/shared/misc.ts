@@ -29,7 +29,7 @@ function serializeTickLog(t: TickLog): string {
         (t.thrust ? 't' : '')
     // dt is in seconds, we serialize it in milliseconds with 1µs precision
     const dtStr = (t.dt * 1000).toFixed(3)
-    return `${flags};${dtStr}`
+    return `${flags},${dtStr}`
 }
 
 /**
@@ -43,7 +43,7 @@ export function serializeTickLogs(ts: TickLog[]) {
 }
 
 function deserializeTickLog(s: string): TickLog | null {
-    const match = s.match(/^(l?r?t?);(\d+(?:\.\d{1,3})?)$/)
+    const match = s.match(/^(l?r?t?),(\d+(?:\.\d{1,3})?)$/)
     if (!match) return null
     const [_, flags, dtStr] = match
     return {
