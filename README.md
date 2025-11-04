@@ -1,12 +1,28 @@
 # Lunar Cave game
-Cool auto-generated caves!
+- Cool auto-generated caves!
+- A weekly challenge with tamper-proof highscore list: Server replays the game to validate highscore requests. Feel free to train a RL model to get highscores. Or just play the game ^^
 
-# Build and run
-1. Clone this repo
-2. Run `npm install`
-3. Deployment:
-    - *Development server*: Run `npm run dev` and visit the displayed URL.
-    - *Production build*: Run `npm run build`, which will place output files in the `dist/` directory. These files can then be served. (E.g. by using the `./put_online.sh` script.)
+# Backend configuration
+The backend (in `src/backend/main.ts`) will use the `DATA_DIR` environment variable as data directory.
+If not given, it will default to `.data`.
+Further configuration is in `src/backend/config.ts`.
+
+# Development
+- Development scripts create and use `dev-data` (is in gitignore) as data directory
+- The dev server is directly run via bun and auto-reloads on source changes. A vite proxy is used to point the `/api` routes to the server.
+
+# Production build
+**TODO not yet implemented**
+
+The `build` script builds a docker image using the `Dockerfile` that serves the whole app.
+- Runs the fastify API in `src/backend`.
+- Serves the bundled static vue frontend from `src/frontend`, also via fastify.
+
+Both the frontend and the backend are bundled using vite to create standalone apps without any dependencies. Hence, there are no runtime dependencies. In `package.json`, `dependencies` are used as **build-time** dependencies for the dockerized build, and not runtime dependencies!
+
+The backend persists its state (current seed and highscores) to `TODO/TBD`. You may mount this directory as a docker volume.
+
+----------------
 
 # Changelog
 This changelog is for *user-visible features*, not internal improvements.
