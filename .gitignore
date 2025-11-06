@@ -2,6 +2,6 @@
 *.js.map
 build
 node_modules
-dist
+dist*
 .parcel-cache
 dev-data

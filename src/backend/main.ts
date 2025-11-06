@@ -1,10 +1,21 @@
 import Fastify from "fastify";
+import fastifyStatic from '@fastify/static'
+
 import { get_highscores, handle_request } from "./scores";
 import { get_game_config } from "./data";
 import { CONFIG } from "./config";
 
+import * as fs from "node:fs";
+import { resolve } from 'node:path';
+import { exit } from "node:process";
+
 
 const fastify = Fastify({ logger: false });
+
+/////////////////////////////////////////////////////////
+// API Routes
+/////////////////////////////////////////////////////////
+
 
 // GET /api/current-challenge
 fastify.get("/api/current-challenge", async (request, reply) => {
@@ -54,6 +65,39 @@ fastify.post(
             return { status: "ok" };
         }
     });
+
+
+/////////////////////////////////////////////////////////
+// Serve static files if directory is given
+/////////////////////////////////////////////////////////
+
+if (process.env.STATIC_DIR) {
+    let static_dir = resolve(process.env.STATIC_DIR);
+    if (!fs.existsSync(static_dir) || !fs.statSync(static_dir).isDirectory()) {
+        console.error(`Static file directory ${static_dir} is no valid directory!`)
+        exit(1);
+    } else {
+        console.log(`Serving static files from ${static_dir}`)
+    }
+
+    fastify.register(fastifyStatic, {
+        root: static_dir,
+        // By default all assets are immutable and can be cached for a long period due to cache bursting techniques
+        maxAge: '30d',
+        immutable: true,
+    })
+
+    fastify.get('/', function (req, reply) {
+        // Caching exception: index.html should never be cached
+        reply.sendFile('index.html', { maxAge: 0, immutable: false })
+    })
+} else {
+    console.log("Not serving static files.")
+}
+
+/////////////////////////////////////////////////////////
+// start server
+/////////////////////////////////////////////////////////
 
 fastify.listen({ port: CONFIG.PORT }, (err, address) => {
     if (err) throw err;
