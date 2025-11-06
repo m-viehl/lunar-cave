@@ -4,36 +4,36 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package.json bun.lock* ./
+COPY package.json vite.config.ts bun.lock* ./
 
-# Install dependencies (using npm since we're in Docker)
-RUN npm install
+# Install build dependencies
+RUN npm install --omit dev
+# (normal dependencies are used as build dependencies!)
 
 # Copy source files
-COPY src/backend ./src/backend
-COPY src/tsconfig.json ./src/tsconfig.json
+COPY src ./src
 
-# Compile TypeScript to dist directory
-RUN npx tsc --project src/backend/tsconfig.json --outDir src/backend/dist --module es2022 --target es2022 --moduleResolution node
+# Build frontend & backend
+RUN npm run build:frontend:docker
+RUN npm run build:backend
 
 # Stage 2: Runtime stage
 FROM node:22-alpine
 
 WORKDIR /app
 
-# Copy package files and install only production dependencies
-COPY package.json ./
-RUN npm install --only=production
+# Copy output from builder
+COPY --from=builder /app/dist_frontend ./dist_frontend
+COPY --from=builder /app/dist_backend  ./dist_backend
 
-# Copy compiled JavaScript from builder
-COPY --from=builder /app/src/backend/dist ./src/backend/dist
-
-# Expose port 3000
+# Declare container IO
 EXPOSE 3000
+RUN mkdir /data
+VOLUME ["/data"]
 
-# Set working directory to backend (so highscores.json is in the same directory)
-WORKDIR /app/src/backend
+# Set environment variables for backend
+ENV DATA_DIR=/data
+ENV STATIC_DIR=/app/dist_frontend
 
 # Run the compiled backend
-CMD ["node", "dist/main.js"]
-
+CMD ["node", "/app/dist_backend/backend.js"]

@@ -4,11 +4,10 @@
 
 
 # Combined
-- backend should send expiry time of current challenge seed together with config. (done) Frontend shoud then auto-reload!
-- set up build to docker
-- build/deployment readme
+- backend should send expiry time of current challenge seed together with config. (done) **Frontend shoud then auto-reload!**
 - add damping for easy mode
 - add to changelog + deploy
+- replace esbuild in `build:backend` with buns internal bundler?
 
 # Backend
 - [X] put all server config to extra ts file

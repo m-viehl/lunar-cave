@@ -8,19 +8,27 @@ If not given, it will default to `.data`.
 Further configuration is in `src/backend/config.ts`.
 
 # Development
+- Current package-json-scripts are based on `bun`. So, to get started:
+    - [install bun](https://bun.com/docs/installation).
+    - Install dependencies: `bun install`.
 - Development scripts create and use `dev-data` (is in gitignore) as data directory
-- The dev server is directly run via bun and auto-reloads on source changes. A vite proxy is used to point the `/api` routes to the server.
+- The dev backend is run via bun and auto-reloads on source changes. A vite proxy is used to point the `/api` routes to the server.
 
 # Production build
-**TODO not yet implemented**
+- The script `build:frontend` builds the static frontend to `dist-frontend`.
+- The script `build:backend` builds the static backend to `dist-backend`. All dependencies are bundled.
+- The script `preview` builds frontend and backend separately and then runs the backend (serving the built frontend) via bun.
 
-The `build` script builds a docker image using the `Dockerfile` that serves the whole app.
-- Runs the fastify API in `src/backend`.
-- Serves the bundled static vue frontend from `src/frontend`, also via fastify.
+Both the frontend and the backend are bundled to create standalone apps without any dependencies. Hence, there are no runtime dependencies. In `package.json`, `dependencies` are used as **build-time** dependencies for the dockerized build, and not runtime dependencies!
 
-Both the frontend and the backend are bundled using vite to create standalone apps without any dependencies. Hence, there are no runtime dependencies. In `package.json`, `dependencies` are used as **build-time** dependencies for the dockerized build, and not runtime dependencies!
+## Docker
+Build the container with:
+`sudo docker build -t lunarcave .`
 
-The backend persists its state (current seed and highscores) to `TODO/TBD`. You may mount this directory as a docker volume.
+And then run it (here, without volume mount):
+`sudo docker run --init --name lunarcave --rm -p 3000:3000 lunarcave`
+
+In the docker volume, backend state (current seed and highscores) is written to `/data`. You may mount this directory as a docker volume.
 
 ----------------
 

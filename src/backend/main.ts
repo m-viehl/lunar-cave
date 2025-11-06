@@ -99,7 +99,10 @@ if (process.env.STATIC_DIR) {
 // start server
 /////////////////////////////////////////////////////////
 
-fastify.listen({ port: CONFIG.PORT }, (err, address) => {
-    if (err) throw err;
-    console.log(`Fastify API on ${address}`);
-});
+fastify.listen(
+    { port: CONFIG.PORT, host: '0.0.0.0' },
+    (err, address) => {
+        if (err) throw err;
+        console.log(`Fastify API on ${address}`);
+    }
+);
