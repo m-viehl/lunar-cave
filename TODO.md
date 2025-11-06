@@ -1,5 +1,6 @@
 # Frontend
 - add routing: https://url/game?seed=234234234 should lead to custom seed
+- [X] hide cursor when playing and not moved
 
 
 # Combined
