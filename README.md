@@ -80,3 +80,8 @@ Not mentioning the huge rewrite to allow for proper configuration would be sad..
 - Switch to parceljs, which
     - reduced the deployment size
     - automatically adds hashed filenames for cache busting
+
+## Version 4.0, 2025-11-07
+- Add weekly challenge with highscore list
+- New UI with more custom settings
+- (Most parts were rewritten for better modularity and maintainability)
