@@ -2,7 +2,7 @@
   <div class="menu">
     <h2>Leaderboard</h2>
     <table v-if="scoresObj != null && scoresObj.highscores.length > 0">
-      <tr v-for="(score, index) in scoresObj.highscores" :key="score.name">
+      <tr v-for="(score, index) in scoresObj.highscores">
         <td class="tright"><b>{{ index + 1 }}</b></td>
         <td>{{ score.name }}</td>
         <td>{{ score.time.toFixed(2) }}</td>
