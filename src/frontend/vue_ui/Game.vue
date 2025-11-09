@@ -22,32 +22,43 @@ function repaint() {
 }
 
 let canvas = useTemplateRef("canvas");
-let hideCursorTimer: number | null = null;
 
-function updateCursorHidden() {
-    if (!props.hidecursor) {
-        canvas.value!.style.cursor = "";
-        return;
-    }
-    canvas.value!.style.cursor = "none";
+
+/////////////////////////////////
+// cursor hiding functionality
+/////////////////////////////////
+
+let hideCursorTimer: number = -1;
+
+function updateCursorCSS() {
+    // disable running timer, if exists
+    clearTimeout(hideCursorTimer!); // (invalid ids don't do anything)
+    // set css
+    canvas.value!.style.cursor = props.hidecursor ? "none" : "";
 }
 
 function onMouseMove() {
     if (!props.hidecursor) return;
+    // hide
     canvas.value!.style.cursor = "";
+    // (re)set hide timeout to 1s
     if (hideCursorTimer) clearTimeout(hideCursorTimer);
     hideCursorTimer = window.setTimeout(() => {
         canvas.value!.style.cursor = "none";
     }, 1000);
 }
 
-watch(() => props.hidecursor, updateCursorHidden);
+watch(() => props.hidecursor, updateCursorCSS);
+
+/////////////////////////////////
+/////////////////////////////////
+
 
 onMounted(() => {
     set_canvas(canvas.value!);
     window.addEventListener("resize", repaint);
     canvas.value!.addEventListener("mousemove", onMouseMove);
-    updateCursorHidden();
+    updateCursorCSS();
     repaint();
 });
 
