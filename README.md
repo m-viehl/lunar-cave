@@ -25,10 +25,11 @@ Both the frontend and the backend are bundled to create standalone apps without 
 Build the container with:
 `sudo docker build -t lunarcave .`
 
-In the docker volume, backend state (current seed and highscores) is written to `/data`. You may mount this directory as a docker volume. (E.g. create a named volume: `sudo docker volume create lunarcavedata`)
-
 And then run it:
 `sudo docker run -v lunarcavedata:/data --init --name lunarcave -p 3000:3000 lunarcave`
+
+In the docker volume, backend state (current seed and highscores) is written to `/data`. You may mount this directory as a docker volume. This is automated with the docker compose file (adjust ports/networks accordingly). The image will be built automatically: `docker compose up --build -d`.
+(`--build` forces a rebuild, required to update with code changes.)
 
 
 ----------------

@@ -1,0 +1,18 @@
+services:
+  lunarcave:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lunarcave1
+    restart: unless-stopped
+    volumes:
+      - data:/data
+    networks:
+      - DOCKERNET
+
+volumes:
+  data:
+
+networks:
+  DOCKERNET:
+    external: true
