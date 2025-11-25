@@ -1,10 +1,14 @@
 # Lunar Cave game
-- Cool auto-generated caves!
+
+![game screenshot](screenshot01.png)
+
+- Procedurally generated caves!
+- Minimal UI & graphics, (hopefully) no annoyances, just the game
 - A weekly challenge with tamper-proof highscore list: Server replays the game to validate highscore requests. Feel free to train a RL model to get highscores. Or just play the game ^^
 
 # Backend configuration
 The backend (in `src/backend/main.ts`) will use the `DATA_DIR` environment variable as data directory.
-If not given, it will default to `.data`.
+If not given, it will default to `./data`.
 Further configuration is in `src/backend/config.ts`.
 
 # Development
@@ -35,7 +39,6 @@ In the docker volume, backend state (current seed and highscores) is written to 
 ----------------
 
 # Changelog
-This changelog is for *user-visible features*, not internal improvements.
 
 ## Version 0, 2022-03-01
 - Playable game different from the current "lunar cave" game
@@ -62,8 +65,7 @@ This changelog is for *user-visible features*, not internal improvements.
 - Freeze the game when crashing
 
 ## Version 3.0, 2022-08-16
-Not mentioning the huge rewrite to allow for proper configuration would be sad... (But yes, this is no user-visible feature, I see.)
-
+- (Refactor for better configurability)
 - Do not hide progress on crash
 - Improve easy mode:
     - Increase rotational speed by 100%
@@ -80,9 +82,9 @@ Not mentioning the huge rewrite to allow for proper configuration would be sad..
 - Add a favicon
 - Switch to parceljs, which
     - reduced the deployment size
-    - automatically adds hashed filenames for cache busting
+    - enables proper caching
 
 ## Version 4.0, 2025-11-07
 - Add weekly challenge with highscore list
-- New UI with more custom settings
+- New UI using Vue.js with more custom settings
 - (Most parts were rewritten for better modularity and maintainability)
