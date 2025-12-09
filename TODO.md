@@ -20,4 +20,5 @@
 # BUGS
 - UI does not hide immediately sometimes, but only on the 2nd press
 - Zoom sometimes stuck when starting game
-- Pressing space while playing starts the new game immediately instead of pausing
+- zooming is too fast on higher refresh rate screens
+- arrow key visualization does not render well, arrow sizes are inconsistent and not centered

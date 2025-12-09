@@ -44,6 +44,7 @@ export class FrontendGame {
     }
 
     public reset() {
+        tick.stop()
         this.game.reset()
 
         // we start with max speed to achieve a zoom-in effect on game start
