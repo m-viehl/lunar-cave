@@ -24,24 +24,39 @@ export function clear_highscores() {
     fs.writeFileSync(CONFIG.HIGHSCORES_FILE, JSON.stringify(highscores));
 }
 
+/**
+ * Add a new highscore. Deduplicates by name, and does not change the leaderboard if
+ * the new entry is too bad or no improvement.
+ */
 function add_score(s: Score) {
-    if (highscores.length == CONFIG.MAX_LEADERBOARD_LENGTH) {
-        let worst_time = highscores[highscores.length - 1]!.time;
-        if (s.time > worst_time) {
-            // Skip, score is too bad for the leaderboard. 
+    let name_index = highscores.findIndex(o => o.name === s.name);
+    if (name_index >= 0) {
+        // name exists, update entry
+        if (s.time > highscores[name_index]!.time) {
+            // skip, no improvement
             // (This should not happen, as the client should check for that!)
-            console.log("Received score that is too bad for the leaderboard")
+            console.log("Received score for existing name that is no improvement");
             return;
         }
+        console.log("Adding highscore to existing leaderboard entry")
+        highscores[name_index] = s;
+    } else {
+        // name does not exist, create new
+        if (highscores.length == CONFIG.MAX_LEADERBOARD_LENGTH) {
+            let worst_time = highscores[highscores.length - 1]!.time;
+            if (s.time > worst_time) {
+                // Skip, score is too bad for the leaderboard.
+                // (This should not happen, as the client should check for that!)
+                console.log("Received score that is too bad for the leaderboard")
+                return;
+            }
+        }
+        console.log("Adding highscore to new leaderboard entry");
+        highscores.push(s);
     }
-    console.log("Adding highscore to leaderboard")
-
-    highscores.push(s)
 
     // sort highscores by time
     highscores.sort((a, b) => a.time - b.time);
-
-    // TODO Deduplicate by name?
 
     // keep only the top N scores
     highscores = highscores.slice(0, CONFIG.MAX_LEADERBOARD_LENGTH);
