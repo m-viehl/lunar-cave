@@ -53,25 +53,41 @@ export function draw_main(frontend_game: FrontendGame) {
     context.resetTransform();
     context.translate(
         (-ship.x) / scale_factor + width / 2,
-        (-ship.y) / scale_factor + height / 2);
+        (-ship.y) / scale_factor + height / 2,
+    );
     context.scale(1 / scale_factor, 1 / scale_factor);
     // draw cave
     draw_cave(
         cave,
         config,
         { x: ship.x - width / 2 * scale_factor, y: ship.y - height / 2 * scale_factor },
-        { x: ship.x + width / 2 * scale_factor, y: ship.y + height / 2 * scale_factor }
+        { x: ship.x + width / 2 * scale_factor, y: ship.y + height / 2 * scale_factor },
     );
+
     // lander
     context.resetTransform();
     context.translate(width / 2, height / 2);
     context.rotate(ship.angle);
     context.scale(1 / scale_factor, 1 / scale_factor);
 
-    // reset line style: changed by cave.draw for end line
-    context.strokeStyle = "black";
-
     draw_ship(ship, config)
+
+    // crash shadows
+    for (let cs of frontend_game.crash_shadows) {
+        // set transform
+        context.resetTransform();
+        context.translate(
+            (+cs.x - ship.x) / scale_factor + width / 2,
+            (+cs.y - ship.y) / scale_factor + height / 2,
+        );
+        context.scale(1 / scale_factor, 1 / scale_factor);
+        context.rotate(cs.angle);
+
+        // draw
+        let s = config.ship_config.size
+        context.fillStyle = config.draw_config.lander.crash_shadow_col;
+        context.fillRect(-s / 2, -s / 3, s, s * 2 / 3);
+    }
 }
 
 function draw_ship(ship: Ship, config: ConfigType) {

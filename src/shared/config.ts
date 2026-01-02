@@ -47,6 +47,7 @@ export function get_config(game_config: GameConfig) {
             },
             "lander": {
                 "body_col": "#5c5e5e",
+                "crash_shadow_col": "#92929288",
                 "fire_col": "#02e5ca"
             },
             "text_col": "black",

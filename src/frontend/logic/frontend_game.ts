@@ -10,13 +10,18 @@ import * as tick from "./tick"
 import { RecordingGame } from "./recording_game";
 
 
+interface CrashShadow {
+    x: number
+    y: number
+    angle: number
+}
+
+
 /**
  * Class that coordinates all objects/data required for a game running in the frontend.
+ * Has a fixed config and hence fixed seed/cave.
  */
 export class FrontendGame {
-    // TODO record crashes and draw shadows of broken ships :D Retry-Hommage!
-    // (für weekly challenge: in localstorage für ALLE Versuche speichern :D)
-
     game: RecordingGame
     config: ConfigType
 
@@ -24,6 +29,8 @@ export class FrontendGame {
 
     lost_callback: () => void
     won_callback: () => void
+
+    crash_shadows: CrashShadow[] = [];
 
     constructor(game_config: GameConfig, lost_callback: () => void, won_callback: () => void) {
         this.config = get_config(game_config)
@@ -36,7 +43,6 @@ export class FrontendGame {
         )
 
         this.game = new RecordingGame(cave, this.config)
-        // TODO add recording inputs
 
         tick.set_callback((dt) => this.tick_fct(dt))
 
@@ -79,9 +85,14 @@ export class FrontendGame {
             if (this.game.state == GameState.WON) {
                 this.won_callback()
             } else {
+                // save lost state for shadow
+                this.crash_shadows.push({
+                    x: this.game.ship.x,
+                    y: this.game.ship.y,
+                    angle: this.game.ship.angle,
+                })
                 this.lost_callback()
             }
         }
-        // TODO dispatch event? such that UI can react
     }
 }

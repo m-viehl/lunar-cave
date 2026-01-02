@@ -2,7 +2,7 @@ import type { ConfigType } from "./config";
 import type { Point } from "./misc";
 
 export class Ship {
-    // state variables (are initialized in this.reset)
+    // state variables (are initialized in this.reset, !s are for ts checker)
     x!: number;
     y!: number;
     vx!: number;
@@ -10,7 +10,7 @@ export class Ship {
     angle!: number;
     thrust_factor = 0; // actual thrust level, which has some inertia!
     speed!: number;
-    config
+    config: ConfigType;
 
     spawn: Point;
 
