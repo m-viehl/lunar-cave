@@ -64,14 +64,6 @@ export function draw_main(frontend_game: FrontendGame) {
         { x: ship.x + width / 2 * scale_factor, y: ship.y + height / 2 * scale_factor },
     );
 
-    // lander
-    context.resetTransform();
-    context.translate(width / 2, height / 2);
-    context.rotate(ship.angle);
-    context.scale(1 / scale_factor, 1 / scale_factor);
-
-    draw_ship(ship, config)
-
     // crash shadows
     for (let cs of frontend_game.crash_shadows) {
         // set transform
@@ -88,6 +80,14 @@ export function draw_main(frontend_game: FrontendGame) {
         context.fillStyle = config.draw_config.lander.crash_shadow_col;
         context.fillRect(-s / 2, -s / 3, s, s * 2 / 3);
     }
+
+    // lander
+    context.resetTransform();
+    context.translate(width / 2, height / 2);
+    context.rotate(ship.angle);
+    context.scale(1 / scale_factor, 1 / scale_factor);
+
+    draw_ship(ship, config)
 }
 
 function draw_ship(ship: Ship, config: ConfigType) {
