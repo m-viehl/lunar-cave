@@ -55,7 +55,7 @@ let is_game_ready = computed(() => {
 
 let game = computed(() => {
   if (state.mode == "challenge" && challenge_config.value != null) {
-    return new FrontendGame(challenge_config.value, gameover, won);
+    return new FrontendGame(challenge_config.value, gameover, won, true);
   }
   /*
   => custom mode or challenge not ready yet (need to fetch config!)
@@ -70,7 +70,7 @@ let game = computed(() => {
     seed: custom_seed.value,
     ship_scale: SCALE,
   }
-  return new FrontendGame(game_config, gameover, won);
+  return new FrontendGame(game_config, gameover, won, false);
 })
 
 

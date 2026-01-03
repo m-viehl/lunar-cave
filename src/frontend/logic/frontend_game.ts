@@ -16,6 +16,13 @@ interface CrashShadow {
     angle: number
 }
 
+interface CrashShadowSave {
+    seed: number
+    shadows: CrashShadow[]
+}
+
+const LOCALSTORAGE_CRASH_KEY = "lunarmission_crashes";
+
 
 /**
  * Class that coordinates all objects/data required for a game running in the frontend.
@@ -31,11 +38,22 @@ export class FrontendGame {
     won_callback: () => void
 
     crash_shadows: CrashShadow[] = [];
+    persist_crash_shadows: boolean
 
-    constructor(game_config: GameConfig, lost_callback: () => void, won_callback: () => void) {
+    constructor(
+        game_config: GameConfig,
+        lost_callback: () => void,
+        won_callback: () => void,
+        persist_crash_shadows: boolean,
+    ) {
         this.config = get_config(game_config)
         this.lost_callback = lost_callback
         this.won_callback = won_callback
+
+        this.persist_crash_shadows = persist_crash_shadows;
+        if (persist_crash_shadows) {
+            this.load_crash_shadows();
+        }
 
         let cave = convert_cave(
             generate_cave(this.config),
@@ -47,6 +65,27 @@ export class FrontendGame {
         tick.set_callback((dt) => this.tick_fct(dt))
 
         this.reset()
+    }
+
+    private save_crash_shadows() {
+        let save: CrashShadowSave = {
+            seed: this.config.legacy_cave_config.seed,
+            shadows: this.crash_shadows
+        };
+        localStorage.setItem(LOCALSTORAGE_CRASH_KEY, JSON.stringify(save));
+    }
+
+    private load_crash_shadows() {
+        let loaded = localStorage.getItem(LOCALSTORAGE_CRASH_KEY);
+        if (loaded) {
+            let parsed: CrashShadowSave = JSON.parse(loaded);
+            if (parsed.seed == this.config.legacy_cave_config.seed) {
+                this.crash_shadows = parsed.shadows;
+            } else {
+                // wrong seed (cave expired), clear localstorage, keep empty list
+                localStorage.removeItem(LOCALSTORAGE_CRASH_KEY);
+            }
+        }
     }
 
     public reset() {
@@ -91,6 +130,9 @@ export class FrontendGame {
                     y: this.game.ship.y,
                     angle: this.game.ship.angle,
                 })
+                if (this.persist_crash_shadows) {
+                    this.save_crash_shadows();
+                }
                 this.lost_callback()
             }
         }
