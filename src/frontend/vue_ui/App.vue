@@ -63,10 +63,11 @@ let game = computed(() => {
   In challenge mode, background will be blurred + error message.
   */
   const SCALE = 20;
-  let game_config = {
+  let game_config: GameConfig = {
     time_factor: parseFloat(state.customSettings.speed_select),
     cave_scale: parseFloat(state.customSettings.size_select) * SCALE,
     length: parseFloat(state.customSettings.length_select),
+    damping_factor: parseFloat(state.customSettings.damping_factor),
     seed: custom_seed.value,
     ship_scale: SCALE,
   }

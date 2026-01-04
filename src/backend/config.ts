@@ -22,6 +22,7 @@ function get_config(seed: number): GameConfig {
         length: 350,
         seed: seed,
         ship_scale: 20,
+        damping_factor: 0.0,  // no damping
     }
 }
 

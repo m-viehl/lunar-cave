@@ -31,6 +31,16 @@
       label="Select physics speed"
       group_id="speed-sel"
     />
+
+    <SelBtn
+      v-model="state.customSettings.damping_factor"
+      :options="{
+        '0.0': 'Off', // 0.0 is off
+        '2.0': 'On'  // 3s until 1/e
+      }"
+      label="Damping"
+      group_id="damping-sel"
+    />
   </div>
   
 </template>

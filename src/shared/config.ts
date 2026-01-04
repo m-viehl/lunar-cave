@@ -9,6 +9,7 @@ export interface GameConfig {
     time_factor: number
     ship_scale: number  // default: 20
     cave_scale: number
+    damping_factor: number
     length: number
     seed: number
 }
@@ -28,7 +29,8 @@ export function get_config(game_config: GameConfig) {
 
             "delta_thrust_factor_per_s": 7,
             "g": game_config.ship_scale * 9.81,
-            time_factor: game_config.time_factor,
+            "time_factor": game_config.time_factor,
+            "damping_factor": game_config.damping_factor,  // see Ship.tick
         },
 
         zoom_config: {

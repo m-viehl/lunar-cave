@@ -3,16 +3,28 @@ import { reactive, ref, watch, type Reactive } from "vue";
 const STORAGE_KEY = "app_state";
 
 function GET_DEFAULT() {
+    // ##################################################
+    // WHEN UPDATING THIS OBJECT: INCREASE VERSION!!!
+    // ##################################################
     return {
-        settings_version: 1,
+        settings_version: 2,
         mode: "custom" as "custom" | "challenge",
         customSettings: {
             size_select: "1.0",
             length_select: "350",
-            speed_select: "1.0"
+            speed_select: "1.0",
+            damping_factor: "0.0", // default 0.0 means no damping
         }
     }
 };
+
+/**
+ * StateType is the type of the object that holds the UI (settings) state and is
+ * persisted to localstorage.
+ * 
+ * The StateType object is converted to a GameConfig object in App.vue, in the
+ * reactive `let game = computed(...)` property.
+ */
 export type StateType = ReturnType<typeof GET_DEFAULT>
 
 function getInitialState(): StateType {

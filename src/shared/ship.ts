@@ -74,6 +74,12 @@ export class Ship {
         // apply acceleration
         this.vx += ax * dt;
         this.vy += ay * dt;
+        // apply damping
+        let d = this.config.ship_config.damping_factor;
+        if (d > 0.0) {
+            this.vx *= Math.exp(-dt / d);
+            this.vy *= Math.exp(-dt / d);
+        }
         // apply velocities
         this.x += this.vx * dt;
         this.y += this.vy * dt;
