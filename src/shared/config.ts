@@ -34,7 +34,7 @@ export function get_config(game_config: GameConfig) {
         },
 
         zoom_config: {
-            speed_smoothing_factor: 0.02,
+            speed_smoothing_factor: 1.0, // see FrontendGame.tick_fct
             "min_zoom_factor": 0.5,
             "max_zoom_factor": 1.5,
             "min_speed": 0,

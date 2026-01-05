@@ -9,6 +9,7 @@ interface Score {
     name: string
     time: number
 }
+// TODO save this with version number for updates with format changes!
 
 // initialize highscores
 let highscores: Score[] = [];

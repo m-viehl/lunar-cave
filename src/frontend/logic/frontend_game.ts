@@ -104,14 +104,11 @@ export class FrontendGame {
     private tick_fct(dt_s: number) {
         dt_s *= this.config.ship_config.time_factor
 
-        // calculate smoothed speed
         {
-            // Normalize v to be frame rate agnostic.
-            // Without this, smoothing would be quicker with higher frame rates.
-            // We normalize to 60Hz, for which the smoothing factor was tuned during development.
-            let v_norm = this.game.ship.speed / dt_s * 0.0167
-            let a = this.config.zoom_config.speed_smoothing_factor
-            this.speed_smoothed = v_norm * a + this.speed_smoothed * (1 - a)
+            // calculate smoothed speed
+            let T = this.config.zoom_config.speed_smoothing_factor
+            let exp = Math.exp(-dt_s / T);
+            this.speed_smoothed = this.game.ship.speed * (1 - exp) + this.speed_smoothed * exp;
         }
 
         // game tick

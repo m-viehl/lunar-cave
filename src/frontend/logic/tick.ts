@@ -50,5 +50,5 @@ function loop(now_ms: number = -1000) {
         if (callback)
             callback(dt_s);
     }
-    window.requestAnimationFrame((t) => loop(t));
+    window.requestAnimationFrame(loop);
 }
