@@ -88,3 +88,7 @@ In the docker volume, backend state (current seed and highscores) is written to 
 - Add weekly challenge with highscore list
 - New UI using Vue.js with more custom settings
 - (Most parts were rewritten for better modularity and maintainability)
+
+## Version 4.2, 2026-01-08
+- Add crash shadows
+- Add ship shadow of current best in weekly challenge

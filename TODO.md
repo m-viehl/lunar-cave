@@ -1,12 +1,9 @@
 # Frontend
 - add routing: https://url/game?seed=234234234 should lead to custom seed
-- timer how long the current challenge is valid
 
 
 # Combined
-- backend should send expiry time of current challenge seed together with config. (done) **Frontend should then auto-reload!**
 - replace esbuild in `build:backend` with buns internal bundler?
-- save run log for highscores, enabling later frontend updates (e.g. shadows of current best)
 
 
 # Backend
