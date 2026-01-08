@@ -64,7 +64,7 @@ function name_cancel() {
  * @param input_sequence the serialized input sequence for validation
  */
 function won_game(time_s: number, input_sequence: string) {
-    if (is_qualified_for_highscore(time_s))
+    if (!is_qualified_for_highscore(time_s))
         return;
 
     last_input = input_sequence;
