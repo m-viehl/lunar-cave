@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ChallengeSettings from './ChallengeSettings.vue';
 import Leaderboard from './Leaderboard.vue';
 import NameDialog from './NameDialog.vue';
 import { is_dialog_open } from "./state";
@@ -63,5 +64,6 @@ defineExpose({
     <div>
         <Leaderboard ref="leaderboardRef" />
         <NameDialog @confirm="name_confirm" @cancel="name_cancel" />
+        <ChallengeSettings />
     </div>
 </template>

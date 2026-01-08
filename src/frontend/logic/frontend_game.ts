@@ -8,6 +8,7 @@ import { draw_main } from "./rendering";
 import * as tick from "./tick"
 
 import { RecordingGame } from "./recording_game";
+import { ShipShadow } from "./ship_shadow";
 
 
 interface CrashShadow {
@@ -31,6 +32,7 @@ const LOCALSTORAGE_CRASH_KEY = "lunarmission_crashes";
 export class FrontendGame {
     game: RecordingGame
     config: ConfigType
+    shadow: ShipShadow | null = null;
 
     speed_smoothed = 0
 
@@ -45,6 +47,7 @@ export class FrontendGame {
         lost_callback: () => void,
         won_callback: () => void,
         persist_crash_shadows: boolean,
+        shadow_input_sequence: string | null,
     ) {
         this.config = get_config(game_config)
         this.lost_callback = lost_callback
@@ -62,6 +65,10 @@ export class FrontendGame {
 
         this.game = new RecordingGame(cave, this.config)
 
+        if (shadow_input_sequence) {
+            this.shadow = new ShipShadow(shadow_input_sequence, cave.spawn_location, this.config);
+        }
+
         tick.set_callback((dt) => this.tick_fct(dt))
 
         this.reset()
@@ -75,6 +82,10 @@ export class FrontendGame {
         localStorage.setItem(LOCALSTORAGE_CRASH_KEY, JSON.stringify(save));
     }
 
+    /**
+     * Ioad crash shadows from local storage, and check the seed of the save data.
+     * If the seed does not match, load empty list and clear localstorage.
+     */
     private load_crash_shadows() {
         let loaded = localStorage.getItem(LOCALSTORAGE_CRASH_KEY);
         if (loaded) {
@@ -91,6 +102,9 @@ export class FrontendGame {
     public reset() {
         tick.stop()
         this.game.reset()
+        if (this.shadow) {
+            this.shadow.reset()
+        }
 
         // we start with max speed to achieve a zoom-in effect on game start
         this.speed_smoothed = this.config.zoom_config.max_speed
@@ -132,6 +146,12 @@ export class FrontendGame {
                 }
                 this.lost_callback()
             }
+        }
+
+        // update shadow
+
+        if (this.shadow) {
+            this.shadow.update(this.game.t);
         }
     }
 }

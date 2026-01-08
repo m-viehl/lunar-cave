@@ -28,5 +28,5 @@ function onChange(e: Event) {
   value.value = target.value;
 }
 
-const value = defineModel<string | number>();
+const value = defineModel<string>();
 </script>

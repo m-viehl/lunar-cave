@@ -4,6 +4,10 @@ const deg2rad = 2 * 3.141592 / 360;
 
 /**
  * Interface that contains all parameters the user can manually change in some way.
+ * Such an object is also retrieved from the server as config for the weekly challenge.
+ * 
+ * The UI persists a different settings type to localstorage (see `vue_ui/state.ts`), which
+ * is parsed to a GameConfig in App.vue `let game = computed(() => { ..... }`
  */
 export interface GameConfig {
     time_factor: number
@@ -50,7 +54,8 @@ export function get_config(game_config: GameConfig) {
             "lander": {
                 "body_col": "#5c5e5e",
                 "crash_shadow_col": "#92929288",
-                "fire_col": "#02e5ca"
+                "fire_col": "#02e5ca",
+                "shadow_alpha": 0.3,
             },
             "text_col": "black",
             "menu_background": "rgba(255, 255, 255, 0.25)"

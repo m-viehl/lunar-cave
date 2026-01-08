@@ -81,6 +81,20 @@ export function draw_main(frontend_game: FrontendGame) {
         context.fillRect(-s / 2, -s / 3, s, s * 2 / 3);
     }
 
+    // draw shadow
+    if (frontend_game.shadow) {
+        // lander
+        let shadow = frontend_game.shadow.ship;
+        context.resetTransform();
+        context.translate(
+            (+shadow.x - ship.x) / scale_factor + width / 2,
+            (+shadow.y - ship.y) / scale_factor + height / 2,
+        );
+        context.rotate(shadow.angle);
+        context.scale(1 / scale_factor, 1 / scale_factor);
+        draw_ship(shadow, config, true);
+    }
+
     // lander
     context.resetTransform();
     context.translate(width / 2, height / 2);
@@ -90,8 +104,13 @@ export function draw_main(frontend_game: FrontendGame) {
     draw_ship(ship, config)
 }
 
-function draw_ship(ship: Ship, config: ConfigType) {
+function draw_ship(ship: Ship, config: ConfigType, is_shadow = false) {
     if (canvas == null || context == null) return;
+
+    if (is_shadow) {
+        // set alpha
+        context.globalAlpha = config.draw_config.lander.shadow_alpha;
+    }
 
     let s = config.ship_config.size
     // draw thruster flame
@@ -106,6 +125,8 @@ function draw_ship(ship: Ship, config: ConfigType) {
     // draw body
     context.fillStyle = config.draw_config.lander.body_col;
     context.fillRect(-s / 2, -s / 3, s, s * 2 / 3);
+
+    context.globalAlpha = 1.0; // reset alpha
 }
 
 

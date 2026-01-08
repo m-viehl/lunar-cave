@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts" setup>
-import { is_dialog_open, state } from "./state";
+import { is_dialog_open, state, best_challenge_input_sequence } from "./state";
 import SelBtn from "./SelBtn.vue";
 import CustomSettings from "./CustomSettings.vue";
 import Help from "./Help.vue";
@@ -55,7 +55,11 @@ let is_game_ready = computed(() => {
 
 let game = computed(() => {
   if (state.mode == "challenge" && challenge_config.value != null) {
-    return new FrontendGame(challenge_config.value, gameover, won, true);
+    let shadow = null;
+    if (state.challengeSettings.show_best_shadow == "true") {
+      shadow = best_challenge_input_sequence.value;
+    }
+    return new FrontendGame(challenge_config.value, gameover, won, true, shadow);
   }
   /*
   => custom mode or challenge not ready yet (need to fetch config!)
@@ -71,7 +75,7 @@ let game = computed(() => {
     seed: custom_seed.value,
     ship_scale: SCALE,
   }
-  return new FrontendGame(game_config, gameover, won, false);
+  return new FrontendGame(game_config, gameover, won, false, null);
 })
 
 

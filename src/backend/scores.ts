@@ -8,6 +8,7 @@ import { CONFIG } from "./config";
 interface Score {
     name: string
     time: number
+    input_sequence: string
 }
 // TODO save this with version number for updates with format changes!
 
@@ -91,7 +92,7 @@ export function handle_request(name: string, input_sequence: string) {
             return "gameover";
         }
         if (game.state == GameState.WON) {
-            add_score({ name, time: game.t });
+            add_score({ name, time: game.t, input_sequence: input_sequence });
             return null;
         }
     }

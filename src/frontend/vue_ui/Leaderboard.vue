@@ -17,6 +17,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, type Ref } from "vue";
 import type { HighscoresType } from "../../backend/api_types"
+import { best_challenge_input_sequence } from "./state";
 
 let scoresObj: Ref<HighscoresType | null> = ref(null)
 
@@ -27,7 +28,10 @@ async function fetchHighscores() {
       return
 
     const data = await response.json() as HighscoresType
+
+    // write result to refs
     scoresObj.value = data
+    best_challenge_input_sequence.value = get_best_input_sequence();
   } catch (_) {
     // ignore and keep highscores as null
   }
@@ -45,6 +49,24 @@ function is_qualified_for_highscore(time: number): boolean {
     }
   }
   return true;
+}
+
+/**
+ * Return the input sequence of the currently best score in the leaderboard, if present,
+ * or null otherwise.
+ */
+function get_best_input_sequence() {
+  if (scoresObj.value == null)
+    return null
+  if (scoresObj.value.highscores.length == 0)
+    return null
+  let best = scoresObj.value.highscores[0]
+  if (best?.input_sequence) {
+    // this check is for the version transition, where scoresObj might not include
+    // input_sequence yet.
+    return best.input_sequence
+  }
+  return null
 }
 
 onMounted(fetchHighscores);
