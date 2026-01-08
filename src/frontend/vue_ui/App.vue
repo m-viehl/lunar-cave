@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts" setup>
-import { is_dialog_open, state, best_challenge_input_sequence } from "./state";
+import { is_dialog_open, state } from "./state";
 import SelBtn from "./SelBtn.vue";
 import CustomSettings from "./CustomSettings.vue";
 import Help from "./Help.vue";
@@ -27,9 +27,9 @@ import Game from "./Game.vue"
 import { computed, onMounted, ref, useTemplateRef, watch, type Ref } from "vue";
 import { FrontendGame } from "../logic/frontend_game";
 import ChallengeMenu from "./ChallengeMenu.vue";
-import type { CurrentChallengeType } from "../../backend/api_types"
 import type { GameConfig } from "../../shared/config";
 import Timer from "./Timer.vue";
+import { best_challenge_input_sequence, challenge_data, fetchData } from "./server_data";
 
 type UIGameState = "init" | "ingame" | "won" | "lost";
 
@@ -39,7 +39,6 @@ type UIGameState = "init" | "ingame" | "won" | "lost";
 let ui_game_state: Ref<UIGameState> = ref("init");
 let custom_seed = ref(Date.now()) // seed for custom mode
 let challengeMenu = useTemplateRef("challengeMenu")
-let challenge_config: Ref<GameConfig | null> = ref(null);
 let game_start_t = ref(Date.now());
 
 //////////////////////////////////////////////
@@ -48,18 +47,18 @@ let game_start_t = ref(Date.now());
 
 let is_game_ready = computed(() => {
   // Whether the current game object is valid with the current settings.
-  if (state.mode == "challenge" && challenge_config.value == null)
+  if (state.mode == "challenge" && challenge_data.value == null)
     return false
   return true
 })
 
 let game = computed(() => {
-  if (state.mode == "challenge" && challenge_config.value != null) {
+  if (state.mode == "challenge" && challenge_data.value != null) {
     let shadow = null;
     if (state.challengeSettings.show_best_shadow == "true") {
       shadow = best_challenge_input_sequence.value;
     }
-    return new FrontendGame(challenge_config.value, gameover, won, true, shadow);
+    return new FrontendGame(challenge_data.value.game_config, gameover, won, true, shadow);
   }
   /*
   => custom mode or challenge not ready yet (need to fetch config!)
@@ -93,23 +92,10 @@ onMounted(() => {
   window.addEventListener("keydown", handleKeyDown);
 })
 
+// schedule data fetches for whole app: now and every min
+onMounted(fetchData);
+setInterval(fetchData, 60e3);
 
-async function fetchChallengeGame() {
-  try {
-    const response = await fetch('/api/current-challenge', { method: 'GET' })
-    if (!response.ok)
-      return
-
-    const data = await response.json() as CurrentChallengeType
-
-    challenge_config.value = data.game_config;
-
-    // TODO handle expiration of challenge!
-  } catch (_) {
-    // ignore and keep challenge_game as null
-  }
-}
-onMounted(fetchChallengeGame);
 
 function handleKeyDown(event: KeyboardEvent) {
   // don't react if the dialog is open

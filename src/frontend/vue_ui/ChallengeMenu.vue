@@ -2,12 +2,31 @@
 import ChallengeSettings from './ChallengeSettings.vue';
 import Leaderboard from './Leaderboard.vue';
 import NameDialog from './NameDialog.vue';
+import { challenge_data, fetchData, is_qualified_for_highscore } from './server_data';
 import { is_dialog_open } from "./state";
-import { useTemplateRef } from "vue";
+import { computed } from "vue";
 
 
 let last_input = "";
-const leaderboardRef = useTemplateRef("leaderboardRef")
+
+function formatFutureDiff(ts: number): string {
+    const now = Date.now();
+    const diffMs = ts - now;
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHour = Math.floor(diffMs / 3600000);
+    const diffDay = Math.floor(diffMs / 86400000);
+
+    if (diffDay >= 1) return `${diffDay} day${diffDay > 1 ? "s" : ""}`;
+    if (diffHour >= 1) return `${diffHour} hour${diffHour > 1 ? "s" : ""}`;
+    return `${diffMin} min`;
+}
+
+let challenge_until = computed(() => {
+    if (challenge_data.value == null) {
+        return "";
+    }
+    return formatFutureDiff(challenge_data.value.expires_at);
+})
 
 async function name_confirm(name_entered: string) {
     // close dialog
@@ -28,7 +47,7 @@ async function name_confirm(name_entered: string) {
     }
     last_input = "";
     // refresh leaderboard regardless of upload result
-    leaderboardRef.value!.fetchHighscores()
+    fetchData();
 }
 
 function name_cancel() {
@@ -45,7 +64,7 @@ function name_cancel() {
  * @param input_sequence the serialized input sequence for validation
  */
 function won_game(time_s: number, input_sequence: string) {
-    if (!leaderboardRef.value?.is_qualified_for_highscore(time_s))
+    if (is_qualified_for_highscore(time_s))
         return;
 
     last_input = input_sequence;
@@ -61,9 +80,11 @@ defineExpose({
 
 
 <template>
+    <!-- we need this div to toggle the whole ChallengeMenu via v-show (from outside!) -->
     <div>
         <Leaderboard ref="leaderboardRef" />
         <NameDialog @confirm="name_confirm" @cancel="name_cancel" />
         <ChallengeSettings />
+        <p>New challenge in {{ challenge_until }}</p>
     </div>
 </template>

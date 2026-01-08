@@ -72,6 +72,3 @@ watch(
 
 
 export let is_dialog_open = ref(false);
-
-// is written by Leaderboard.vue when challenge is fetched successfully
-export let best_challenge_input_sequence: Ref<string | null> = ref(null);
