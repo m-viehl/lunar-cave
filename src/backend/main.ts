@@ -1,8 +1,8 @@
 import Fastify from "fastify";
 import fastifyStatic from '@fastify/static'
 
-import { get_highscores, handle_request } from "./scores";
-import { get_game_config } from "./data";
+import * as scores from "./scores";
+import * as data from "./data";
 import { CONFIG } from "./config";
 
 import * as fs from "node:fs";
@@ -10,6 +10,9 @@ import { resolve } from 'node:path';
 import { exit } from "node:process";
 
 
+// init
+scores.initialize();
+data.initialize();
 const fastify = Fastify({ logger: false });
 
 /////////////////////////////////////////////////////////
@@ -19,12 +22,12 @@ const fastify = Fastify({ logger: false });
 
 // GET /api/current-challenge
 fastify.get("/api/current-challenge", async (request, reply) => {
-    return get_game_config();
+    return data.get_game_config();
 });
 
 // GET /api/highscores
 fastify.get("/api/highscores", async (request, reply) => {
-    return get_highscores();
+    return scores.get_highscores();
 });
 
 // POST /api/new-score
@@ -55,7 +58,7 @@ fastify.post(
             return { status: "bad name" };
         }
 
-        const err_msg = handle_request(name, input_sequence);
+        const err_msg = scores.handle_request(name, input_sequence);
         if (err_msg) {
             console.log(`invalid highscore request: ${err_msg}`)
             reply.code(400);

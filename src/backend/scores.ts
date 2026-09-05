@@ -14,10 +14,11 @@ interface Score {
 
 // initialize highscores
 let highscores: Score[] = [];
-if (fs.existsSync(CONFIG.HIGHSCORES_FILE)) {
-    highscores = JSON.parse(fs.readFileSync(CONFIG.HIGHSCORES_FILE, "utf8"));
-} else {
-    highscores = [];
+
+export function initialize() {
+    if (fs.existsSync(CONFIG.HIGHSCORES_FILE)) {
+        highscores = JSON.parse(fs.readFileSync(CONFIG.HIGHSCORES_FILE, "utf8"));
+    }
 }
 
 export function clear_highscores() {

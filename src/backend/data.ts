@@ -72,6 +72,10 @@ function get_seed() {
   return __seed_internal;
 }
 
+export function initialize() {
+  get_seed(); // discard result, trigger init or load from file
+}
+
 /**
  * Creates the cached objects
  */
@@ -107,6 +111,3 @@ export function get_game_config() {
     game_config: game_config_cache!
   }
 }
-
-// try loading seed from file when starting
-get_seed();
