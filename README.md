@@ -31,14 +31,22 @@ Further configuration is in `src/backend/config.ts`.
 Both the frontend and the backend are bundled to create standalone apps without any dependencies. Hence, there are no runtime dependencies. In `package.json`, `dependencies` are used as **build-time** dependencies for the dockerized build, and not runtime dependencies!
 
 ## Docker
+### Manually
 Build the container with:
 `sudo docker build -t lunarcave .`
 
 And then run it:
 `sudo docker run -v lunarcavedata:/data --init --name lunarcave -p 3000:3000 lunarcave`
 
-In the docker volume, backend state (current seed and highscores) is written to `/data`. You may mount this directory as a docker volume. This is automated with the docker compose file (adjust ports/networks accordingly). The image will be built automatically: `docker compose up --build -d`.
-(`--build` forces a rebuild, required to update with code changes.)
+In the docker volume, backend state (current seed and highscores) is written to `/data`. You may mount this directory as a docker volume.
+
+### Docker compose
+This is automated with the docker compose file:
+- Adjust ports/networks accordingly!
+- A Data volume is automatically created (adjust if you want to save it somewhere explicitly)
+- The image will be built automatically from the dockerfile.
+
+Just run `docker compose up --build -d`. This is also the command to update after code changes.
 
 
 ----------------
