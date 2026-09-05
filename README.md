@@ -97,3 +97,7 @@ In the docker volume, backend state (current seed and highscores) is written to 
 ## Version 4.2, 2026-01-08
 - Add crash shadows
 - Add ship shadow of current best in weekly challenge
+
+## Version 4.3, 2026-09-05
+- Add attempts counter
+- Fix that speed of shadow was depending on framerate
