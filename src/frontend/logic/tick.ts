@@ -1,11 +1,16 @@
 /**
  * An object that calls a given callback with a delta t argument periodically via
  * `window.requestAnimationFrame`. Can be started and stopped arbitrarily.
+ * 
+ * For testing, you may set target_fps to a non-null value, which will then be used.
  */
 
 let paused = true
 let last_tick_s: number | null = null
 let callback: ((dt_s: number) => void) | undefined = undefined
+
+// Only for testing! If null, window.requestAnimiationFrame will choose the framerate
+let target_fps: number | null = null
 
 /**
  * Sets the callback function to be called periodically.
@@ -24,7 +29,7 @@ export function start() {
         return
     paused = false
     last_tick_s = null
-    window.requestAnimationFrame(loop)
+    schedule_loop();
 }
 
 /**
@@ -50,5 +55,13 @@ function loop(now_ms: number = -1000) {
         if (callback)
             callback(dt_s);
     }
-    window.requestAnimationFrame(loop);
+    schedule_loop();
+}
+
+function schedule_loop() {
+    if (target_fps == null) {
+        window.requestAnimationFrame(loop);
+    } else {
+        setTimeout(() => loop(Date.now()), 1000 / target_fps);
+    }
 }
