@@ -88,7 +88,7 @@ export function handle_request(name: string, input_sequence: string) {
 
     let game = get_new_game_object()
     for (let ticklog of ticklogs) {
-        game.tick(ticklog.dt, ticklog.thrust, ticklog.left, ticklog.right);
+        game.tick(ticklog.dt_s, ticklog.thrust, ticklog.left, ticklog.right);
         if (game.state == GameState.GAMEOVER) {
             return "gameover";
         }

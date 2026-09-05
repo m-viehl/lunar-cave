@@ -37,13 +37,13 @@ export class Ship {
     /**
      * Update the ship's state by a discrete time step
      * 
-     * @param dt time step length
+     * @param dt_s time step length in seconds
      * @param thrust whether thrust input is active
      * @param turn_left whether turn left input is active
      * @param turn_right whether turn right input is active
      */
     public tick(
-        dt: number,
+        dt_s: number,
         thrust: boolean,
         turn_left: boolean,
         turn_right: boolean,
@@ -51,10 +51,10 @@ export class Ship {
 
         // calculate thrust level
         if (thrust) {
-            this.thrust_factor += this.config.ship_config.delta_thrust_factor_per_s * dt;
+            this.thrust_factor += this.config.ship_config.delta_thrust_factor_per_s * dt_s;
             this.thrust_factor = Math.min(this.thrust_factor, 1);
         } else {
-            this.thrust_factor -= this.config.ship_config.delta_thrust_factor_per_s * dt;
+            this.thrust_factor -= this.config.ship_config.delta_thrust_factor_per_s * dt_s;
             this.thrust_factor = Math.max(this.thrust_factor, 0);
         }
 
@@ -66,23 +66,23 @@ export class Ship {
             else
                 rotation_thrust = +1
         }
-        this.angle += this.config.ship_config.rotation_speed * rotation_thrust * dt;
+        this.angle += this.config.ship_config.rotation_speed * rotation_thrust * dt_s;
         // calc acceleration
         let acc = this.config.ship_config.acc
         let ax = - this.thrust_factor * acc * Math.cos(this.angle + Math.PI / 2);
         let ay = - this.thrust_factor * acc * Math.sin(this.angle + Math.PI / 2) + this.config.ship_config.g;
         // apply acceleration
-        this.vx += ax * dt;
-        this.vy += ay * dt;
+        this.vx += ax * dt_s;
+        this.vy += ay * dt_s;
         // apply damping
         let d = this.config.ship_config.damping_factor;
         if (d > 0.0) {
-            this.vx *= Math.exp(-dt / d);
-            this.vy *= Math.exp(-dt / d);
+            this.vx *= Math.exp(-dt_s / d);
+            this.vy *= Math.exp(-dt_s / d);
         }
         // apply velocities
-        this.x += this.vx * dt;
-        this.y += this.vy * dt;
+        this.x += this.vx * dt_s;
+        this.y += this.vy * dt_s;
         this.speed = Math.hypot(this.vx, this.vy);
 
         this.calc_collision_points(this.config.ship_config.size);

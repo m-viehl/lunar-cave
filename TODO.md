@@ -15,3 +15,4 @@
 - UI does not hide immediately sometimes, but only on the 2nd press
 - Zoom sometimes stuck when starting game
 - arrow key visualization does not render well, arrow sizes are inconsistent and not centered
+- ~~ship shadow speed depends on framerate~~

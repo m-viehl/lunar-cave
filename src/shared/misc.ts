@@ -9,7 +9,7 @@ export interface PointPair {
 }
 
 export interface TickLog {
-    dt: number
+    dt_s: number
     thrust: boolean
     left: boolean
     right: boolean
@@ -28,7 +28,7 @@ function serializeTickLog(t: TickLog): string {
         (t.right ? 'r' : '') +
         (t.thrust ? 't' : '')
     // dt is in seconds, we serialize it in milliseconds with 1µs precision
-    const dtStr = (t.dt * 1000).toFixed(3)
+    const dtStr = (t.dt_s * 1000).toFixed(3)
     return `${flags},${dtStr}`
 }
 
@@ -47,7 +47,7 @@ function deserializeTickLog(s: string): TickLog | null {
     if (!match) return null
     const [_, flags, dtStr] = match
     return {
-        dt: parseFloat(dtStr!) / 1000, // back to seconds
+        dt_s: parseFloat(dtStr!) / 1000, // back to seconds
         left: flags!.includes('l'),
         right: flags!.includes('r'),
         thrust: flags!.includes('t'),

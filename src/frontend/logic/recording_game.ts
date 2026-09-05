@@ -4,10 +4,10 @@ import { serializeTickLogs, type TickLog } from "../../shared/misc";
 export class RecordingGame extends Game {
     recording: TickLog[] = []
 
-    public tick(dt: number, thrust: boolean, turn_left: boolean, turn_right: boolean) {
-        super.tick(dt, thrust, turn_left, turn_right);
+    public tick(dt_s: number, thrust: boolean, turn_left: boolean, turn_right: boolean) {
+        super.tick(dt_s, thrust, turn_left, turn_right);
         this.recording.push({
-            dt: dt,
+            dt_s: dt_s,
             left: turn_left,
             right: turn_right,
             thrust: thrust,
