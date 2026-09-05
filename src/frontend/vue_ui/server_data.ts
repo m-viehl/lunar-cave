@@ -27,6 +27,7 @@ async function fetchChallengeGame() {
 
 export async function fetchData() {
     // first reload challenge if necessary
+    // TODO make sure challenge_until in ChallengeMenu updates!
     if (challenge_data.value == null || Date.now() > challenge_data.value.expires_at) {
         await fetchChallengeGame();
     }

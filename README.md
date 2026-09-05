@@ -12,11 +12,16 @@ If not given, it will default to `./data`.
 Further configuration is in `src/backend/config.ts`.
 
 # Development
+## Setup
 - Current package-json-scripts are based on `bun`. So, to get started:
     - [install bun](https://bun.com/docs/installation).
     - Install dependencies: `bun install`.
 - Development scripts create and use `dev-data` (is in gitignore) as data directory
 - The dev backend is run via bun and auto-reloads on source changes. A vite proxy is used to point the `/api` routes to the server.
+
+## Run
+- Run `bun run dev:backend` in one terminal for the server
+- Run `bun run dev:frontend` in another terminal for the frontend
 
 # Production build
 - The script `build:frontend` builds the static frontend to `dist-frontend`.

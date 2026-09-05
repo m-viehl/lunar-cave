@@ -17,12 +17,15 @@ interface CrashShadow {
     angle: number
 }
 
-interface CrashShadowSave {
+interface AttemptsSaveState {
     seed: number
     shadows: CrashShadow[]
+    attempts: number
+    version: number
 }
+const CURRENT_ATTEMPTS_SAVE_STATE_VERSION = 0; // TODO increase when adding/changing entries!
 
-const LOCALSTORAGE_CRASH_KEY = "lunarmission_crashes";
+const LOCALSTORAGE_CRASH_KEY = "LUNAR_CAVE_ATTEMPTS";
 
 
 /**
@@ -40,6 +43,7 @@ export class FrontendGame {
     won_callback: () => void
 
     crash_shadows: CrashShadow[] = [];
+    attempts = 0;
     persist_crash_shadows: boolean
 
     constructor(
@@ -75,9 +79,11 @@ export class FrontendGame {
     }
 
     private save_crash_shadows() {
-        let save: CrashShadowSave = {
+        let save: AttemptsSaveState = {
             seed: this.config.legacy_cave_config.seed,
-            shadows: this.crash_shadows
+            shadows: this.crash_shadows,
+            attempts: this.attempts,
+            version: CURRENT_ATTEMPTS_SAVE_STATE_VERSION,
         };
         localStorage.setItem(LOCALSTORAGE_CRASH_KEY, JSON.stringify(save));
     }
@@ -89,12 +95,15 @@ export class FrontendGame {
     private load_crash_shadows() {
         let loaded = localStorage.getItem(LOCALSTORAGE_CRASH_KEY);
         if (loaded) {
-            let parsed: CrashShadowSave = JSON.parse(loaded);
-            if (parsed.seed == this.config.legacy_cave_config.seed) {
-                this.crash_shadows = parsed.shadows;
-            } else {
+            let parsed: AttemptsSaveState = JSON.parse(loaded);
+            if (parsed.version != CURRENT_ATTEMPTS_SAVE_STATE_VERSION // including undefined when key is missing
+                || parsed.seed != this.config.legacy_cave_config.seed
+            ) {
                 // wrong seed (cave expired), clear localstorage, keep empty list
                 localStorage.removeItem(LOCALSTORAGE_CRASH_KEY);
+            } else {
+                this.crash_shadows = parsed.shadows;
+                this.attempts = parsed.attempts;
             }
         }
     }
@@ -126,32 +135,36 @@ export class FrontendGame {
         }
 
         // game tick
-        // somehow tell the UI when game ends!
         if (this.game.state == GameState.INGAME) {
             this.game.tick(dt_s, key_state.up, key_state.left, key_state.right)
             draw_main(this)
         } else {
-            tick.stop()
-            if (this.game.state == GameState.WON) {
-                this.won_callback()
-            } else {
-                // save lost state for shadow
-                this.crash_shadows.push({
-                    x: this.game.ship.x,
-                    y: this.game.ship.y,
-                    angle: this.game.ship.angle,
-                })
-                if (this.persist_crash_shadows) {
-                    this.save_crash_shadows();
-                }
-                this.lost_callback()
-            }
+            tick.stop();
+            // No future tick will be executed, so on_game_end is only run once.
+            this.on_game_end();
         }
 
         // update shadow
-
         if (this.shadow) {
             this.shadow.update(this.game.t);
+        }
+    }
+
+    private on_game_end() {
+        this.attempts++;
+        if (this.game.state == GameState.WON) {
+            this.won_callback()
+        } else {
+            // save lost state for shadow
+            this.crash_shadows.push({
+                x: this.game.ship.x,
+                y: this.game.ship.y,
+                angle: this.game.ship.angle,
+            })
+            this.lost_callback()
+        }
+        if (this.persist_crash_shadows) {
+            this.save_crash_shadows();
         }
     }
 }

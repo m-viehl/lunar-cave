@@ -32,6 +32,9 @@
                 Press <span class="key">space</span> to retry this cave or <span class="key">N</span> for a new cave.
             </p>
             <p v-else>Press <span class="key">space</span> to retry the challenge.</p>
+            <p v-if="attempts">
+                Attempts: {{attempts}}
+            </p>
         </template>
     </div>
 </template>
@@ -42,5 +45,6 @@ import { state } from './state';
 
 defineProps<{
     ui_state: string;
+    attempts: number;
 }>();
 </script>

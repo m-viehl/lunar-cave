@@ -56,7 +56,6 @@ export function draw_main(frontend_game: FrontendGame) {
         (-ship.y) / scale_factor + height / 2,
     );
     context.scale(1 / scale_factor, 1 / scale_factor);
-    // draw cave
     draw_cave(
         cave,
         config,
@@ -136,7 +135,6 @@ function draw_cave(cave: Cave, config: ConfigType, upper_left: Point, lower_righ
     let draw_first = 0
     let draw_last = cave.point_pairs.length - 1
 
-    // now draw a polygon with all those segments.
     context.fillStyle = config.draw_config.cave.foreground;
     context.beginPath();
     let p = cave.point_pairs[draw_first]!

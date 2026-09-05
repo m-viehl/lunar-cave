@@ -13,7 +13,7 @@
       <ChallengeMenu v-if="is_game_ready" v-show="state.mode == 'challenge'" ref="challengeMenu" />
       <p v-else><b>Challenge not available. Try reloading the page.</b></p>
     </div>
-    <Help v-if="is_game_ready" :ui_state="ui_game_state" />
+    <Help v-if="is_game_ready" :ui_state="ui_game_state" :attempts="game.attempts" />
   </div>
   <Timer v-if="ui_game_state != 'init'" :tstart="game_start_t" :running="ui_game_state == 'ingame'" />
 </template>
